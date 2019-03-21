@@ -15,6 +15,10 @@ ColumnLayout {
     signal setStartVideoSignal(string file)
     signal setBeforeCaptureVideoSignal(string file)
 
+    function setTextField1(path) {
+        textField.text = path
+    }
+
     Popup {
         id: filePopup
         anchors.centerIn: parent
@@ -25,8 +29,6 @@ ColumnLayout {
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside | Popup.CloseOnReleaseOutside
         z: 10
 
-        // test
-
         FileBrowser {
             id: startVideoBrowser
             folder: qsTr("file:///c:/Users/Vu/Documents/PixylBooth/Videos")
@@ -35,6 +37,7 @@ ColumnLayout {
                 fileSelected.connect(filePopup.close)
                 browserClosed.connect(filePopup.close)
                 fileSelected.connect(setStartVideoSignal)
+                fileSelected.connect(setTextField1)
             }
         }
 
@@ -56,28 +59,30 @@ ColumnLayout {
         height: 200
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         Material.elevation: 4
-        
+
         ColumnLayout {
             id: columnLayout1
             width: 100
             height: 100
-            
+
             RowLayout {
                 id: rowLayout
                 width: 100
                 height: 100
-                
+
                 Label {
                     id: label
                     text: qsTr("Start Video")
                 }
-                
+
                 TextField {
                     id: textField
-                    text: qsTr("Text Field")
+                    text: qsTr("")
+                    placeholderText: "Choose a start video"
+                    Layout.fillWidth: true
                 }
             }
-            
+
             RowLayout {
                 Button {
                     text: qsTr("Play Start Video")
@@ -85,14 +90,14 @@ ColumnLayout {
                         playStartVideoSignal()
                     }
                 }
-                
+
                 Button {
                     text: qsTr("Play Before Capture Video")
                     onClicked: {
                         playBeforeCaptureVideoSignal()
                     }
                 }
-                
+
                 Button {
                     text: "Choose Start Video"
                     onClicked: {
@@ -100,14 +105,14 @@ ColumnLayout {
                         filePopup.open()
                     }
                 }
-                
+
                 Button {
                     text: "Choose Before Capture Video"
                     onClicked: {
                         beforeCaptureVideoBrowser.show()
                         filePopup.open()
                     }
-                    
+
                 }
             }
         }
