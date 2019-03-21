@@ -24,6 +24,16 @@ Window {
         return percentage * Math.min(root.width, root.height);
     }
 
+    function browseStartVideo() {
+        startVideoBrowser.show()
+        filePopup.open()
+    }
+
+    function browseBeforeCaptureVideo() {
+        beforeCaptureVideoBrowser.show()
+        filePopup.open()
+    }
+
     function playStartVideo() {
         contentLoader.source = "ContentVideo.qml"
         contentLoader.item.mediaSource = startVideoSource
@@ -133,40 +143,6 @@ Window {
                 }
             }
 
-            Row {
-                Button {
-                    text: qsTr("Play Start Video")
-                    onClicked: {
-                        playStartVideo()
-                    }
-                }
-
-                Button {
-                    text: qsTr("Play Before Capture Video")
-                    onClicked: {
-                        playBeforeCaptureVideo()
-                    }
-                }
-
-                Button {
-                    text: "Choose Start Video"
-                    onClicked: {
-                        startVideoBrowser.show()
-                        filePopup.open()
-                    }
-
-                }
-
-                Button {
-                    text: "Choose Before Capture Video"
-                    onClicked: {
-                        beforeCaptureVideoBrowser.show()
-                        filePopup.open()
-                    }
-
-                }
-            }
-
 
         }
         Item {
@@ -195,6 +171,20 @@ Window {
 
         Item {
             id: fourthPage
+
+            Videos {
+                id: videos
+                anchors.fill: parent
+
+                Component.onCompleted: {
+                    browseStartVideo.connect(root.browseStartVideo)
+                    browseBeforeCaptureVideo.connect(root.browseBeforeCaptureVideo)
+                    playStartVideo.connect(root.playStartVideo)
+                    playBeforeCaptureVideo.connect(root.playBeforeCaptureVideo)
+                }
+            }
+
+
         }
     }
 
@@ -252,11 +242,14 @@ Window {
 
         TabButton {
             text: "Videos"
+            width: implicitWidth
         }
 
     }
 
 }
+
+
 
 
 

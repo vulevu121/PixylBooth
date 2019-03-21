@@ -12,5 +12,6 @@
         <file>Countdown.qml</file>
         <file>General.qml</file>
         <file>Colors.qml</file>
+        <file>Videos.qml</file>
     </qresource>
 </RCC>
