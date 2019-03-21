@@ -24,16 +24,6 @@ Window {
         return percentage * Math.min(root.width, root.height);
     }
 
-    function browseStartVideo() {
-        startVideoBrowser.show()
-        filePopup.open()
-    }
-
-    function browseBeforeCaptureVideo() {
-        beforeCaptureVideoBrowser.show()
-        filePopup.open()
-    }
-
     function playStartVideo() {
         contentLoader.source = "ContentVideo.qml"
         contentLoader.item.mediaSource = startVideoSource
@@ -66,41 +56,6 @@ Window {
     property real pixelDensity: Screen.pixelDensity
     Material.theme: Material.Dark
     Material.accent: Material.Blue
-
-    Popup {
-        id: filePopup
-        anchors.centerIn: parent
-        width: root.width
-        height: root.height * 0.5
-        modal: true
-        focus: true
-        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside | Popup.CloseOnReleaseOutside
-        z: 10
-
-        FileBrowser {
-            id: startVideoBrowser
-            folder: qsTr("file:///c:/Users/Vu/Documents/Photobooth/Videos")
-            anchors.fill: parent
-            Component.onCompleted: {
-                fileSelected.connect(filePopup.close)
-                browserClosed.connect(filePopup.close)
-                fileSelected.connect(root.setStartVideoSource)
-            }
-        }
-
-        FileBrowser {
-            id: beforeCaptureVideoBrowser
-            folder: qsTr("file:///c:/Users/Vu/Documents/Photobooth/Videos")
-            anchors.fill: parent
-            Component.onCompleted: {
-                fileSelected.connect(filePopup.close)
-                browserClosed.connect(filePopup.close)
-                fileSelected.connect(root.setBeforeCaptureVideoSource)
-            }
-        }
-    }
-
-
 
     SwipeView {
         id: swipeview
@@ -177,10 +132,10 @@ Window {
                 anchors.fill: parent
 
                 Component.onCompleted: {
-                    browseStartVideo.connect(root.browseStartVideo)
-                    browseBeforeCaptureVideo.connect(root.browseBeforeCaptureVideo)
-                    playStartVideo.connect(root.playStartVideo)
-                    playBeforeCaptureVideo.connect(root.playBeforeCaptureVideo)
+                    setStartVideoSignal.connect(root.setStartVideoSource)
+                    setBeforeCaptureVideoSignal.connect(root.setBeforeCaptureVideoSource)
+                    playStartVideoSignal.connect(root.playStartVideo)
+                    playBeforeCaptureVideoSignal.connect(root.playBeforeCaptureVideo)
                 }
             }
 

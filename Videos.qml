@@ -9,18 +9,53 @@ import Qt.labs.platform 1.1
 import QtQuick.Dialogs 1.3
 
 ColumnLayout {
-    id: columnLayout
-    Material.elevation: 4
-    signal playStartVideo()
-    signal playBeforeCaptureVideo()
-    signal browseStartVideo()
-    signal browseBeforeCaptureVideo()
+    id: root
+    signal playStartVideoSignal()
+    signal playBeforeCaptureVideoSignal()
+    signal setStartVideoSignal(string file)
+    signal setBeforeCaptureVideoSignal(string file)
+
+    Popup {
+        id: filePopup
+        anchors.centerIn: parent
+        width: root.width
+        height: root.height * 0.5
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside | Popup.CloseOnReleaseOutside
+        z: 10
+
+        // test
+
+        FileBrowser {
+            id: startVideoBrowser
+            folder: qsTr("file:///c:/Users/Vu/Documents/PixylBooth/Videos")
+            anchors.fill: parent
+            Component.onCompleted: {
+                fileSelected.connect(filePopup.close)
+                browserClosed.connect(filePopup.close)
+                fileSelected.connect(setStartVideoSignal)
+            }
+        }
+
+        FileBrowser {
+            id: beforeCaptureVideoBrowser
+            folder: qsTr("file:///c:/Users/Vu/Documents/PixylBooth/Videos")
+            anchors.fill: parent
+            Component.onCompleted: {
+                fileSelected.connect(filePopup.close)
+                browserClosed.connect(filePopup.close)
+                fileSelected.connect(setBeforeCaptureVideoSignal)
+            }
+        }
+    }
 
     Pane {
         id: pane
         width: 200
         height: 200
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+        Material.elevation: 4
         
         ColumnLayout {
             id: columnLayout1
@@ -47,28 +82,30 @@ ColumnLayout {
                 Button {
                     text: qsTr("Play Start Video")
                     onClicked: {
-                        playStartVideo()
+                        playStartVideoSignal()
                     }
                 }
                 
                 Button {
                     text: qsTr("Play Before Capture Video")
                     onClicked: {
-                        playBeforeCaptureVideo()
+                        playBeforeCaptureVideoSignal()
                     }
                 }
                 
                 Button {
                     text: "Choose Start Video"
                     onClicked: {
-                        browseStartVideo()
+                        startVideoBrowser.show()
+                        filePopup.open()
                     }
                 }
                 
                 Button {
                     text: "Choose Before Capture Video"
                     onClicked: {
-                        browseBeforeCaptureVideo()
+                        beforeCaptureVideoBrowser.show()
+                        filePopup.open()
                     }
                     
                 }
