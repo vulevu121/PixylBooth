@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>main.cpp</file>
+        <file>CustomButton.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>ContentVideo.qml</file>
+        <file>FileBrowser.qml</file>
+        <file>Images/folder_white_48dp.png</file>
+        <file>Images/back_white_48dp.png</file>
+        <file>Images/file_white_48dp.png</file>
+        <file>Countdown.qml</file>
+        <file>General.qml</file>
+        <file>Colors.qml</file>
+    </qresource>
+</RCC>
