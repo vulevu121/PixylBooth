@@ -14,7 +14,7 @@ ColumnLayout {
     signal fgColorSelected(string color)
 
     Pane {
-        id: colorsPane
+        id: pane
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         Layout.maximumWidth: 600
         Material.elevation: 4
@@ -31,6 +31,65 @@ ColumnLayout {
                 width: 100
                 height: 100
                 
+                
+                RowLayout {
+                    id: rowLayout5
+                    width: 100
+                    height: 100
+                    
+                    Label {
+                        id: element5
+                        height: 48
+                        text: qsTr("Countdown Color")
+                        Layout.minimumWidth: 200
+                        verticalAlignment: Text.AlignVCenter
+                        font.pixelSize: 24
+                    }
+                    
+                    Rectangle {
+                        id: fgColorRectangle
+                        width: 48
+                        height: 48
+                        color: "#ffffff"
+                        radius: 8
+                        border.color: "#555555"
+                        
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                fgColorDialog.color = fgColorRectangle.color
+                                fgColorDialog.open()
+
+                            }
+                            
+                        }
+                        
+                        
+                    }
+                    
+                    ColorDialog {
+                        id: fgColorDialog
+                        title: "Please choose a foreground color"
+                        
+                        onAccepted: {
+                            fgColorRectangle.color = color
+                            fgColorSelected(color)
+                        }
+                    }
+                    
+                    Label {
+                        id: fgColorHex
+                        height: 48
+                        text: fgColorRectangle.color
+                        verticalAlignment: Text.AlignVCenter
+                        font.pixelSize: 24
+                    }
+                    
+                    
+                    
+                    
+                    
+                }
                 RowLayout {
                     id: rowLayout4
                     width: 100
@@ -80,65 +139,6 @@ ColumnLayout {
                         verticalAlignment: Text.AlignVCenter
                         font.pixelSize: 24
                     }
-                }
-                
-                RowLayout {
-                    id: rowLayout5
-                    width: 100
-                    height: 100
-                    
-                    Label {
-                        id: element5
-                        height: 48
-                        text: qsTr("Text Color")
-                        Layout.minimumWidth: 200
-                        verticalAlignment: Text.AlignVCenter
-                        font.pixelSize: 24
-                    }
-                    
-                    Rectangle {
-                        id: fgColorRectangle
-                        width: 48
-                        height: 48
-                        color: "#ffffff"
-                        radius: 8
-                        border.color: "#555555"
-                        
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                fgColorDialog.color = fgColorRectangle.color
-                                fgColorDialog.open()
-
-                            }
-                            
-                        }
-                        
-                        
-                    }
-                    
-                    ColorDialog {
-                        id: fgColorDialog
-                        title: "Please choose a foreground color"
-                        
-                        onAccepted: {
-                            fgColorRectangle.color = color
-                            fgColorSelected(color)
-                        }
-                    }
-                    
-                    Label {
-                        id: fgColorHex
-                        height: 48
-                        text: fgColorRectangle.color
-                        verticalAlignment: Text.AlignVCenter
-                        font.pixelSize: 24
-                    }
-                    
-                    
-                    
-                    
-                    
                 }
             }
             

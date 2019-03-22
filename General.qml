@@ -20,8 +20,17 @@ ColumnLayout {
         GroupBox {
             id: optionsGroupBox
             font.pointSize: 24
-            title: "Options"
+            title: "General"
             anchors.fill: parent
+            
+            topInset: font.pixelSize*1.4
+           
+            background: Rectangle {
+                color: "transparent"
+                border.width: 1
+                border.color: "grey"
+                radius: 10
+            }
             
             ColumnLayout {
                 id: columnLayout
@@ -36,7 +45,7 @@ ColumnLayout {
                     Label {
                         id: element
                         height: 48
-                        text: qsTr("Timer between each photo")
+                        text: qsTr("Time between each photo")
                         Layout.minimumWidth: 300
                         verticalAlignment: Text.AlignVCenter
                         font.pixelSize: 24
@@ -108,6 +117,7 @@ ColumnLayout {
                     TextField {
                         id: directoryField
                         text: qsTr("")
+                        enabled: false
                         font.pointSize: 12
                         Layout.fillWidth: true
                         placeholderText: "Choose a save folder..."
@@ -135,80 +145,6 @@ ColumnLayout {
                     
                     
                     
-                }
-                
-                RowLayout {
-                    id: rowLayout6
-                    width: 100
-                    height: 100
-                    
-                    Switch {
-                        id: element1
-                        text: qsTr("Auto Trigger Camera")
-                        Layout.fillWidth: true
-                    }
-                }
-                
-                RowLayout {
-                    id: rowLayout9
-                    width: 100
-                    height: 100
-                    
-                    Switch {
-                        id: element6
-                        text: qsTr("Live Video During Countdown")
-                    }
-                }
-                
-                RowLayout {
-                    id: rowLayout3
-                    width: 100
-                    height: 100
-                    
-                    Switch {
-                        id: element2
-                        text: qsTr("Show Live Video on Start")
-                        Layout.fillWidth: true
-                    }
-                }
-                
-                RowLayout {
-                    id: rowLayout7
-                    width: 100
-                    height: 100
-                    
-                    Switch {
-                        id: element3
-                        text: qsTr("Mirror Live Video")
-                        Layout.fillWidth: true
-                    }
-                }
-                
-                RowLayout {
-                    id: rowLayout8
-                    width: 100
-                    height: 100
-                    
-                    Dial {
-                        id: dial
-                        value: 0
-                        stepSize: 90
-                        from: 0.0
-                        to: 270
-                        
-                        Label {
-                            text: Math.round(dial.value)
-                            verticalAlignment: Text.AlignVCenter
-                            horizontalAlignment: Text.AlignHCenter
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
-                    }
-                    
-                    Label {
-                        id: label1
-                        text: qsTr("Live Video Rotation")
-                    }
                 }
                 
                 

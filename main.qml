@@ -13,8 +13,12 @@ Window {
     visible: true
     width: 1080
     height: 1920
+//    minimumWidth: 1080
+//    minimumHeight: 1920
+//    maximumWidth: 1080
+//    maximumHeight: 1920
     color: bgColor
-
+    
     property string bgColor: "#222"
     property string fgColor: "#999"
     property string startVideoSource
@@ -54,17 +58,16 @@ Window {
 
     title: qsTr("PixylBooth")
     property real pixelDensity: Screen.pixelDensity
-    Material.theme: Material.Dark
-    Material.accent: Material.Blue
+//    Material.theme: Material.Dark
+//    Material.accent: Material.Blue
 
     SwipeView {
         id: swipeview
         currentIndex: tabBar.currentIndex
         anchors.fill: parent
 
-
         Item {
-            id: firstPage
+            id: capturePage
 
             Loader {
                 id: contentLoader
@@ -101,19 +104,19 @@ Window {
 
         }
         Item {
-            id: secondPage
-
             General {
-                id: general
                 anchors.fill: parent
             }
 
         }
         Item {
-            id: thirdPage
-
+            Camera {
+                anchors.fill: parent
+            }
+        }
+        
+        Item {
             Colors {
-                id: colors
                 anchors.fill: parent
 
                 Component.onCompleted: {
@@ -123,12 +126,10 @@ Window {
 
             }
         }
-
+        
+        
         Item {
-            id: fourthPage
-
             Videos {
-                id: videos
                 anchors.fill: parent
 
                 Component.onCompleted: {
@@ -138,9 +139,8 @@ Window {
                     playBeforeCaptureVideoSignal.connect(root.playBeforeCaptureVideo)
                 }
             }
-
-
         }
+        
     }
 
 
@@ -184,21 +184,30 @@ Window {
             text: "Capture"
             width: implicitWidth
         }
-
+        
+        
         TabButton {
             text: "General"
             width: implicitWidth
         }
-
+        
+        
+        TabButton {
+            text: "Camera"
+            width: implicitWidth
+        }
+        
         TabButton {
             text: "Color"
             width: implicitWidth
         }
-
+        
+        
         TabButton {
             text: "Videos"
             width: implicitWidth
         }
+
 
     }
 

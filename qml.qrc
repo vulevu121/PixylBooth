@@ -13,5 +13,6 @@
         <file>General.qml</file>
         <file>Colors.qml</file>
         <file>Videos.qml</file>
+        <file>Camera.qml</file>
     </qresource>
 </RCC>
