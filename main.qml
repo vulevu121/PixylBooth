@@ -69,6 +69,13 @@ Window {
         Item {
             id: capturePage
 
+            Button {
+                text: "Play"
+                onClicked: {
+                    playStartVideo()
+                }
+            }
+
             Loader {
                 id: contentLoader
                 anchors.fill: parent
@@ -130,7 +137,9 @@ Window {
         
         Item {
             Videos {
+                id: videosPage
                 anchors.fill: parent
+
 
                 Component.onCompleted: {
                     setStartVideoSignal.connect(root.setStartVideoSource)
