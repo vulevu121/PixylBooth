@@ -11,7 +11,7 @@ Text {
     horizontalAlignment: Text.AlignHCenter
     font.pixelSize: textSize
     visible: false
-    opacity: 0.7
+    opacity: 0.0
 
     property real timer: 5
     property real count: 5
@@ -21,15 +21,18 @@ Text {
 
     function start(time) {
         timer = time
+        count = time
         countdownEdit.visible = true
         captureTimer.start()
     }
 
     Behavior on text {
-        SequentialAnimation {
+        ParallelAnimation {
             NumberAnimation { target: countdownEdit; property: "opacity"; from: 0; to: maxOpacity; duration: 400 }
+            NumberAnimation { target: countdownEdit; property: "scale"; from: 0.5; to: 1; duration: 200 }
         }
     }
+    
 
     Timer {
         id: captureTimer
@@ -40,8 +43,8 @@ Text {
         onTriggered: {
             if (countdownEdit.count <= 0) {
                 countdownEdit.count = timer
-                countdownEdit.visible = false
                 captureTimer.stop()
+                countdownEdit.visible = false
             }
             else {
                 countdownEdit.count--
@@ -51,3 +54,14 @@ Text {
 
 }
 
+
+
+
+
+
+
+
+/*##^## Designer {
+    D{i:0;autoSize:true;height:480;width:640}
+}
+ ##^##*/

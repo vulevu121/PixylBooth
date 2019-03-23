@@ -8,6 +8,10 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QGuiApplication app(argc, argv);
+    
+    app.setOrganizationName("PixylBooth");
+    app.setOrganizationDomain("PixylBooth.com");
+    app.setApplicationName("PixylBooth");
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));

@@ -13,20 +13,45 @@ Rectangle {
     id: videoList
     width: 200
     height: 200
-    color: "#000000"
+    color: "#151515"
+    radius: 4
     property alias model: listView.model
     property alias delegate: listView.delegate
     property alias addButton: addButton
     property alias subButton: subButton
+    property alias clearButton: clearButton
     property alias title: label.text
     Layout.minimumHeight: 250
     Layout.fillWidth: true
-
+    
     Rectangle {
         id: topBar
         height: 32
+        radius: 4
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color: "#555"
+            }
+            
+            GradientStop {
+                position: 0.95
+                color: "#333"
+            }
+            
+            GradientStop {
+                position: 0.96
+                color: "#151515"
+            }
+            
+            GradientStop {
+                position: 1
+                color: "#151515"
+            }
+            
+            
+        }
         anchors.top: parent.top
-        color: "#222"
         z: 1
         anchors.right: parent.right
         anchors.left: parent.left
@@ -48,13 +73,34 @@ Rectangle {
         boundsBehavior: Flickable.DragOverBounds
         Layout.fillWidth: true
         spacing: 5
-
+        
     }
-
+    
     Rectangle {
         id: bottomBar
         height: addButton.height
-        color: "#222"
+        radius: 4
+        gradient: Gradient {
+            GradientStop {
+                position: 0
+                color: "#151515"
+            }
+            
+            GradientStop {
+                position: 0.05
+                color: "#151515"
+            }
+            
+            GradientStop {
+                position: 0.051
+                color: "#333"
+            }
+
+            GradientStop {
+                position: 1
+                color: "#151515"
+            }
+        }
         anchors.bottom: parent.bottom
         z: 1
         anchors.right: parent.right
@@ -62,21 +108,57 @@ Rectangle {
 
         RowLayout {
             anchors.fill: parent
+            
+            RowLayout {}
 
             Button {
                 id: addButton
                 text: qsTr("+")
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 font.pointSize: 14
 
             }
             Button {
                 id: subButton
                 text: qsTr("-")
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 font.pointSize: 14
 
             }
-            RowLayout {
+            Button {
+                id: clearButton
+                text: qsTr("Clear")
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                font.pointSize: 14
             }
+            
+            RowLayout {}
+
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*##^## Designer {
+    D{i:0;width:600}
+}
+ ##^##*/

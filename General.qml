@@ -7,9 +7,18 @@ import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1
 import QtQuick.Dialogs 1.3
+import Qt.labs.settings 1.1
 
 ColumnLayout {
-    id: columnLayout1
+    id: root
+    property alias captureTimer: captureTimerSlider.value
+    property alias durationPhoto: displayTimerSlider.value
+    
+    Settings {
+        property alias captureTimer: root.captureTimer
+        property alias durationPhoto: root.durationPhoto
+    }
+    
     Pane {
         id: optionsPane
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter

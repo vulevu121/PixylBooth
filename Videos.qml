@@ -8,21 +8,67 @@ import QtQuick.Layouts 1.3
 //import Qt.labs.platform 1.1
 //import QtQuick.Dialogs 1.3
 import Qt.labs.folderlistmodel 2.0
+import Qt.labs.settings 1.1
 
 ColumnLayout {
     id: root
-    signal playStartVideoSignal
-    signal playBeforeCaptureVideoSignal
-    signal setStartVideoSignal(string file)
-    signal setBeforeCaptureVideoSignal(string file)
-    signal setAfterCaptureVideoSignal(string file)
-
+    
     property alias startVideoListModel: startVideoListModel
     property alias beforeCaptureVideoListModel: beforeCaptureVideoListModel
     property alias afterCaptureVideoListModel: afterCaptureVideoListModel
-
-
-    property string rootFolder: "file:///Users/Vu/Documents/PixylBooth/Videos"
+    
+    //    property string rootFolder: "file:///Users/Vu/Documents/PixylBooth/Videos"
+    property string rootFolder: "file:///home/eelab10/PixylBooth"
+    
+    property string startVideosListModelString: ""
+    property string beforeCaptureVideosListModelString: ""
+    property string afterCaptureVideosListModelString: ""
+    
+   
+    Settings {
+        category: "Videos"
+        property alias startVideos: root.startVideosListModelString
+        property alias beforeCaptureVideos: root.beforeCaptureVideosListModelString
+        property alias afterCaptureVideos: root.afterCaptureVideosListModelString
+    }
+    
+    Component.onCompleted: {
+        var i
+        if (startVideosListModelString) {
+          startVideoListModel.clear()
+          var datamodel = JSON.parse(startVideosListModelString)
+          for (i = 0; i < datamodel.length; ++i) startVideoListModel.append(datamodel[i])
+        }
+        
+        if (beforeCaptureVideosListModelString) {
+          beforeCaptureVideoListModel.clear()
+          var datamodel2 = JSON.parse(beforeCaptureVideosListModelString)
+          for (i = 0; i < datamodel2.length; ++i) beforeCaptureVideoListModel.append(datamodel2[i])
+        }
+        
+        if (afterCaptureVideosListModelString) {
+          afterCaptureVideoListModel.clear()
+          var datamodel3 = JSON.parse(afterCaptureVideosListModelString)
+          for (i = 0; i < datamodel3.length; ++i) afterCaptureVideoListModel.append(datamodel3[i])
+        }
+        
+    }
+    
+    Component.onDestruction: {
+        var datamodel = []
+        var i
+        for (i = 0; i < startVideoListModel.count; ++i) datamodel.push(startVideoListModel.get(i))
+        startVideosListModelString = JSON.stringify(datamodel)
+        
+        var datamodel2 = []
+        for (i = 0; i < beforeCaptureVideoListModel.count; ++i) datamodel2.push(beforeCaptureVideoListModel.get(i))
+        beforeCaptureVideosListModelString = JSON.stringify(datamodel2)
+        
+        var datamodel3 = []
+        for (i = 0; i < afterCaptureVideoListModel.count; ++i) datamodel3.push(afterCaptureVideoListModel.get(i))
+        afterCaptureVideosListModelString = JSON.stringify(datamodel3)
+    }
+    
 
     function addStartVideo(path) {
         var pathSplit = ""
@@ -30,8 +76,8 @@ ColumnLayout {
         var fileName = pathSplit[pathSplit.length - 1]
 
         startVideoListModel.append({ "fileName": fileName, "filePath": path })
+        createStartVideosListModelString()
 
-//        setStartVideoSignal(path)
     }
 
     function addBeforeCaptureVideo(path) {
@@ -101,7 +147,6 @@ ColumnLayout {
             Component.onCompleted: {
                 fileSelected.connect(filePopup.close)
                 browserClosed.connect(filePopup.close)
-                fileSelected.connect(setStartVideoSignal)
                 fileSelected.connect(addStartVideo)
             }
         }
@@ -113,7 +158,6 @@ ColumnLayout {
             Component.onCompleted: {
                 fileSelected.connect(filePopup.close)
                 browserClosed.connect(filePopup.close)
-                fileSelected.connect(setBeforeCaptureVideoSignal)
                 fileSelected.connect(addBeforeCaptureVideo)
             }
         }
@@ -125,7 +169,6 @@ ColumnLayout {
             Component.onCompleted: {
                 fileSelected.connect(filePopup.close)
                 browserClosed.connect(filePopup.close)
-                fileSelected.connect(setAfterCaptureVideoSignal)
                 fileSelected.connect(addAfterCaptureVideo)
             }
         }
@@ -133,38 +176,27 @@ ColumnLayout {
 
     Pane {
         id: pane
-        width: 200
-        height: 200
+        Layout.minimumWidth: 600
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         Material.elevation: 4
 
         ColumnLayout {
             id: columnLayout1
-            width: 100
-            height: 100
-
+            anchors.fill: parent
+            
             RowLayout {
                 Button {
-                    text: qsTr("Start Video")
+                    text: "Test"
                     onClicked: {
-                        playStartVideoSignal()
+                        toListString()
                     }
-                }
-
-                Button {
-                    text: qsTr("Before Capture Video")
-                    onClicked: {
-                        playBeforeCaptureVideoSignal()
-                    }
-                }
-
-                Button {
-                    text: qsTr("After Capture Video")
                 }
             }
+            
 
             VideoList {
                 id: startVideoList
+                Layout.fillWidth: true
                 title: "Start Videos"
                 delegate: fileDelegate
                 model: startVideoListModel
@@ -173,11 +205,15 @@ ColumnLayout {
                     startVideoBrowser.show()
                     filePopup.open()
                 }
+                clearButton.onClicked: {
+                    startVideoListModel.clear()
+                }
 
             }
 
             VideoList {
                 id: beforeCaptureVideoList
+                Layout.fillWidth: true
                 title: "Before Capture Videos"
                 delegate: fileDelegate
                 model: beforeCaptureVideoListModel
@@ -186,10 +222,14 @@ ColumnLayout {
                     beforeCaptureVideoBrowser.show()
                     filePopup.open()
                 }
+                clearButton.onClicked: {
+                    beforeCaptureVideoListModel.clear()
+                }
             }
 
             VideoList {
                 id: afterCaptureVideoCaptureList
+                Layout.fillWidth: true
                 title: "After Capture Videos"
                 delegate: fileDelegate
                 model: afterCaptureVideoListModel
@@ -198,7 +238,12 @@ ColumnLayout {
                     afterCaptureVideoBrowser.show()
                     filePopup.open()
                 }
+                clearButton.onClicked: {
+                    afterCaptureVideoListModel.clear()
+                }
+                
             }
+            RowLayout {  }
 
         }
     }

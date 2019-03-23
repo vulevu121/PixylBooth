@@ -7,11 +7,18 @@ import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1
 import QtQuick.Dialogs 1.3
+import Qt.labs.settings 1.1
 
 ColumnLayout {
     id: root
     signal bgColorSelected(string color)
-    signal fgColorSelected(string color)
+    signal countDownColorSelected(string color)
+    
+    Settings {
+        category: "Color"
+        property alias backgroundColor: bgColorRectangle.color
+        property alias countDownColor: countDownColorRectangle.color
+    }
 
     Pane {
         id: pane
@@ -47,7 +54,7 @@ ColumnLayout {
                     }
                     
                     Rectangle {
-                        id: fgColorRectangle
+                        id: countDownColorRectangle
                         width: 48
                         height: 48
                         color: "#ffffff"
@@ -57,8 +64,8 @@ ColumnLayout {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                                fgColorDialog.color = fgColorRectangle.color
-                                fgColorDialog.open()
+                                countDownColorDialog.color = countDownColorRectangle.color
+                                countDownColorDialog.open()
 
                             }
                             
@@ -68,26 +75,22 @@ ColumnLayout {
                     }
                     
                     ColorDialog {
-                        id: fgColorDialog
-                        title: "Please choose a foreground color"
+                        id: countDownColorDialog
+                        title: "Please choose a countdown color"
                         
                         onAccepted: {
-                            fgColorRectangle.color = color
-                            fgColorSelected(color)
+                            countDownColorRectangle.color = color
+                            countDownColorSelected(color)
                         }
                     }
                     
                     Label {
-                        id: fgColorHex
+                        id: countDownColorHex
                         height: 48
-                        text: fgColorRectangle.color
+                        text: countDownColorRectangle.color
                         verticalAlignment: Text.AlignVCenter
                         font.pixelSize: 24
                     }
-                    
-                    
-                    
-                    
                     
                 }
                 RowLayout {

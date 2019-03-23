@@ -7,10 +7,13 @@ import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1
 import QtQuick.Dialogs 1.3
+import Qt.labs.settings 1.1
 
 Window {
     id: root
     visible: true
+    x: 0
+    y: 0
     width: 1080
     height: 1920
 //    minimumWidth: 1080
@@ -18,48 +21,61 @@ Window {
 //    maximumWidth: 1080
 //    maximumHeight: 1920
     color: bgColor
+    title: qsTr("PixylBooth")
     
+    property real pixelDensity: Screen.pixelDensity
     property string bgColor: "#222"
-    property string fgColor: "#999"
-    property string startVideoSource
-    property string beforeCaptureVideoSource
+    property string countDownColor: "#fff"
+    
+    Settings {
+        property alias x: root.x
+        property alias y: root.y
+    }
+    
+    Settings {
+        category: "Color"
+        property alias backgroundColor: root.bgColor
+        property alias countDownColor: root.countDownColor
+    }
 
     function toPixels(percentage) {
         return percentage * Math.min(root.width, root.height);
     }
 
-    function playStartVideo() {
+    function playVideo(path) {
         contentLoader.source = "ContentVideo.qml"
-        contentLoader.item.mediaSource = startVideoSource
+        contentLoader.item.mediaSource = path
         contentLoader.item.play()
     }
+    
+    
+//    function playStartVideo(path) {
+//        contentLoader.source = "ContentVideo.qml"
+//        contentLoader.item.mediaSource = path
+//        contentLoader.item.play()
+//    }
 
-    function playBeforeCaptureVideo() {
-        contentLoader.source = "ContentVideo.qml"
-        contentLoader.item.mediaSource = beforeCaptureVideoSource
-        contentLoader.item.play()
-    }
+//    function playBeforeCaptureVideo() {
+//        contentLoader.source = "ContentVideo.qml"
+//        contentLoader.item.mediaSource = beforeCaptureVideoSource
+//        contentLoader.item.play()
+//    }
 
-    function setStartVideoSource(path) {
-        startVideoSource = path
-    }
+//    function setStartVideoSource(path) {
+//        startVideoSource = path
+//    }
 
-    function setBeforeCaptureVideoSource(path) {
-        beforeCaptureVideoSource = path
-    }
+//    function setBeforeCaptureVideoSource(path) {
+//        beforeCaptureVideoSource = path
+//    }
 
-    function setFgColor(color) {
-        fgColor = color
+    function setcountDownColor(color) {
+        countDownColor = color
     }
 
     function setBgColor(color) {
         bgColor = color
     }
-
-    title: qsTr("PixylBooth")
-    property real pixelDensity: Screen.pixelDensity
-//    Material.theme: Material.Dark
-//    Material.accent: Material.Blue
 
     SwipeView {
         id: swipeview
@@ -68,22 +84,156 @@ Window {
 
         Item {
             id: capturePage
-
-            Button {
-                text: "Play"
-                onClicked: {
-                    playStartVideo()
+            
+            ColumnLayout {
+                Button {
+                    text: "Play"
+                    onClicked: {
+                        var model = videosPage.startVideoListModel
+                        var randomIdx = Math.round(Math.random(1) * (model.count-1))
+                        var randomItem = model.get(randomIdx)
+                        playVideo(randomItem.filePath)
+                    }
+                }
+                
+                Button {
+                    text: "Start"
+                    
+                    onClicked: {
+                        capturePage.state = ""
+                        var model = videosPage.startVideoListModel
+                        var randomIdx = Math.round(Math.random(1) * (model.count-1))
+                        var randomItem = model.get(randomIdx)
+                        playVideo(randomItem.filePath)
+                    }
+                }
+                
+                Button {
+                    text: "BeforeCapture"
+                    
+                    onClicked: {
+                        capturePage.state = "beforecapture"
+                        var model = videosPage.beforeCaptureVideoListModel
+                        var randomIdx = Math.round(Math.random(1) * (model.count-1))
+                        var randomItem = model.get(randomIdx)
+                        playVideo(randomItem.filePath)
+                    }
+                }
+                
+                Button {
+                    text: "Countdown"
+                    
+                    onClicked: {
+                        capturePage.state = "countdown"
+                        countdownTimer.start(generalView.captureTimer)
+                    }
+                }
+                
+                Button {
+                    text: "Capture"
+                    
+                    onClicked: {
+                        capturePage.state = "capture"
+                    }
                 }
             }
+            
 
+            states: [
+                State {
+                    name: "start"
+                    PropertyChanges {
+                        target: captureFrame
+                        opacity: 0
+                    }  
+                    PropertyChanges {
+                        target: contentLoader
+                        opacity: 1
+                    }                  
+                    PropertyChanges {
+                        target: countdownTimer
+                        opacity: 0
+                    }
+                },
+                
+                State {
+                    name: "beforecapture"
+                    PropertyChanges {
+                        target: captureFrame
+                        opacity: 0
+                    }  
+                    PropertyChanges {
+                        target: contentLoader
+                        opacity: 1
+                    }                  
+                    PropertyChanges {
+                        target: countdownTimer
+                        opacity: 0
+                    }
+                },
+                
+                State {
+                    name: "countdown"
+                    PropertyChanges {
+                        target: captureFrame
+                        opacity: 1
+                    }  
+                    PropertyChanges {
+                        target: contentLoader
+                        opacity: 0
+                    }                  
+                    PropertyChanges {
+                        target: countdownTimer
+                        opacity: 1
+                    }
+                },
+                
+                State {
+                    name: "capture"
+                    PropertyChanges {
+                        target: captureFrame
+                        opacity: 1
+                    }                  
+                    PropertyChanges {
+                        target: contentLoader
+                        opacity: 0
+                    }
+                    PropertyChanges {
+                        target: countdownTimer
+                        opacity: 0
+                    }
+                    
+                }
+            ]
+            
+            transitions: Transition {
+                NumberAnimation {
+                    properties: "opacity"
+                    duration: 200
+                }
+            }
+            
+            
+            Rectangle {
+                id: captureFrame
+                width: 640
+                height: 480
+                color: "black"
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                opacity: 0
+            }
+            
             Loader {
                 id: contentLoader
                 anchors.fill: parent
+                opacity: 1
             }
 
             Countdown {
                 id: countdownTimer
-                textColor: fgColor
+                textColor: root.countDownColor
+                opacity: 0
             }
 
 
@@ -99,19 +249,21 @@ Window {
 
                 MouseArea {
                     anchors.fill: parent
-
+                    
                     onClicked: {
                         countdownTimer.start(5)
                     }
-
-
+                    
+                    
                 }
             }
+            
 
 
         }
         Item {
             General {
+                id: generalView
                 anchors.fill: parent
             }
 
@@ -127,7 +279,7 @@ Window {
                 anchors.fill: parent
 
                 Component.onCompleted: {
-                    fgColorSelected.connect(root.setFgColor)
+                    countDownColorSelected.connect(root.setcountDownColor)
                     bgColorSelected.connect(root.setBgColor)
                 }
 
@@ -141,12 +293,12 @@ Window {
                 anchors.fill: parent
 
 
-                Component.onCompleted: {
-                    setStartVideoSignal.connect(root.setStartVideoSource)
-                    setBeforeCaptureVideoSignal.connect(root.setBeforeCaptureVideoSource)
-                    playStartVideoSignal.connect(root.playStartVideo)
-                    playBeforeCaptureVideoSignal.connect(root.playBeforeCaptureVideo)
-                }
+//                Component.onCompleted: {
+//                    setStartVideoSignal.connect(root.setStartVideoSource)
+//                    setBeforeCaptureVideoSignal.connect(root.setBeforeCaptureVideoSource)
+//                    playStartVideoSignal.connect(root.playStartVideo)
+//                    playBeforeCaptureVideoSignal.connect(root.playBeforeCaptureVideo)
+//                }
             }
         }
         
@@ -188,6 +340,7 @@ Window {
         anchors.topMargin: 0
         anchors.horizontalCenter: parent.horizontalCenter
         currentIndex: swipeview.currentIndex
+        Material.elevation: 1
 
         TabButton {
             text: "Capture"
