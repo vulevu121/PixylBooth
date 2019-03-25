@@ -51,9 +51,6 @@ Window {
 
     }
 
-    function stopVideo() {
-        contentLoader.item.stop()
-    }
 
     function setcountDownColor(color) {
         countDownColor = color
@@ -99,6 +96,14 @@ Window {
 
                     onClicked: {
                         capturePage.state = "capture"
+                    }
+                }
+
+                Button {
+                    text: "Stop Video"
+
+                    onClicked: {
+                        contentLoader.item.stop()
                     }
                 }
             }
@@ -172,7 +177,7 @@ Window {
                         script: {
                             capturePage.state = "countdown"
                             countdownTimer.start(generalView.captureTimer)
-                            stopVideo()
+                            contentLoader.item.stop()
                         }
                     }
                 },
