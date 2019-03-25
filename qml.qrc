@@ -10,10 +10,13 @@
         <file>Images/back_white_48dp.png</file>
         <file>Images/file_white_48dp.png</file>
         <file>Countdown.qml</file>
-        <file>General.qml</file>
-        <file>Colors.qml</file>
-        <file>Videos.qml</file>
-        <file>Camera.qml</file>
+        <file>SettingGeneral.qml</file>
+        <file>SettingColor.qml</file>
+        <file>SettingVideo.qml</file>
+        <file>SettingCamera.qml</file>
         <file>VideoList.qml</file>
+        <file>CustomPane.qml</file>
+        <file>CaptureFrame.qml</file>
+        <file>CustomLabel.qml</file>
     </qresource>
 </RCC>

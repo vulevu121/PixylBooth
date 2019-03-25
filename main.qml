@@ -8,6 +8,8 @@ import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1
 import QtQuick.Dialogs 1.3
 import Qt.labs.settings 1.1
+//import QtGraphicalEffects 1.12
+import QtMultimedia 5.4
 
 Window {
     id: root
@@ -16,22 +18,22 @@ Window {
     y: 0
     width: 1080
     height: 1920
-//    minimumWidth: 1080
-//    minimumHeight: 1920
-//    maximumWidth: 1080
-//    maximumHeight: 1920
+    //    minimumWidth: 1080
+    //    minimumHeight: 1920
+    //    maximumWidth: 1080
+    //    maximumHeight: 1920
     color: bgColor
     title: qsTr("PixylBooth")
-    
+
     property real pixelDensity: Screen.pixelDensity
     property string bgColor: "#222"
     property string countDownColor: "#fff"
-    
+
     Settings {
         property alias x: root.x
         property alias y: root.y
     }
-    
+
     Settings {
         category: "Color"
         property alias backgroundColor: root.bgColor
@@ -46,28 +48,12 @@ Window {
         contentLoader.source = "ContentVideo.qml"
         contentLoader.item.mediaSource = path
         contentLoader.item.play()
+
     }
-    
-    
-//    function playStartVideo(path) {
-//        contentLoader.source = "ContentVideo.qml"
-//        contentLoader.item.mediaSource = path
-//        contentLoader.item.play()
-//    }
 
-//    function playBeforeCaptureVideo() {
-//        contentLoader.source = "ContentVideo.qml"
-//        contentLoader.item.mediaSource = beforeCaptureVideoSource
-//        contentLoader.item.play()
-//    }
-
-//    function setStartVideoSource(path) {
-//        startVideoSource = path
-//    }
-
-//    function setBeforeCaptureVideoSource(path) {
-//        beforeCaptureVideoSource = path
-//    }
+    function stopVideo() {
+        contentLoader.item.stop()
+    }
 
     function setcountDownColor(color) {
         countDownColor = color
@@ -84,60 +70,39 @@ Window {
 
         Item {
             id: capturePage
-            
+
             ColumnLayout {
                 Button {
-                    text: "Play"
-                    onClicked: {
-                        var model = videosPage.startVideoListModel
-                        var randomIdx = Math.round(Math.random(1) * (model.count-1))
-                        var randomItem = model.get(randomIdx)
-                        playVideo(randomItem.filePath)
-                    }
-                }
-                
-                Button {
                     text: "Start"
-                    
                     onClicked: {
-                        capturePage.state = ""
-                        var model = videosPage.startVideoListModel
-                        var randomIdx = Math.round(Math.random(1) * (model.count-1))
-                        var randomItem = model.get(randomIdx)
-                        playVideo(randomItem.filePath)
+                        capturePage.state = "start"
                     }
                 }
-                
+
                 Button {
                     text: "BeforeCapture"
-                    
                     onClicked: {
                         capturePage.state = "beforecapture"
-                        var model = videosPage.beforeCaptureVideoListModel
-                        var randomIdx = Math.round(Math.random(1) * (model.count-1))
-                        var randomItem = model.get(randomIdx)
-                        playVideo(randomItem.filePath)
                     }
                 }
-                
+
                 Button {
                     text: "Countdown"
-                    
+
                     onClicked: {
                         capturePage.state = "countdown"
-                        countdownTimer.start(generalView.captureTimer)
                     }
                 }
-                
+
                 Button {
                     text: "Capture"
-                    
+
                     onClicked: {
                         capturePage.state = "capture"
                     }
                 }
             }
-            
+
 
             states: [
                 State {
@@ -145,55 +110,79 @@ Window {
                     PropertyChanges {
                         target: captureFrame
                         opacity: 0
-                    }  
+                    }
                     PropertyChanges {
                         target: contentLoader
                         opacity: 1
-                    }                  
+                    }
                     PropertyChanges {
                         target: countdownTimer
                         opacity: 0
                     }
+                    StateChangeScript {
+                        script: {
+                            var model = videosPage.startVideoListModel
+                            var randomIdx = Math.round(Math.random(1) * (model.count-1))
+                            var randomItem = model.get(randomIdx)
+                            playVideo(randomItem.filePath)
+                        }
+                    }
                 },
-                
+
                 State {
                     name: "beforecapture"
                     PropertyChanges {
                         target: captureFrame
                         opacity: 0
-                    }  
+                    }
                     PropertyChanges {
                         target: contentLoader
                         opacity: 1
-                    }                  
+                    }
                     PropertyChanges {
                         target: countdownTimer
                         opacity: 0
                     }
+                    StateChangeScript {
+                        script: {
+                            capturePage.state = "beforecapture"
+                            var model = videosPage.beforeCaptureVideoListModel
+                            var randomIdx = Math.round(Math.random(1) * (model.count-1))
+                            var randomItem = model.get(randomIdx)
+                            playVideo(randomItem.filePath)
+                        }
+                    }
                 },
-                
+
                 State {
                     name: "countdown"
                     PropertyChanges {
                         target: captureFrame
                         opacity: 1
-                    }  
+                    }
                     PropertyChanges {
                         target: contentLoader
                         opacity: 0
-                    }                  
+                    }
                     PropertyChanges {
                         target: countdownTimer
                         opacity: 1
                     }
+                    StateChangeScript {
+                        script: {
+                            capturePage.state = "countdown"
+                            countdownTimer.start(generalView.captureTimer)
+                            stopVideo()
+                        }
+                    }
                 },
-                
+
                 State {
                     name: "capture"
                     PropertyChanges {
                         target: captureFrame
                         opacity: 1
-                    }                  
+                    }
                     PropertyChanges {
                         target: contentLoader
                         opacity: 0
@@ -202,28 +191,37 @@ Window {
                         target: countdownTimer
                         opacity: 0
                     }
-                    
+
                 }
             ]
-            
+
             transitions: Transition {
                 NumberAnimation {
                     properties: "opacity"
                     duration: 200
                 }
             }
-            
-            
-            Rectangle {
+
+            CaptureFrame {
                 id: captureFrame
                 width: 640
                 height: 480
-                color: "black"
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.horizontalCenter: parent.horizontalCenter
                 opacity: 0
             }
-            
+
+
+//            Rectangle {
+//                id: captureFrame
+//                width: 640
+//                height: 480
+//                color: "black"
+//                anchors.verticalCenter: parent.verticalCenter
+//                anchors.horizontalCenter: parent.horizontalCenter
+//                opacity: 0
+//            }
+
             Loader {
                 id: contentLoader
                 anchors.fill: parent
@@ -249,59 +247,58 @@ Window {
 
                 MouseArea {
                     anchors.fill: parent
-                    
+
                     onClicked: {
-                        countdownTimer.start(5)
+                        countdownTimer.start(generalView.captureTimer)
                     }
-                    
-                    
                 }
             }
-            
+
 
 
         }
         Item {
-            General {
+            SettingGeneral {
                 id: generalView
                 anchors.fill: parent
             }
 
         }
         Item {
-            Camera {
+            SettingCamera {
+                id: cameraView
                 anchors.fill: parent
             }
         }
-        
+
         Item {
-            Colors {
+            SettingColor {
+                id: colorsView
                 anchors.fill: parent
 
                 Component.onCompleted: {
                     countDownColorSelected.connect(root.setcountDownColor)
                     bgColorSelected.connect(root.setBgColor)
                 }
-
             }
         }
-        
-        
+
+
         Item {
-            Videos {
+            SettingVideo {
                 id: videosPage
                 anchors.fill: parent
 
 
-//                Component.onCompleted: {
-//                    setStartVideoSignal.connect(root.setStartVideoSource)
-//                    setBeforeCaptureVideoSignal.connect(root.setBeforeCaptureVideoSource)
-//                    playStartVideoSignal.connect(root.playStartVideo)
-//                    playBeforeCaptureVideoSignal.connect(root.playBeforeCaptureVideo)
-//                }
+                //                Component.onCompleted: {
+                //                    setStartVideoSignal.connect(root.setStartVideoSource)
+                //                    setBeforeCaptureVideoSignal.connect(root.setBeforeCaptureVideoSource)
+                //                    playStartVideoSignal.connect(root.playStartVideo)
+                //                    playBeforeCaptureVideoSignal.connect(root.playBeforeCaptureVideo)
+                //                }
             }
         }
-        
+
     }
 
 
@@ -336,8 +333,8 @@ Window {
 
     TabBar {
         id: tabBar
+        x: 864
         anchors.top: parent.top
-        anchors.topMargin: 0
         anchors.horizontalCenter: parent.horizontalCenter
         currentIndex: swipeview.currentIndex
         Material.elevation: 1
@@ -346,25 +343,25 @@ Window {
             text: "Capture"
             width: implicitWidth
         }
-        
-        
+
+
         TabButton {
             text: "General"
             width: implicitWidth
         }
-        
-        
+
+
         TabButton {
             text: "Camera"
             width: implicitWidth
         }
-        
+
         TabButton {
             text: "Color"
             width: implicitWidth
         }
-        
-        
+
+
         TabButton {
             text: "Videos"
             width: implicitWidth

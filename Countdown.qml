@@ -4,18 +4,17 @@ Text {
     id: countdownEdit
     color: textColor
     text: count
-    font.family: "Tahoma"
+    font.family: "Arial"
     anchors.horizontalCenter: parent.horizontalCenter
     anchors.verticalCenter: parent.verticalCenter
     verticalAlignment: Text.AlignVCenter
     horizontalAlignment: Text.AlignHCenter
-    font.pixelSize: textSize
     visible: false
     opacity: 0.0
 
     property real timer: 5
     property real count: 5
-    property real maxOpacity: 0.7
+    property real maxOpacity: 1
     property real textSize: 400
     property string textColor: "#ffffff"
 
@@ -29,10 +28,11 @@ Text {
     Behavior on text {
         ParallelAnimation {
             NumberAnimation { target: countdownEdit; property: "opacity"; from: 0; to: maxOpacity; duration: 400 }
-            NumberAnimation { target: countdownEdit; property: "scale"; from: 0.5; to: 1; duration: 200 }
+            NumberAnimation { target: countdownEdit; property: "scale"; from: 0; to: 1; duration: 200 }
         }
     }
-    
+    font.pointSize: 300
+
 
     Timer {
         id: captureTimer
@@ -53,6 +53,10 @@ Text {
     }
 
 }
+
+
+
+
 
 
 

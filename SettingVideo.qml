@@ -12,26 +12,27 @@ import Qt.labs.settings 1.1
 
 ColumnLayout {
     id: root
-    
+
     property alias startVideoListModel: startVideoListModel
     property alias beforeCaptureVideoListModel: beforeCaptureVideoListModel
     property alias afterCaptureVideoListModel: afterCaptureVideoListModel
-    
-    //    property string rootFolder: "file:///Users/Vu/Documents/PixylBooth/Videos"
-    property string rootFolder: "file:///home/eelab10/PixylBooth"
-    
+
+    //    property string lastFolder: "file:///Users/Vu/Documents/PixylBooth/Videos"
+    property string lastFolder: "file:///"
+
     property string startVideosListModelString: ""
     property string beforeCaptureVideosListModelString: ""
     property string afterCaptureVideosListModelString: ""
-    
-   
+
+
     Settings {
         category: "Videos"
         property alias startVideos: root.startVideosListModelString
         property alias beforeCaptureVideos: root.beforeCaptureVideosListModelString
         property alias afterCaptureVideos: root.afterCaptureVideosListModelString
+        property alias lastFolder: root.lastFolder
     }
-    
+
     Component.onCompleted: {
         var i
         if (startVideosListModelString) {
@@ -39,36 +40,40 @@ ColumnLayout {
           var datamodel = JSON.parse(startVideosListModelString)
           for (i = 0; i < datamodel.length; ++i) startVideoListModel.append(datamodel[i])
         }
-        
+
         if (beforeCaptureVideosListModelString) {
           beforeCaptureVideoListModel.clear()
           var datamodel2 = JSON.parse(beforeCaptureVideosListModelString)
           for (i = 0; i < datamodel2.length; ++i) beforeCaptureVideoListModel.append(datamodel2[i])
         }
-        
+
         if (afterCaptureVideosListModelString) {
           afterCaptureVideoListModel.clear()
           var datamodel3 = JSON.parse(afterCaptureVideosListModelString)
           for (i = 0; i < datamodel3.length; ++i) afterCaptureVideoListModel.append(datamodel3[i])
         }
-        
+
     }
-    
+
     Component.onDestruction: {
         var datamodel = []
         var i
         for (i = 0; i < startVideoListModel.count; ++i) datamodel.push(startVideoListModel.get(i))
         startVideosListModelString = JSON.stringify(datamodel)
-        
+
         var datamodel2 = []
         for (i = 0; i < beforeCaptureVideoListModel.count; ++i) datamodel2.push(beforeCaptureVideoListModel.get(i))
         beforeCaptureVideosListModelString = JSON.stringify(datamodel2)
-        
+
         var datamodel3 = []
         for (i = 0; i < afterCaptureVideoListModel.count; ++i) datamodel3.push(afterCaptureVideoListModel.get(i))
         afterCaptureVideosListModelString = JSON.stringify(datamodel3)
     }
-    
+
+    function setLastFolder(folder) {
+        lastFolder = folder
+    }
+
 
     function addStartVideo(path) {
         var pathSplit = ""
@@ -127,6 +132,13 @@ ColumnLayout {
                 font.bold: true
                 color: "white"
             }
+
+            Rectangle {
+                id: wrapper
+                width: 200
+                height: 48
+                visible: false
+            }
         }
     }
 
@@ -142,7 +154,7 @@ ColumnLayout {
 
         FileBrowser {
             id: startVideoBrowser
-            folder: rootFolder
+            folder: lastFolder
             anchors.fill: parent
             Component.onCompleted: {
                 fileSelected.connect(filePopup.close)
@@ -153,7 +165,7 @@ ColumnLayout {
 
         FileBrowser {
             id: beforeCaptureVideoBrowser
-            folder: rootFolder
+            folder: lastFolder
             anchors.fill: parent
             Component.onCompleted: {
                 fileSelected.connect(filePopup.close)
@@ -164,7 +176,7 @@ ColumnLayout {
 
         FileBrowser {
             id: afterCaptureVideoBrowser
-            folder: rootFolder
+            folder: lastFolder
             anchors.fill: parent
             Component.onCompleted: {
                 fileSelected.connect(filePopup.close)
@@ -178,21 +190,14 @@ ColumnLayout {
         id: pane
         Layout.minimumWidth: 600
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-        Material.elevation: 4
+        background: Rectangle {
+            color: "transparent"
+        }
 
         ColumnLayout {
             id: columnLayout1
             anchors.fill: parent
-            
-            RowLayout {
-                Button {
-                    text: "Test"
-                    onClicked: {
-                        toListString()
-                    }
-                }
-            }
-            
+
 
             VideoList {
                 id: startVideoList
@@ -241,7 +246,7 @@ ColumnLayout {
                 clearButton.onClicked: {
                     afterCaptureVideoListModel.clear()
                 }
-                
+
             }
             RowLayout {  }
 

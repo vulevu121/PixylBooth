@@ -73,6 +73,15 @@ Rectangle {
         boundsBehavior: Flickable.DragOverBounds
         Layout.fillWidth: true
         spacing: 5
+
+        highlight: Rectangle {
+            color: "grey"
+            radius: 2
+            visible: videoList.showFocusHighlight && listView.count !== 0
+        }
+        highlightMoveVelocity: 1000
+        pressDelay: 100
+        focus: true
         
     }
     
