@@ -17,8 +17,8 @@ ColumnLayout {
     property alias beforeCaptureVideoListModel: beforeCaptureVideoListModel
     property alias afterCaptureVideoListModel: afterCaptureVideoListModel
 
-    //    property string lastFolder: "file:///Users/Vu/Documents/PixylBooth/Videos"
-    property string lastFolder: "file:///"
+    property string lastFolder: "file:///Users/Vu/Documents/PixylBooth/Videos"
+//    property string lastFolder: "file:///"
 
     property string startVideosListModelString: ""
     property string beforeCaptureVideosListModelString: ""
@@ -114,33 +114,7 @@ ColumnLayout {
         id: afterCaptureVideoListModel
     }
 
-    Component {
-        id: fileDelegate
-        Row {
-            spacing: 5
-
-            Image {
-                id: folderPicture
-                source: "qrc:/Images/file_white_48dp.png"
-                width: 32
-                height: 32
-            }
-
-            Text {
-                text: fileName
-                anchors.verticalCenter: parent.verticalCenter
-                font.bold: true
-                color: "white"
-            }
-
-            Rectangle {
-                id: wrapper
-                width: 200
-                height: 48
-                visible: false
-            }
-        }
-    }
+    
 
     Popup {
         id: filePopup
@@ -197,13 +171,19 @@ ColumnLayout {
         ColumnLayout {
             id: columnLayout1
             anchors.fill: parent
-
+            
+            Button {
+                text: "test"
+                onClicked: {
+                    startVideoListModel.remove(0)
+                }
+            }
 
             VideoList {
                 id: startVideoList
                 Layout.fillWidth: true
                 title: "Start Videos"
-                delegate: fileDelegate
+//                delegate: fileDelegate
                 model: startVideoListModel
 
                 addButton.onClicked: {
@@ -220,7 +200,7 @@ ColumnLayout {
                 id: beforeCaptureVideoList
                 Layout.fillWidth: true
                 title: "Before Capture Videos"
-                delegate: fileDelegate
+//                delegate: fileDelegate
                 model: beforeCaptureVideoListModel
 
                 addButton.onClicked: {
@@ -236,7 +216,7 @@ ColumnLayout {
                 id: afterCaptureVideoCaptureList
                 Layout.fillWidth: true
                 title: "After Capture Videos"
-                delegate: fileDelegate
+//                delegate: fileDelegate
                 model: afterCaptureVideoListModel
 
                 addButton.onClicked: {

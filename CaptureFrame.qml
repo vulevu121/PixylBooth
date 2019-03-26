@@ -10,49 +10,61 @@ import QtQuick 2.0
 //import Qt.labs.settings 1.1
 //import QtGraphicalEffects 1.12
 import QtMultimedia 5.4
+import QtWebView 1.1
 
 Rectangle {
     id: captureFrame
     color: "black"
 //    width: 640
 //    height: 480
-
-    Camera {
-        id: camera
-
-        //                    imageProcessing.whiteBalanceMode: CameraImageProcessing.WhiteBalanceFlash
-
-        //                    exposure {
-        //                        exposureCompensation: -1.0
-        //                        exposureMode: Camera.ExposurePortrait
-        //                    }
-
-        //                    flash.mode: Camera.FlashRedEyeReduction
-
-        imageCapture {
-            onImageCaptured: {
-                photoPreview.source = preview  // Show the preview in an Image
-
-            }
-        }
-
-        videoRecorder {
-            resolution: "1280x720"
-            frameRate: 30
-
-        }
-    }
-
-    VideoOutput {
-        id: cameraOutput
-        source: camera
+    
+    
+    WebView {
+        id: webView
         anchors.fill: parent
-        focus : visible // to receive focus and capture key events when visible
+        url: "http://127.0.0.1:5000"
+        onLoadingChanged: {
+            if (loadRequest.errorString)
+                console.error(loadRequest.errorString);
+        }
     }
 
-    Image {
-        id: photoPreview
-    }
+//    Camera {
+//        id: camera
+
+//        //                    imageProcessing.whiteBalanceMode: CameraImageProcessing.WhiteBalanceFlash
+
+//        //                    exposure {
+//        //                        exposureCompensation: -1.0
+//        //                        exposureMode: Camera.ExposurePortrait
+//        //                    }
+
+//        //                    flash.mode: Camera.FlashRedEyeReduction
+
+//        imageCapture {
+//            onImageCaptured: {
+//                photoPreview.source = preview  // Show the preview in an Image
+
+//            }
+//        }
+
+//        videoRecorder {
+//            resolution: "1280x720"
+//            frameRate: 30
+
+//        }
+//    }
+
+//    VideoOutput {
+//        id: cameraOutput
+//        source: camera
+//        anchors.fill: parent
+//        focus : visible // to receive focus and capture key events when visible
+//    }
+
+//    Image {
+//        id: photoPreview
+//    }
 }
 
 

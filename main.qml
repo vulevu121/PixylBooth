@@ -114,7 +114,11 @@ Window {
                     name: "start"
                     PropertyChanges {
                         target: captureFrame
-                        opacity: 0
+                        opacity: 1
+                        width: 160
+                        height: 120
+                        y: 0
+                        x: root.width - width
                     }
                     PropertyChanges {
                         target: contentLoader
@@ -205,28 +209,39 @@ Window {
                     properties: "opacity"
                     duration: 200
                 }
+                NumberAnimation {
+                    properties: "scale"
+                    duration: 200
+                }
+                NumberAnimation {
+                    properties: "x"
+                    duration: 100
+                }
+                NumberAnimation {
+                    properties: "y"
+                    duration: 100
+                }
+                
+                NumberAnimation {
+                    properties: "width"
+                    duration: 100
+                }
+                NumberAnimation {
+                    properties: "height"
+                    duration: 100
+                }
             }
-
+            
             CaptureFrame {
                 id: captureFrame
                 width: 640
                 height: 480
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
+                x: (root.width - width) / 2
+                y: 50
                 opacity: 0
+                z: 2
             }
-
-
-//            Rectangle {
-//                id: captureFrame
-//                width: 640
-//                height: 480
-//                color: "black"
-//                anchors.verticalCenter: parent.verticalCenter
-//                anchors.horizontalCenter: parent.horizontalCenter
-//                opacity: 0
-//            }
-
+            
             Loader {
                 id: contentLoader
                 anchors.fill: parent
@@ -235,8 +250,10 @@ Window {
 
             Countdown {
                 id: countdownTimer
+                anchors.fill: captureFrame
                 textColor: root.countDownColor
                 opacity: 0
+                z: 5
             }
 
 
@@ -293,14 +310,6 @@ Window {
             SettingVideo {
                 id: videosPage
                 anchors.fill: parent
-
-
-                //                Component.onCompleted: {
-                //                    setStartVideoSignal.connect(root.setStartVideoSource)
-                //                    setBeforeCaptureVideoSignal.connect(root.setBeforeCaptureVideoSource)
-                //                    playStartVideoSignal.connect(root.playStartVideo)
-                //                    playBeforeCaptureVideoSignal.connect(root.playBeforeCaptureVideo)
-                //                }
             }
         }
 

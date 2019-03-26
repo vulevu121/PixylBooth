@@ -24,6 +24,8 @@ Rectangle {
     Layout.minimumHeight: 250
     Layout.fillWidth: true
     
+
+    
     Rectangle {
         id: topBar
         height: 32
@@ -73,11 +75,40 @@ Rectangle {
         boundsBehavior: Flickable.DragOverBounds
         Layout.fillWidth: true
         spacing: 5
+        delegate: fileDelegate
+        
+        Component {
+            id: fileDelegate
+            Row {
+                spacing: 5
+    
+                Image {
+                    id: folderPicture
+                    source: "qrc:/Images/file_white_48dp.png"
+                    width: 32
+                    height: 32
+                }
+    
+                Text {
+                    text: fileName
+                    anchors.verticalCenter: parent.verticalCenter
+                    font.bold: true
+                    color: "white"
+                }
+    
+                Rectangle {
+                    id: wrapper
+                    width: 200
+                    height: 48
+                    visible: false
+                }
+            }
+        }
 
         highlight: Rectangle {
-            color: "grey"
+            color: Material.color(Material.LightBlue)
             radius: 2
-            visible: videoList.showFocusHighlight && listView.count !== 0
+//            visible: videoList.showFocusHighlight && listView.count !== 0
         }
         highlightMoveVelocity: 1000
         pressDelay: 100
@@ -139,6 +170,27 @@ Rectangle {
                 text: qsTr("Clear")
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 font.pointSize: 14
+            }
+            
+            Button {
+                text: "Up"
+                onClicked: {
+                    listView.decrementCurrentIndex()
+                }
+            }
+            
+            Button {
+                text: "Down"
+                onClicked: {
+                    listView.incrementCurrentIndex()
+                }
+            }
+            
+            Button {
+                text: "Delete"
+                onClicked: {
+                    model.remove(0)
+                }
             }
             
             RowLayout {}

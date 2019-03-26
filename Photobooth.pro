@@ -1,6 +1,4 @@
-QT += quick
-QT += widgets
-QT += multimedia
+QT += quick widgets multimedia webview
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
