@@ -1,58 +1,71 @@
 import QtQuick 2.0
 
-Text {
-    id: countdownEdit
-    color: textColor
-    text: count
-    font.family: "Arial"
-    anchors.horizontalCenter: parent.horizontalCenter
-    anchors.verticalCenter: parent.verticalCenter
-    verticalAlignment: Text.AlignVCenter
-    horizontalAlignment: Text.AlignHCenter
-    visible: false
-    opacity: 0.0
-
+Rectangle {
+    id: root
     property real timer: 5
     property real count: 5
-    property real maxOpacity: 1
-    property real textSize: 400
     property string textColor: "#ffffff"
+    color: "transparent"
 
     function start(time) {
         timer = time
         count = time
-        countdownEdit.visible = true
+        countLabel.visible = true
         captureTimer.start()
     }
 
-    Behavior on text {
-        ParallelAnimation {
-            NumberAnimation { target: countdownEdit; property: "opacity"; from: 0; to: maxOpacity; duration: 400 }
-            NumberAnimation { target: countdownEdit; property: "scale"; from: 0; to: 1; duration: 200 }
-        }
-    }
-    font.pointSize: 300
+    Text {
+        id: countLabel
+        color: root.textColor
+        text: root.count
+        font.family: "Arial"
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.verticalCenter: parent.verticalCenter
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
+        visible: false
+        opacity: 0.0
+        font.pixelSize: root.height * 0.8
 
 
-    Timer {
-        id: captureTimer
-        running: false
-        repeat: true
-        interval: 1000
 
-        onTriggered: {
-            if (countdownEdit.count <= 0) {
-                countdownEdit.count = timer
-                captureTimer.stop()
-                countdownEdit.visible = false
-            }
-            else {
-                countdownEdit.count--
+        Behavior on text {
+            ParallelAnimation {
+                NumberAnimation { target: countLabel; property: "opacity"; from: 0; to: 1; duration: 400 }
+                NumberAnimation { target: countLabel; property: "scale"; from: 0; to: 1; duration: 200 }
             }
         }
+
+
+
+        Timer {
+            id: captureTimer
+            running: false
+            repeat: true
+            interval: 1000
+
+            onTriggered: {
+                if (root.count <= 0) {
+                    root.count = root.timer
+                    captureTimer.stop()
+                    countLabel.visible = false
+                }
+                else {
+                    root.count--
+                }
+            }
+        }
+
     }
 
 }
+
+
+
+
+
+
+
 
 
 

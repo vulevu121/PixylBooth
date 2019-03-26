@@ -10,23 +10,23 @@ import QtQuick 2.0
 //import Qt.labs.settings 1.1
 //import QtGraphicalEffects 1.12
 import QtMultimedia 5.4
-import QtWebView 1.1
+import QtWebView 1.0
 
 Rectangle {
     id: captureFrame
     color: "black"
-//    width: 640
-//    height: 480
+    width: 640
+    height: 480
     
     
     WebView {
         id: webView
         anchors.fill: parent
         url: "http://127.0.0.1:5000"
-        onLoadingChanged: {
-            if (loadRequest.errorString)
-                console.error(loadRequest.errorString);
-        }
+//        onLoadingChanged: {
+//            if (loadRequest.errorString)
+//                console.error(loadRequest.errorString);
+//        }
     }
 
 //    Camera {

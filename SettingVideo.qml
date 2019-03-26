@@ -17,8 +17,8 @@ ColumnLayout {
     property alias beforeCaptureVideoListModel: beforeCaptureVideoListModel
     property alias afterCaptureVideoListModel: afterCaptureVideoListModel
 
-    property string lastFolder: "file:///Users/Vu/Documents/PixylBooth/Videos"
-//    property string lastFolder: "file:///"
+//    property string lastFolder: "file:///Users/Vu/Documents/PixylBooth/Videos"
+    property string lastFolder: "file:///"
 
     property string startVideosListModelString: ""
     property string beforeCaptureVideosListModelString: ""
@@ -114,7 +114,7 @@ ColumnLayout {
         id: afterCaptureVideoListModel
     }
 
-    
+
 
     Popup {
         id: filePopup
@@ -162,7 +162,7 @@ ColumnLayout {
 
     Pane {
         id: pane
-        Layout.minimumWidth: 600
+        Layout.minimumWidth: 500
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         background: Rectangle {
             color: "transparent"
@@ -171,7 +171,7 @@ ColumnLayout {
         ColumnLayout {
             id: columnLayout1
             anchors.fill: parent
-            
+
             Button {
                 text: "test"
                 onClicked: {
@@ -183,7 +183,7 @@ ColumnLayout {
                 id: startVideoList
                 Layout.fillWidth: true
                 title: "Start Videos"
-//                delegate: fileDelegate
+                //                delegate: fileDelegate
                 model: startVideoListModel
 
                 addButton.onClicked: {
@@ -200,7 +200,7 @@ ColumnLayout {
                 id: beforeCaptureVideoList
                 Layout.fillWidth: true
                 title: "Before Capture Videos"
-//                delegate: fileDelegate
+                //                delegate: fileDelegate
                 model: beforeCaptureVideoListModel
 
                 addButton.onClicked: {
@@ -216,7 +216,7 @@ ColumnLayout {
                 id: afterCaptureVideoCaptureList
                 Layout.fillWidth: true
                 title: "After Capture Videos"
-//                delegate: fileDelegate
+                //                delegate: fileDelegate
                 model: afterCaptureVideoListModel
 
                 addButton.onClicked: {

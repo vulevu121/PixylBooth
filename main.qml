@@ -18,16 +18,18 @@ Window {
     y: 0
     width: 1080
     height: 1920
-    //    minimumWidth: 1080
-    //    minimumHeight: 1920
-    //    maximumWidth: 1080
-    //    maximumHeight: 1920
+    minimumWidth: 1080/2
+    minimumHeight: 1920/2
+    maximumWidth: 1080/2
+    maximumHeight: 1920/2
     color: bgColor
     title: qsTr("PixylBooth")
 
     property real pixelDensity: Screen.pixelDensity
     property string bgColor: "#222"
     property string countDownColor: "#fff"
+    property real numberPhotos: 3
+    property real currentPhoto: 0
 
     Settings {
         property alias x: root.x
@@ -60,54 +62,80 @@ Window {
         bgColor = color
     }
 
+    Timer {
+        id: mainTimer
+        interval: 6 * 1000
+        triggeredOnStart: true
+        repeat: true
+
+        onTriggered: {
+            switch (captureView.state) {
+                case "start":
+                    captureView.state = "beforecapture";
+                    break;
+                case "beforecapture":
+                    captureView.state = "capture";
+                    root.currentPhoto++
+                    break;
+                case "capture":
+                    captureView.state = "photoreview";
+                    break;
+
+                case "photoreview":
+                    if (root.currentPhoto < root.numberPhotos) {
+                        captureView.state = "beforecapture";
+                    } else {
+                        captureView.state = "start"
+                        root.currentPhoto = 0
+                        mainTimer.stop()
+                        break;
+
+                    }
+
+            }
+
+
+        }
+    }
+
     SwipeView {
         id: swipeview
-        currentIndex: tabBar.currentIndex
+//        currentIndex: tabBar.currentIndex
         anchors.fill: parent
 
         Item {
-            id: capturePage
+            id: captureView
 
             ColumnLayout {
+                z: 10
                 Button {
                     text: "Start"
                     onClicked: {
-                        capturePage.state = "start"
+                        captureView.state = "start"
                     }
                 }
 
                 Button {
                     text: "BeforeCapture"
                     onClicked: {
-                        capturePage.state = "beforecapture"
-                    }
-                }
-
-                Button {
-                    text: "Countdown"
-
-                    onClicked: {
-                        capturePage.state = "countdown"
+                        captureView.state = "beforecapture"
                     }
                 }
 
                 Button {
                     text: "Capture"
-
                     onClicked: {
-                        capturePage.state = "capture"
+                        captureView.state = "capture"
                     }
                 }
 
                 Button {
-                    text: "Stop Video"
-
+                    text: "Review"
                     onClicked: {
-                        contentLoader.item.stop()
+                        captureView.state = "photoreview"
                     }
                 }
             }
-
 
             states: [
                 State {
@@ -142,7 +170,11 @@ Window {
                     name: "beforecapture"
                     PropertyChanges {
                         target: captureFrame
-                        opacity: 0
+                        opacity: 1
+                        width: 160
+                        height: 120
+                        y: 0
+                        x: root.width - width
                     }
                     PropertyChanges {
                         target: contentLoader
@@ -154,7 +186,6 @@ Window {
                     }
                     StateChangeScript {
                         script: {
-                            capturePage.state = "beforecapture"
                             var model = videosPage.beforeCaptureVideoListModel
                             var randomIdx = Math.round(Math.random(1) * (model.count-1))
                             var randomItem = model.get(randomIdx)
@@ -164,10 +195,14 @@ Window {
                 },
 
                 State {
-                    name: "countdown"
+                    name: "capture"
                     PropertyChanges {
                         target: captureFrame
                         opacity: 1
+                        width: root.width * 0.8
+                        height: width * 0.75
+                        x: (root.width - width) / 2
+                        y: 0
                     }
                     PropertyChanges {
                         target: contentLoader
@@ -179,18 +214,21 @@ Window {
                     }
                     StateChangeScript {
                         script: {
-                            capturePage.state = "countdown"
                             countdownTimer.start(generalView.captureTimer)
-                            contentLoader.item.stop()
+//                            contentLoader.item.stop()
                         }
                     }
                 },
 
                 State {
-                    name: "capture"
+                    name: "photoreview"
                     PropertyChanges {
                         target: captureFrame
-                        opacity: 1
+                        opacity: 0
+                    }
+                    PropertyChanges {
+                        target: countdownTimer
+                        opacity: 0
                     }
                     PropertyChanges {
                         target: contentLoader
@@ -200,53 +238,45 @@ Window {
                         target: countdownTimer
                         opacity: 0
                     }
+                    PropertyChanges {
+                        target: photoReview
+                        opacity: 1
+                    }
 
                 }
             ]
 
             transitions: Transition {
                 NumberAnimation {
-                    properties: "opacity"
-                    duration: 200
-                }
-                NumberAnimation {
-                    properties: "scale"
-                    duration: 200
-                }
-                NumberAnimation {
-                    properties: "x"
-                    duration: 100
-                }
-                NumberAnimation {
-                    properties: "y"
-                    duration: 100
-                }
-                
-                NumberAnimation {
-                    properties: "width"
-                    duration: 100
-                }
-                NumberAnimation {
-                    properties: "height"
-                    duration: 100
+                    properties: "opacity,x,y,width,height";
+                    duration: 200;
+                    easing.type: Easing.InOutQuad;
                 }
             }
-            
+
             CaptureFrame {
                 id: captureFrame
-                width: 640
-                height: 480
-                x: (root.width - width) / 2
-                y: 50
-                opacity: 0
+//                width: root.width * 0.8
+//                height: width * 0.75
+//                x: (root.width - width) / 2
+//                y: 50
+//                opacity: 0
+
+                opacity: 1
+                width: 160
+                height: 120
+                y: 0
+                x: root.width - width
                 z: 2
             }
-            
+
             Loader {
                 id: contentLoader
                 anchors.fill: parent
                 opacity: 1
             }
+
+
 
             Countdown {
                 id: countdownTimer
@@ -258,7 +288,7 @@ Window {
 
 
             Rectangle {
-                id: rectangle
+                id: mouseArea
                 width: 400
                 height: 400
                 color: "transparent"
@@ -271,9 +301,24 @@ Window {
                     anchors.fill: parent
 
                     onClicked: {
-                        countdownTimer.start(generalView.captureTimer)
+                        if (captureView.state == "start") {
+                            mainTimer.start()
+                        }
+
                     }
                 }
+            }
+
+            Image {
+                id: photoReview
+                width: root.width * 0.8
+                height: width * 0.75
+                anchors.top: parent.top
+                anchors.topMargin: 0
+                anchors.horizontalCenter: parent.horizontalCenter
+                fillMode: Image.PreserveAspectFit
+                source: "file:///Users/Vu/Documents/PixylBooth/Images/image.jpg"
+                opacity: 0
             }
 
 
@@ -345,44 +390,44 @@ Window {
         }
     }
 
-    TabBar {
-        id: tabBar
-        x: 864
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        currentIndex: swipeview.currentIndex
-        Material.elevation: 1
+//    TabBar {
+//        id: tabBar
+//        x: 864
+//        anchors.top: parent.top
+//        anchors.horizontalCenter: parent.horizontalCenter
+//        currentIndex: swipeview.currentIndex
+//        Material.elevation: 1
 
-        TabButton {
-            text: "Capture"
-            width: implicitWidth
-        }
-
-
-        TabButton {
-            text: "General"
-            width: implicitWidth
-        }
+//        TabButton {
+//            text: "Capture"
+//            width: implicitWidth
+//        }
 
 
-        TabButton {
-            text: "Camera"
-            width: implicitWidth
-        }
-
-        TabButton {
-            text: "Color"
-            width: implicitWidth
-        }
+//        TabButton {
+//            text: "General"
+//            width: implicitWidth
+//        }
 
 
-        TabButton {
-            text: "Videos"
-            width: implicitWidth
-        }
+//        TabButton {
+//            text: "Camera"
+//            width: implicitWidth
+//        }
+
+//        TabButton {
+//            text: "Color"
+//            width: implicitWidth
+//        }
 
 
-    }
+//        TabButton {
+//            text: "Videos"
+//            width: implicitWidth
+//        }
+
+
+//    }
 
 }
 
