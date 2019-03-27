@@ -14,17 +14,19 @@ import QtMultimedia 5.4
 ColumnLayout {
     id: root
     property alias captureAction: captureActionField.text
-    
+    property alias liveviewAction: liveViewField.text
+
     Settings {
         category: "Action"
         property alias captureAction: captureActionField.text
+        property alias liveviewAction: liveViewField.text
     }
-    
+
     CustomPane {
         id: cameraActions
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         title: "Camera Action"
-        
+
         ColumnLayout {
             RowLayout {
                 spacing: 10
@@ -36,13 +38,13 @@ ColumnLayout {
                     id: captureActionField
                     placeholderText: "Select python script or executable"
                     Layout.minimumWidth: 200
-                    
+
                     MouseArea {
                         anchors.fill: parent
                         onClicked: {
                             fileDialog.visible = true
                         }
-                        
+
                         FileDialog {
                             id: fileDialog
                             title: "Please choose a file"
@@ -50,17 +52,56 @@ ColumnLayout {
                             onAccepted: {
                                 captureActionField.text = String(fileUrl)
                             }
-                            
+
                             onRejected: {
-                                console.log("Canceled")
+//                                console.log("Canceled")
                                 visible = false
                             }
                             Component.onCompleted: visible = false
                         }
-                        
+
                     }
-                    
+
                 }
+
+            }
+
+            RowLayout {
+                spacing: 10
+                CustomLabel {
+                    text: "Live View Action"
+                    subtitle: "Script to start live view"
+                }
+                TextField {
+                    id: liveViewField
+                    placeholderText: "Select python script or executable"
+                    Layout.minimumWidth: 200
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            lvFileDialog.visible = true
+                        }
+
+                        FileDialog {
+                            id: lvFileDialog
+                            title: "Please choose a file"
+                            folder: shortcuts.home
+                            onAccepted: {
+                                liveViewField.text = String(fileUrl)
+                            }
+
+                            onRejected: {
+//                                console.log("Canceled")
+                                visible = false
+                            }
+                            Component.onCompleted: visible = false
+                        }
+
+                    }
+
+                }
+
             }
         }
     }

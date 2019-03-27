@@ -54,14 +54,17 @@ Window {
         contentLoader.item.play()
 
     }
-    
+
     function getFileName(path) {
         var pathstring = String(path)
         var pathstringsplit = pathstring.split("/")
         return pathstringsplit[pathstringsplit.length-1]
     }
-    
+
     function stripFilePrefix(a) {
+        if (a.search('C:') >= 0) {
+            return a.replace("file:///", "")
+        }
         return a.replace("file://", "")
     }
 
@@ -146,31 +149,42 @@ Window {
                         captureView.state = "photoreview"
                     }
                 }
-                
+
                 Process {
                         id: process
                         onReadyRead: {
-                            var a = root.getFileName(readAll())
-                            console.log(a)
-                            captureButton.text = a;
+//                            var a = root.getFileName(readAll())
+//                            console.log(a)
+                            captureButton.text = readAll();
                         }
                     }
-                
+
                 Button {
                     id: captureButton
                     text: "Capture Action"
-                    
+
                     onClicked: {
-                        process.start("python3", [root.stripFilePrefix(actionView.captureAction)])
+                        process.start("python", [root.stripFilePrefix(actionView.captureAction), '/Users/Vu/Documents/Sony-Camera-API/example'])
                     }
                 }
-                
+
+                Button {
+                    id: liveviewButton
+                    text: "Live View"
+
+                    onClicked: {
+                        console.log(root.stripFilePrefix(actionView.liveviewAction))
+                        process.start("python", [root.stripFilePrefix(actionView.liveviewAction)])
+
+                    }
+                }
+
                 TextField {
                         text: backend.userName
                         placeholderText: qsTr("User name")
                         onTextChanged: backend.userName = text
                 }
-                
+
                 TextField {
                         text: backend.userName
                 }
@@ -178,7 +192,7 @@ Window {
                 BackEnd {
                         id: backend
                 }
-                
+
             }
 
             states: [
@@ -297,7 +311,7 @@ Window {
                     easing.type: Easing.InOutQuad;
                 }
             }
-            
+
             CaptureFrame {
                 id: captureFrame
 //                width: root.width * 0.8
@@ -352,7 +366,7 @@ Window {
                     }
                 }
             }
-            
+
             Rectangle {
                 id: photoReview
                 width: root.width * 0.8
@@ -383,7 +397,7 @@ Window {
                 anchors.fill: parent
             }
         }
-        
+
         Item {
             SettingAction {
                 id: actionView

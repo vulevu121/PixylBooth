@@ -17,8 +17,9 @@ Rectangle {
     color: "black"
     width: 640
     height: 480
-    
-    
+    property alias imageLiveView: imageLiveView
+
+
 //    WebView {
 //        id: webView
 //        anchors.fill: parent
@@ -29,24 +30,24 @@ Rectangle {
 ////        }
 //    }
     Image {
-        id: imageLiveview
+        id: imageLiveView
         anchors.fill: parent
-        source: "file:///home/eelab10/PycharmProjects/Sony-Camera-API/example/image.jpg"
+        source: "file:///Users/Vu/Documents/Sony-Camera-API/example/LiveView.jpg"
         cache: false
     }
-    
-    Timer {
-        interval: 100
-        running: true
-        repeat: true
-        
-        onTriggered: {
-//            console.log("updating pic")
-//            imageLiveview.update()
-            imageLiveview.source = ""
-            imageLiveview.source = "file:///home/eelab10/PycharmProjects/Sony-Camera-API/example/image.jpg"
-        }
-    }
+
+//    Timer {
+//        interval: 100
+//        running: true
+//        repeat: true
+
+//        onTriggered: {
+////            console.log("updating pic")
+////            imageLiveview.update()
+//            imageLiveview.source = ""
+//            imageLiveview.source = "file:///Users/Vu/Documents/Sony-Camera-API/example/LiveView.jpg"
+//        }
+//    }
 
 //    Camera {
 //        id: camera
@@ -90,7 +91,4 @@ Rectangle {
 
 
 
-/*##^## Designer {
-    D{i:0;autoSize:true;height:480;width:640}
-}
- ##^##*/
+
