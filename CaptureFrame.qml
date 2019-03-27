@@ -19,14 +19,33 @@ Rectangle {
     height: 480
     
     
-    WebView {
-        id: webView
+//    WebView {
+//        id: webView
+//        anchors.fill: parent
+//        url: "http://127.0.0.1:5000"
+////        onLoadingChanged: {
+////            if (loadRequest.errorString)
+////                console.error(loadRequest.errorString);
+////        }
+//    }
+    Image {
+        id: imageLiveview
         anchors.fill: parent
-        url: "http://127.0.0.1:5000"
-//        onLoadingChanged: {
-//            if (loadRequest.errorString)
-//                console.error(loadRequest.errorString);
-//        }
+        source: "file:///home/eelab10/PycharmProjects/Sony-Camera-API/example/image.jpg"
+        cache: false
+    }
+    
+    Timer {
+        interval: 100
+        running: true
+        repeat: true
+        
+        onTriggered: {
+//            console.log("updating pic")
+//            imageLiveview.update()
+            imageLiveview.source = ""
+            imageLiveview.source = "file:///home/eelab10/PycharmProjects/Sony-Camera-API/example/image.jpg"
+        }
     }
 
 //    Camera {

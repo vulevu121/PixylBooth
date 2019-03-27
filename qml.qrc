@@ -18,5 +18,6 @@
         <file>CustomPane.qml</file>
         <file>CaptureFrame.qml</file>
         <file>CustomLabel.qml</file>
+        <file>SettingAction.qml</file>
     </qresource>
 </RCC>

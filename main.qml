@@ -10,6 +10,8 @@ import QtQuick.Dialogs 1.3
 import Qt.labs.settings 1.1
 //import QtGraphicalEffects 1.12
 import QtMultimedia 5.4
+import Process 1.0
+import BackEnd 1.0
 
 Window {
     id: root
@@ -52,7 +54,16 @@ Window {
         contentLoader.item.play()
 
     }
-
+    
+    function getFileName(path) {
+        var pathstring = String(path)
+        var pathstringsplit = pathstring.split("/")
+        return pathstringsplit[pathstringsplit.length-1]
+    }
+    
+    function stripFilePrefix(a) {
+        return a.replace("file://", "")
+    }
 
     function setcountDownColor(color) {
         countDownColor = color
@@ -135,6 +146,39 @@ Window {
                         captureView.state = "photoreview"
                     }
                 }
+                
+                Process {
+                        id: process
+                        onReadyRead: {
+                            var a = root.getFileName(readAll())
+                            console.log(a)
+                            captureButton.text = a;
+                        }
+                    }
+                
+                Button {
+                    id: captureButton
+                    text: "Capture Action"
+                    
+                    onClicked: {
+                        process.start("python3", [root.stripFilePrefix(actionView.captureAction)])
+                    }
+                }
+                
+                TextField {
+                        text: backend.userName
+                        placeholderText: qsTr("User name")
+                        onTextChanged: backend.userName = text
+                }
+                
+                TextField {
+                        text: backend.userName
+                }
+
+                BackEnd {
+                        id: backend
+                }
+                
             }
 
             states: [
@@ -253,7 +297,7 @@ Window {
                     easing.type: Easing.InOutQuad;
                 }
             }
-
+            
             CaptureFrame {
                 id: captureFrame
 //                width: root.width * 0.8
@@ -308,20 +352,22 @@ Window {
                     }
                 }
             }
-
-            Image {
+            
+            Rectangle {
                 id: photoReview
                 width: root.width * 0.8
                 height: width * 0.75
                 anchors.top: parent.top
                 anchors.topMargin: 0
                 anchors.horizontalCenter: parent.horizontalCenter
-                fillMode: Image.PreserveAspectFit
-                source: "file:///Users/Vu/Documents/PixylBooth/Images/image.jpg"
                 opacity: 0
+                color: "black"
+                Image {
+                    anchors.fill: parent
+                    fillMode: Image.PreserveAspectFit
+                    source: "file:///Users/Vu/Documents/PixylBooth/Images/image.jpg"
+                }
             }
-
-
 
         }
         Item {
@@ -334,6 +380,13 @@ Window {
         Item {
             SettingCamera {
                 id: cameraView
+                anchors.fill: parent
+            }
+        }
+        
+        Item {
+            SettingAction {
+                id: actionView
                 anchors.fill: parent
             }
         }
