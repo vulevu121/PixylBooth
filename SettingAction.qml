@@ -15,11 +15,20 @@ ColumnLayout {
     id: root
     property alias captureAction: captureActionField.text
     property alias liveviewAction: liveViewField.text
+    property alias pythonPath: pythonField.text
 
     Settings {
         category: "Action"
         property alias captureAction: captureActionField.text
         property alias liveviewAction: liveViewField.text
+        property alias pythonPath: pythonField.text
+    }
+
+    function stripFilePrefix(a) {
+        if (a.search('C:') >= 0) {
+            return a.replace("file:///", "")
+        }
+        return a.replace("file://", "")
     }
 
     CustomPane {
@@ -28,6 +37,44 @@ ColumnLayout {
         title: "Camera Action"
 
         ColumnLayout {
+            RowLayout {
+                spacing: 10
+                CustomLabel {
+                    text: "Python Executable"
+                    subtitle: "Path to python exe"
+                }
+                TextField {
+                    id: pythonField
+                    placeholderText: "Select path to python"
+                    Layout.minimumWidth: 200
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            pythonFileDialog.visible = true
+                        }
+
+                        FileDialog {
+                            id: pythonFileDialog
+                            title: "Please choose a file"
+                            folder: shortcuts.home
+                            onAccepted: {
+                                pythonField.text = root.stripFilePrefix(String(fileUrl))
+                            }
+
+                            onRejected: {
+//                                console.log("Canceled")
+                                visible = false
+                            }
+                            Component.onCompleted: visible = false
+                        }
+
+                    }
+
+                }
+
+            }
+
             RowLayout {
                 spacing: 10
                 CustomLabel {
@@ -50,7 +97,7 @@ ColumnLayout {
                             title: "Please choose a file"
                             folder: shortcuts.home
                             onAccepted: {
-                                captureActionField.text = String(fileUrl)
+                                captureActionField.text = root.stripFilePrefix(String(fileUrl))
                             }
 
                             onRejected: {
@@ -88,7 +135,7 @@ ColumnLayout {
                             title: "Please choose a file"
                             folder: shortcuts.home
                             onAccepted: {
-                                liveViewField.text = String(fileUrl)
+                                liveViewField.text = root.stripFilePrefix(String(fileUrl))
                             }
 
                             onRejected: {

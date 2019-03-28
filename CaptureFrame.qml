@@ -34,20 +34,21 @@ Rectangle {
         anchors.fill: parent
         source: "file:///Users/Vu/Documents/Sony-Camera-API/example/LiveView.jpg"
         cache: false
+
+        onStatusChanged: if (imageLiveView.status == Image.Error) console.log('Error')
     }
 
-//    Timer {
-//        interval: 100
-//        running: true
-//        repeat: true
 
-//        onTriggered: {
-////            console.log("updating pic")
-////            imageLiveview.update()
-//            imageLiveview.source = ""
-//            imageLiveview.source = "file:///Users/Vu/Documents/Sony-Camera-API/example/LiveView.jpg"
-//        }
-//    }
+    Timer {
+        interval: 400
+        running: true
+        repeat: true
+
+        onTriggered: {
+            imageLiveView.source = ""
+            imageLiveView.source = "file:///Users/Vu/Documents/Sony-Camera-API/example/LiveView.jpg"
+        }
+    }
 
 //    Camera {
 //        id: camera
@@ -84,6 +85,13 @@ Rectangle {
 
 //    Image {
 //        id: photoPreview
+//    }
+
+
+
+//    Image {
+//        anchors.fill: parent
+//        source: "http://192.168.122.1:8080/postview/memory/DCIM/100MSDCF/DSC04453.JPG?size=Scn"
 //    }
 }
 

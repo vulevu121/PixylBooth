@@ -27,11 +27,13 @@ Window {
     color: bgColor
     title: qsTr("PixylBooth")
 
+
     property real pixelDensity: Screen.pixelDensity
     property string bgColor: "#222"
     property string countDownColor: "#fff"
     property real numberPhotos: 3
     property real currentPhoto: 0
+    property string lastPhotoPath: ""
 
     Settings {
         property alias x: root.x
@@ -153,9 +155,11 @@ Window {
                 Process {
                         id: process
                         onReadyRead: {
-//                            var a = root.getFileName(readAll())
-//                            console.log(a)
-                            captureButton.text = readAll();
+                            var result = String(process.readAllStandardOutput())
+                            var filePrefix = "file:///"
+                            root.lastPhotoPath = filePrefix.concat(result)
+                            console.log(root.lastPhotoPath)
+                            photoReviewImage.source = String(root.lastPhotoPath).replace("\r\n", "")
                         }
                     }
 
@@ -164,34 +168,44 @@ Window {
                     text: "Capture Action"
 
                     onClicked: {
-                        process.start("python", [root.stripFilePrefix(actionView.captureAction), '/Users/Vu/Documents/Sony-Camera-API/example'])
+                        console.log(actionView.pythonPath)
+                        console.log(actionView.captureAction)
+                        console.log(generalView.saveFolder)
+                        process.start(actionView.pythonPath, [actionView.captureAction, generalView.saveFolder])
                     }
                 }
 
-                Button {
-                    id: liveviewButton
-                    text: "Live View"
+//                Button {
+//                    id: liveviewButton
+//                    text: "Live View"
 
-                    onClicked: {
-                        console.log(root.stripFilePrefix(actionView.liveviewAction))
-                        process.start("python", [root.stripFilePrefix(actionView.liveviewAction)])
+//                    onClicked: {
+//                        console.log(root.stripFilePrefix(actionView.liveviewAction))
+//                        process.start("python", [root.stripFilePrefix(actionView.liveviewAction)])
+//                    }
+//                }
 
-                    }
-                }
+//                Button {
+//                    id: closeLiveview
+//                    text: "Stop Live View"
+//                    onClicked: {
+//                        console.log(process.kill())
+//                    }
+//                }
 
-                TextField {
-                        text: backend.userName
-                        placeholderText: qsTr("User name")
-                        onTextChanged: backend.userName = text
-                }
+//                TextField {
+//                        text: backend.userName
+//                        placeholderText: qsTr("User name")
+//                        onTextChanged: backend.userName = text
+//                }
 
-                TextField {
-                        text: backend.userName
-                }
+//                TextField {
+//                        text: backend.userName
+//                }
 
-                BackEnd {
-                        id: backend
-                }
+//                BackEnd {
+//                        id: backend
+//                }
 
             }
 
@@ -370,16 +384,17 @@ Window {
             Rectangle {
                 id: photoReview
                 width: root.width * 0.8
-                height: width * 0.75
+                height: width * 1080/1616
                 anchors.top: parent.top
                 anchors.topMargin: 0
                 anchors.horizontalCenter: parent.horizontalCenter
                 opacity: 0
                 color: "black"
                 Image {
+                    id: photoReviewImage
                     anchors.fill: parent
                     fillMode: Image.PreserveAspectFit
-                    source: "file:///Users/Vu/Documents/PixylBooth/Images/image.jpg"
+//                    source: "file:///C:/Users/Vu/Documents/Sony-Camera-API/example/DCIM/DSC04492.JPG"
                 }
             }
 

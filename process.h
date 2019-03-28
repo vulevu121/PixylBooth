@@ -27,4 +27,12 @@ public:
     Q_INVOKABLE QByteArray readAll() {
         return QProcess::readAll();
     }
+
+    Q_INVOKABLE QByteArray readAllStandardOutput() {
+        return QProcess::readAllStandardOutput();
+    }
+
+    Q_INVOKABLE void kill() {
+        return QProcess::kill();
+    }
 };

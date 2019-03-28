@@ -13,10 +13,19 @@ ColumnLayout {
     id: root
     property alias captureTimer: captureTimerSlider.value
     property alias durationPhoto: displayTimerSlider.value
+    property alias saveFolder: saveFolderField.text
 
     Settings {
         property alias captureTimer: root.captureTimer
         property alias durationPhoto: root.durationPhoto
+        property alias saveFolder: saveFolderField.text
+    }
+
+    function stripFilePrefix(a) {
+        if (a.search('C:') >= 0) {
+            return a.replace("file:///", "")
+        }
+        return a.replace("file://", "")
     }
 
     CustomPane {
@@ -101,42 +110,37 @@ ColumnLayout {
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 spacing: 20
 
-                Label {
+                CustomLabel {
                     id: label
-                    text: qsTr("Directory")
+                    text: qsTr("Save Folder")
+                    subtitle: "Location to save photos"
                     verticalAlignment: Text.AlignVCenter
                     font.pixelSize: 24
                 }
 
                 TextField {
-                    id: directoryField
+                    id: saveFolderField
                     text: qsTr("")
-                    enabled: false
                     font.pointSize: 12
                     Layout.fillWidth: true
                     placeholderText: "Choose a save folder..."
-                }
 
-
-                Button {
-                    id: button
-                    text: qsTr("...")
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    Layout.fillWidth: false
-                    onClicked: {
-                        folderDialog.open()
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            folderDialog.open()
+                        }
                     }
 
                     FolderDialog {
                         id: folderDialog
                         title: "Please select save directory"
                         onAccepted: {
-                            directoryField.text = folder
+                            saveFolderField.text = root.stripFilePrefix(String(folder))
+//                            console.log(folder)
                         }
                     }
-
                 }
-
 
 
             }
