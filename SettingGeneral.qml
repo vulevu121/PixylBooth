@@ -33,6 +33,7 @@ ColumnLayout {
     CustomPane {
         id: customPane
         title: "General"
+        Layout.preferredWidth: root.width * 0.9
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
 
         ColumnLayout {
@@ -143,7 +144,7 @@ ColumnLayout {
                     }
                 }
             }
-            
+
             RowLayout {
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
@@ -169,13 +170,13 @@ ColumnLayout {
                         }
                     }
 
-                    
+
                     FileDialog {
                         id: liveViewImageFileDialog
                         title: "Open Live View Image"
                         folder: shortcuts.home
                         onAccepted: {
-                            liveViewImageField.text = String(fileUrl)
+                            liveViewImageField.text = root.stripFilePrefix(String(fileUrl))
                         }
 
                         onRejected: {
@@ -184,7 +185,7 @@ ColumnLayout {
                         }
                         Component.onCompleted: visible = false
                     }
-                    
+
                 }
             }
 
@@ -236,7 +237,9 @@ ColumnLayout {
 
 
 
+
+
 /*##^## Designer {
-    D{i:3;anchors_x:0;anchors_y:30}
+    D{i:0;autoSize:true;height:480;width:640}D{i:3;anchors_x:0;anchors_y:30}
 }
  ##^##*/

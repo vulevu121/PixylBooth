@@ -20,10 +20,10 @@ Window {
     y: 0
     width: 1080
     height: 1920
-    minimumWidth: 1080/2
-    minimumHeight: 1920/2
-    maximumWidth: 1080/2
-    maximumHeight: 1920/2
+//    minimumWidth: 1080/2
+//    minimumHeight: 1920/2
+//    maximumWidth: 1080/2
+//    maximumHeight: 1920/2
     color: bgColor
     title: qsTr("PixylBooth")
 
@@ -64,10 +64,26 @@ Window {
     }
 
     function stripFilePrefix(a) {
-        if (a.search('C:') >= 0) {
+        if (a.search("C:") >= 0) {
             return a.replace("file:///", "")
         }
         return a.replace("file://", "")
+    }
+
+    function addFilePrefix(a) {
+        if (a.search("file ://") >= 0){
+            return(a)
+        }
+
+        var filePrefix = ""
+
+        if (a.search("C:") >= 0) {
+            filePrefix = "file:///".concat(String(a)).replace("\r", "").replace("\n", "")
+        } else {
+            filePrefix = "file://".concat(String(a)).replace("\r", "").replace("\n", "")
+        }
+//        console.log(filePrefix)
+        return(filePrefix)
     }
 
     function setcountDownColor(color) {
@@ -78,9 +94,20 @@ Window {
         bgColor = color
     }
 
+    function saveCapture() {
+        var processPath = settingAction.pythonPath
+        var arg1 = settingAction.captureAction
+        var arg2 = settingGeneral.saveFolder
+        console.log(processPath)
+        console.log(arg1)
+        console.log(arg2)
+
+        process.start(processPath, [arg1, arg2])
+    }
+
     Timer {
         id: mainTimer
-        interval: 6 * 1000
+        interval: 6000
         triggeredOnStart: true
         repeat: true
 
@@ -93,9 +120,9 @@ Window {
                     captureView.state = "liveview";
                     root.currentPhoto++
                     break;
-                case "liveview":
-                    captureView.state = "review";
-                    break;
+//                case "liveview":
+//                    captureView.state = "review";
+//                    break;
 
                 case "review":
                     if (root.currentPhoto < root.numberPhotos) {
@@ -104,9 +131,8 @@ Window {
                         captureView.state = "start"
                         root.currentPhoto = 0
                         mainTimer.stop()
-                        break;
-
                     }
+                    break;
 
             }
 
@@ -156,9 +182,7 @@ Window {
                         id: process
                         onReadyRead: {
                             var result = String(process.readAllStandardOutput())
-                            var filePrefix = "file://"
-                            filePrefix = filePrefix.concat(String(result)).replace("\r", "").replace("\n", "")
-                            root.lastPhotoPath = filePrefix
+                            root.lastPhotoPath = addFilePrefix(result)
                             console.log(root.lastPhotoPath)
                             reviewImage.source = root.lastPhotoPath
                             captureView.state = "review"
@@ -170,10 +194,7 @@ Window {
                     text: "Capture Action"
 
                     onClicked: {
-                        console.log(settingAction.pythonPath)
-                        console.log(settingAction.captureAction)
-                        console.log(settingGeneral.saveFolder)
-                        process.start("python3", [stripFilePrefix(settingAction.captureAction), stripFilePrefix(settingGeneral.saveFolder)])
+                        saveCapture()
                     }
                 }
 
@@ -291,8 +312,7 @@ Window {
                             countdownTimer.visible = true
                             countdownTimer.count = settingGeneral.captureTimer
                             captureTimer.start()
-//                            contentLoader.item.stop()
-                            
+                            reviewImage.source = ""
                         }
                     }
                 },
@@ -302,6 +322,10 @@ Window {
                     PropertyChanges {
                         target: liveView
                         opacity: 0
+//                        width: root.width * 0.8
+//                        height: width * 0.75
+//                        x: (root.width - width) / 2
+//                        y: 0
                     }
                     PropertyChanges {
                         target: countdownTimer
@@ -319,6 +343,11 @@ Window {
                         target: review
                         opacity: 1
                     }
+//                    StateChangeScript {
+//                        script: {
+//                            captureTimer.restart()
+//                        }
+//                    }
 
                 }
             ]
@@ -339,7 +368,7 @@ Window {
 //                y: 50
 //                opacity: 0
                 
-                liveViewImageSource: settingGeneral.liveViewImage
+//                liveViewImageSource: root.addFilePrefix(settingGeneral.liveViewImage)
 
                 opacity: 1
                 width: 160
@@ -377,7 +406,7 @@ Window {
                         countdownTimer.count = countdownTimer.timer
                         captureTimer.stop()
                         countdownTimer.visible = false
-                        process.start("python3", [stripFilePrefix(settingAction.captureAction), stripFilePrefix(settingGeneral.saveFolder)])
+                        saveCapture()
                     }
                     else {
                         countdownTimer.count--
@@ -401,6 +430,7 @@ Window {
 
                     onClicked: {
                         if (captureView.state == "start") {
+                            mainTimer.interval = 6000
                             mainTimer.start()
                         }
 

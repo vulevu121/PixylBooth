@@ -163,6 +163,7 @@ ColumnLayout {
     Pane {
         id: pane
         Layout.minimumWidth: 500
+        Layout.preferredWidth: root.width * 0.9
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         background: Rectangle {
             color: "transparent"

@@ -33,20 +33,24 @@ ColumnLayout {
 
     CustomPane {
         id: cameraActions
+        Layout.preferredWidth: root.width * 0.9
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         title: "Camera Action"
 
+
         ColumnLayout {
+            anchors.fill: parent
             RowLayout {
-                spacing: 10
+                spacing: 20
+
                 CustomLabel {
                     text: "Python Executable"
                     subtitle: "Path to python exe"
                 }
                 TextField {
                     id: pythonField
+                    Layout.fillWidth: true
                     placeholderText: "Select path to python"
-                    Layout.minimumWidth: 200
 
                     MouseArea {
                         anchors.fill: parent
@@ -76,15 +80,16 @@ ColumnLayout {
             }
 
             RowLayout {
-                spacing: 10
+                spacing: 20
+
                 CustomLabel {
                     text: "Capture Action"
                     subtitle: "Executable for capture action"
                 }
                 TextField {
                     id: captureActionField
+                    Layout.fillWidth: true
                     placeholderText: "Select python script or executable"
-                    Layout.minimumWidth: 200
 
                     MouseArea {
                         anchors.fill: parent
@@ -114,15 +119,16 @@ ColumnLayout {
             }
 
             RowLayout {
-                spacing: 10
+                spacing: 20
+
                 CustomLabel {
                     text: "Live View Action"
                     subtitle: "Script to start live view"
                 }
                 TextField {
                     id: liveViewField
+                    Layout.fillWidth: true
                     placeholderText: "Select python script or executable"
-                    Layout.minimumWidth: 200
 
                     MouseArea {
                         anchors.fill: parent
@@ -153,3 +159,48 @@ ColumnLayout {
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*##^## Designer {
+    D{i:0;height:1920;width:1080}
+}
+ ##^##*/

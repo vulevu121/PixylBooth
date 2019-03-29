@@ -39,7 +39,7 @@ Rectangle {
     Image {
         id: imageLiveView
         anchors.fill: parent
-        source: "file:///home/eelab10/PycharmProjects/Sony-Camera-API/example/LiveView.jpg"
+        source: "file:///C:/Users/Vu/Documents/Sony-Camera-API/example/LiveView.jpg"
         cache: false
 
 //        onStatusChanged: if (imageLiveView.status == Image.Error) console.log('Error')
@@ -54,7 +54,7 @@ Rectangle {
         onTriggered: {
             var oldSource = imageLiveView.source
             imageLiveView.source = ""
-            imageLiveView.source = oldSource
+            imageLiveView.source = "file:///C:/Users/Vu/Documents/Sony-Camera-API/example/LiveView.jpg"
         }
     }
 
