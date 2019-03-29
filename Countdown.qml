@@ -5,14 +5,15 @@ Rectangle {
     property real timer: 5
     property real count: 5
     property string textColor: "#ffffff"
+    property alias countLabelShow: countLabel.visible
     color: "transparent"
 
-    function start(time) {
-        timer = time
-        count = time
-        countLabel.visible = true
-        captureTimer.start()
-    }
+//    function start(time) {
+//        timer = time
+//        count = time
+//        countLabel.visible = true
+//        captureTimer.start()
+//    }
 
     Text {
         id: countLabel
@@ -23,7 +24,7 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
-        visible: false
+        visible: true
         opacity: 0.0
         font.pixelSize: root.height * 0.8
 
@@ -38,23 +39,7 @@ Rectangle {
 
 
 
-        Timer {
-            id: captureTimer
-            running: false
-            repeat: true
-            interval: 1000
 
-            onTriggered: {
-                if (root.count <= 0) {
-                    root.count = root.timer
-                    captureTimer.stop()
-                    countLabel.visible = false
-                }
-                else {
-                    root.count--
-                }
-            }
-        }
 
     }
 

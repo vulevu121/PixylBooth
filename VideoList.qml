@@ -24,8 +24,7 @@ Rectangle {
     Layout.minimumHeight: 250
     Layout.fillWidth: true
     
-
-    
+   
     Rectangle {
         id: topBar
         height: 32

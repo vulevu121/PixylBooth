@@ -27,13 +27,13 @@ Window {
     color: bgColor
     title: qsTr("PixylBooth")
 
-
     property real pixelDensity: Screen.pixelDensity
     property string bgColor: "#222"
     property string countDownColor: "#fff"
     property real numberPhotos: 3
     property real currentPhoto: 0
     property string lastPhotoPath: ""
+    
 
     Settings {
         property alias x: root.x
@@ -90,14 +90,14 @@ Window {
                     captureView.state = "beforecapture";
                     break;
                 case "beforecapture":
-                    captureView.state = "capture";
+                    captureView.state = "liveview";
                     root.currentPhoto++
                     break;
-                case "capture":
-                    captureView.state = "photoreview";
+                case "liveview":
+                    captureView.state = "review";
                     break;
 
-                case "photoreview":
+                case "review":
                     if (root.currentPhoto < root.numberPhotos) {
                         captureView.state = "beforecapture";
                     } else {
@@ -139,16 +139,16 @@ Window {
                 }
 
                 Button {
-                    text: "Capture"
+                    text: "liveview"
                     onClicked: {
-                        captureView.state = "capture"
+                        captureView.state = "liveview"
                     }
                 }
 
                 Button {
                     text: "Review"
                     onClicked: {
-                        captureView.state = "photoreview"
+                        captureView.state = "review"
                     }
                 }
 
@@ -156,22 +156,24 @@ Window {
                         id: process
                         onReadyRead: {
                             var result = String(process.readAllStandardOutput())
-                            var filePrefix = "file:///"
-                            root.lastPhotoPath = filePrefix.concat(result)
+                            var filePrefix = "file://"
+                            filePrefix = filePrefix.concat(String(result)).replace("\r", "").replace("\n", "")
+                            root.lastPhotoPath = filePrefix
                             console.log(root.lastPhotoPath)
-                            photoReviewImage.source = String(root.lastPhotoPath).replace("\r\n", "")
+                            reviewImage.source = root.lastPhotoPath
+                            captureView.state = "review"
                         }
-                    }
+                }
 
                 Button {
                     id: captureButton
                     text: "Capture Action"
 
                     onClicked: {
-                        console.log(actionView.pythonPath)
-                        console.log(actionView.captureAction)
-                        console.log(generalView.saveFolder)
-                        process.start(actionView.pythonPath, [actionView.captureAction, generalView.saveFolder])
+                        console.log(settingAction.pythonPath)
+                        console.log(settingAction.captureAction)
+                        console.log(settingGeneral.saveFolder)
+                        process.start("python3", [stripFilePrefix(settingAction.captureAction), stripFilePrefix(settingGeneral.saveFolder)])
                     }
                 }
 
@@ -180,8 +182,8 @@ Window {
 //                    text: "Live View"
 
 //                    onClicked: {
-//                        console.log(root.stripFilePrefix(actionView.liveviewAction))
-//                        process.start("python", [root.stripFilePrefix(actionView.liveviewAction)])
+//                        console.log(root.stripFilePrefix(settingAction.liveviewAction))
+//                        process.start("python", [root.stripFilePrefix(settingAction.liveviewAction)])
 //                    }
 //                }
 
@@ -213,7 +215,7 @@ Window {
                 State {
                     name: "start"
                     PropertyChanges {
-                        target: captureFrame
+                        target: liveView
                         opacity: 1
                         width: 160
                         height: 120
@@ -230,7 +232,7 @@ Window {
                     }
                     StateChangeScript {
                         script: {
-                            var model = videosPage.startVideoListModel
+                            var model = settingVideos.startVideoListModel
                             var randomIdx = Math.round(Math.random(1) * (model.count-1))
                             var randomItem = model.get(randomIdx)
                             playVideo(randomItem.filePath)
@@ -241,7 +243,7 @@ Window {
                 State {
                     name: "beforecapture"
                     PropertyChanges {
-                        target: captureFrame
+                        target: liveView
                         opacity: 1
                         width: 160
                         height: 120
@@ -258,7 +260,7 @@ Window {
                     }
                     StateChangeScript {
                         script: {
-                            var model = videosPage.beforeCaptureVideoListModel
+                            var model = settingVideos.beforeCaptureVideoListModel
                             var randomIdx = Math.round(Math.random(1) * (model.count-1))
                             var randomItem = model.get(randomIdx)
                             playVideo(randomItem.filePath)
@@ -267,9 +269,9 @@ Window {
                 },
 
                 State {
-                    name: "capture"
+                    name: "liveview"
                     PropertyChanges {
-                        target: captureFrame
+                        target: liveView
                         opacity: 1
                         width: root.width * 0.8
                         height: width * 0.75
@@ -286,16 +288,19 @@ Window {
                     }
                     StateChangeScript {
                         script: {
-                            countdownTimer.start(generalView.captureTimer)
+                            countdownTimer.visible = true
+                            countdownTimer.count = settingGeneral.captureTimer
+                            captureTimer.start()
 //                            contentLoader.item.stop()
+                            
                         }
                     }
                 },
 
                 State {
-                    name: "photoreview"
+                    name: "review"
                     PropertyChanges {
-                        target: captureFrame
+                        target: liveView
                         opacity: 0
                     }
                     PropertyChanges {
@@ -311,7 +316,7 @@ Window {
                         opacity: 0
                     }
                     PropertyChanges {
-                        target: photoReview
+                        target: review
                         opacity: 1
                     }
 
@@ -325,14 +330,16 @@ Window {
                     easing.type: Easing.InOutQuad;
                 }
             }
-
-            CaptureFrame {
-                id: captureFrame
+            
+            LiveView {
+                id: liveView
 //                width: root.width * 0.8
 //                height: width * 0.75
 //                x: (root.width - width) / 2
 //                y: 50
 //                opacity: 0
+                
+                liveViewImageSource: settingGeneral.liveViewImage
 
                 opacity: 1
                 width: 160
@@ -352,10 +359,30 @@ Window {
 
             Countdown {
                 id: countdownTimer
-                anchors.fill: captureFrame
+                anchors.fill: liveView
                 textColor: root.countDownColor
                 opacity: 0
                 z: 5
+            }
+            
+            Timer {
+                id: captureTimer
+                running: false
+                repeat: true
+                interval: 1000
+    
+                onTriggered: {
+                    console.log(countdownTimer.count)
+                    if (countdownTimer.count <= 0) {
+                        countdownTimer.count = countdownTimer.timer
+                        captureTimer.stop()
+                        countdownTimer.visible = false
+                        process.start("python3", [stripFilePrefix(settingAction.captureAction), stripFilePrefix(settingGeneral.saveFolder)])
+                    }
+                    else {
+                        countdownTimer.count--
+                    }
+                }
             }
 
 
@@ -382,16 +409,16 @@ Window {
             }
 
             Rectangle {
-                id: photoReview
+                id: review
                 width: root.width * 0.8
                 height: width * 1080/1616
                 anchors.top: parent.top
                 anchors.topMargin: 0
                 anchors.horizontalCenter: parent.horizontalCenter
                 opacity: 0
-                color: "black"
+                color: "transparent"
                 Image {
-                    id: photoReviewImage
+                    id: reviewImage
                     anchors.fill: parent
                     fillMode: Image.PreserveAspectFit
 //                    source: "file:///C:/Users/Vu/Documents/Sony-Camera-API/example/DCIM/DSC04492.JPG"
@@ -401,28 +428,28 @@ Window {
         }
         Item {
             SettingGeneral {
-                id: generalView
+                id: settingGeneral
                 anchors.fill: parent
             }
 
         }
         Item {
             SettingCamera {
-                id: cameraView
+                id: settingCamera
                 anchors.fill: parent
             }
         }
 
         Item {
             SettingAction {
-                id: actionView
+                id: settingAction
                 anchors.fill: parent
             }
         }
 
         Item {
             SettingColor {
-                id: colorsView
+                id: settingColors
                 anchors.fill: parent
 
                 Component.onCompleted: {
@@ -435,7 +462,7 @@ Window {
 
         Item {
             SettingVideo {
-                id: videosPage
+                id: settingVideos
                 anchors.fill: parent
             }
         }
@@ -481,7 +508,7 @@ Window {
 //        Material.elevation: 1
 
 //        TabButton {
-//            text: "Capture"
+//            text: "liveview"
 //            width: implicitWidth
 //        }
 

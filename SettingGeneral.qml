@@ -14,11 +14,13 @@ ColumnLayout {
     property alias captureTimer: captureTimerSlider.value
     property alias durationPhoto: displayTimerSlider.value
     property alias saveFolder: saveFolderField.text
+    property alias liveViewImage: liveViewImageField.text
 
     Settings {
         property alias captureTimer: root.captureTimer
         property alias durationPhoto: root.durationPhoto
         property alias saveFolder: saveFolderField.text
+        property alias liveViewImage: liveViewImageField.text
     }
 
     function stripFilePrefix(a) {
@@ -120,7 +122,6 @@ ColumnLayout {
 
                 TextField {
                     id: saveFolderField
-                    text: qsTr("")
                     font.pointSize: 12
                     Layout.fillWidth: true
                     placeholderText: "Choose a save folder..."
@@ -141,8 +142,50 @@ ColumnLayout {
                         }
                     }
                 }
+            }
+            
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                spacing: 20
 
+                CustomLabel {
+                    text: qsTr("LiveView Image")
+                    subtitle: "Location of live view image"
+                    verticalAlignment: Text.AlignVCenter
+                    font.pixelSize: 24
+                }
 
+                TextField {
+                    id: liveViewImageField
+                    font.pointSize: 12
+                    Layout.fillWidth: true
+                    placeholderText: "Open live view image..."
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            liveViewImageFileDialog.open()
+                        }
+                    }
+
+                    
+                    FileDialog {
+                        id: liveViewImageFileDialog
+                        title: "Open Live View Image"
+                        folder: shortcuts.home
+                        onAccepted: {
+                            liveViewImageField.text = String(fileUrl)
+                        }
+
+                        onRejected: {
+//                                console.log("Canceled")
+                            visible = false
+                        }
+                        Component.onCompleted: visible = false
+                    }
+                    
+                }
             }
 
 

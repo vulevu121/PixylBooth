@@ -16,7 +16,7 @@
         <file>SettingCamera.qml</file>
         <file>VideoList.qml</file>
         <file>CustomPane.qml</file>
-        <file>CaptureFrame.qml</file>
+        <file>LiveView.qml</file>
         <file>CustomLabel.qml</file>
         <file>SettingAction.qml</file>
     </qresource>
