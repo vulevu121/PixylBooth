@@ -42,19 +42,50 @@ ColumnLayout {
             spacing: 20
 
             RowLayout {
+                width: 100
+                height: 100
+
+                CustomLabel {
+                    Layout.minimumWidth: 200
+                    font.pixelSize: 24
+                    height: 48
+                    verticalAlignment: Text.AlignVCenter
+                    text: qsTr("Before Capture Video Timer")
+                    subtitle: qsTr("Time to display video before capture ")
+                }
+
+                Slider {
+                    id: beforeCaptureTimerSlider
+                    height: 48
+                    Layout.fillWidth: true
+                    stepSize: 1
+                    to: 20
+                    value: 5
+                }
+
+                Label {
+//                    id: captureTimerEdit
+                    height: 48
+                    text: beforeCaptureTimerSlider.value + " s"
+                    verticalAlignment: Text.AlignVCenter
+                    font.pixelSize: 24
+                }
+            }
+
+            RowLayout {
                 id: rowLayout1
                 width: 100
                 height: 100
 
 
                 CustomLabel {
-                    id: mainLabel
+//                    id: mainLabel
                     Layout.minimumWidth: 200
                     font.pixelSize: 24
                     height: 48
                     verticalAlignment: Text.AlignVCenter
                     text: qsTr("Capture Timer")
-                    subtitle: qsTr("Time between each photo")
+                    subtitle: qsTr("Time before picture taken")
                 }
 
                 Slider {
@@ -67,7 +98,7 @@ ColumnLayout {
                 }
 
                 Label {
-                    id: captureTimerEdit
+//                    id: captureTimerEdit
                     height: 48
                     text: captureTimerSlider.value + " s"
                     verticalAlignment: Text.AlignVCenter
@@ -85,7 +116,7 @@ ColumnLayout {
                     font.pixelSize: 24
                     height: 48
                     verticalAlignment: Text.AlignVCenter
-                    text: qsTr("Photo Timer")
+                    text: qsTr("Review Time")
                     subtitle: qsTr("Duration to display photo")
                 }
 

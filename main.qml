@@ -95,50 +95,99 @@ Window {
     }
 
     function saveCapture() {
-        var processPath = settingAction.pythonPath
-        var arg1 = settingAction.captureAction
-        var arg2 = settingGeneral.saveFolder
-        console.log(processPath)
-        console.log(arg1)
-        console.log(arg2)
+//        var processPath = settingAction.pythonPath
+//        var arg1 = settingAction.captureAction
+//        var arg2 = settingGeneral.saveFolder
+//        console.log(processPath)
+//        console.log(arg1)
+//        console.log(arg2)
 
-        process.start(processPath, [arg1, arg2])
+//        process.start(processPath, [arg1, arg2])
+
+//        backend.saveFolder = settingGeneral.saveFolder
+
+        backend.actTakePicture()
+    }
+
+    BackEnd {
+        id: backend
+        saveFolder: settingGeneral.saveFolder
+        onActTakePictureCompleted: {
+            reviewImage.source = addFilePrefix(actTakePictureFilePath)
+            console.log(actTakePictureFilePath)
+
+//            var result = String(process.readAllStandardOutput())
+//            root.lastPhotoPath = addFilePrefix(result)
+//            console.log(root.lastPhotoPath)
+//            reviewImage.source = root.lastPhotoPath
+            captureView.state = "review"
+        }
+    }
+
+//    Timer {
+//        id: mainTimer
+//        interval: 6000
+//        triggeredOnStart: true
+//        repeat: true
+
+//        onTriggered: {
+//            switch (captureView.state) {
+//                case "start":
+//                    captureView.state = "beforecapture";
+//                    break;
+//                case "beforecapture":
+//                    captureView.state = "liveview";
+//                    root.currentPhoto++
+//                    break;
+////                case "liveview":
+////                    captureView.state = "review";
+////                    break;
+
+//                case "review":
+//                    if (root.currentPhoto < root.numberPhotos) {
+//                        captureView.state = "beforecapture";
+//                    } else {
+//                        captureView.state = "start"
+//                        root.currentPhoto = 0
+//                        mainTimer.stop()
+//                    }
+//                    break;
+
+//            }
+
+
+//        }
+//    }
+
+    Timer {
+        id: beforeCaptureTimer
+        interval: 6000
+        repeat: false
+
+        onTriggered: {
+            captureView.state = "liveview"
+            root.currentPhoto++
+        }
     }
 
     Timer {
-        id: mainTimer
+        id: reviewTimer
         interval: 6000
-        triggeredOnStart: true
-        repeat: true
+        repeat: false
 
         onTriggered: {
-            switch (captureView.state) {
-                case "start":
-                    captureView.state = "beforecapture";
-                    break;
-                case "beforecapture":
-                    captureView.state = "liveview";
-                    root.currentPhoto++
-                    break;
-//                case "liveview":
-//                    captureView.state = "review";
-//                    break;
-
-                case "review":
-                    if (root.currentPhoto < root.numberPhotos) {
-                        captureView.state = "beforecapture";
-                    } else {
-                        captureView.state = "start"
-                        root.currentPhoto = 0
-                        mainTimer.stop()
-                    }
-                    break;
-
+            if (root.currentPhoto < root.numberPhotos) {
+                captureView.state = "beforecapture";
+            } else {
+                captureView.state = "start"
+                root.currentPhoto = 0
+//                mainTimer.stop()
             }
-
-
         }
     }
+
+
+
 
     SwipeView {
         id: swipeview
@@ -194,9 +243,12 @@ Window {
                     text: "Capture Action"
 
                     onClicked: {
-                        saveCapture()
+                        backend.actTakePicture()
+//                        saveCapture()
                     }
                 }
+
+
 
 //                Button {
 //                    id: liveviewButton
@@ -223,12 +275,10 @@ Window {
 //                }
 
 //                TextField {
-//                        text: backend.userName
+//                        text: backend.saveFolder
 //                }
 
-//                BackEnd {
-//                        id: backend
-//                }
+
 
             }
 
@@ -257,6 +307,7 @@ Window {
                             var randomIdx = Math.round(Math.random(1) * (model.count-1))
                             var randomItem = model.get(randomIdx)
                             playVideo(randomItem.filePath)
+                            backend.startRecMode()
                         }
                     }
                 },
@@ -285,6 +336,8 @@ Window {
                             var randomIdx = Math.round(Math.random(1) * (model.count-1))
                             var randomItem = model.get(randomIdx)
                             playVideo(randomItem.filePath)
+
+                            beforeCaptureTimer.start()
                         }
                     }
                 },
@@ -343,11 +396,11 @@ Window {
                         target: review
                         opacity: 1
                     }
-//                    StateChangeScript {
-//                        script: {
-//                            captureTimer.restart()
-//                        }
-//                    }
+                    StateChangeScript {
+                        script: {
+                            reviewTimer.start()
+                        }
+                    }
 
                 }
             ]
@@ -430,9 +483,8 @@ Window {
 
                     onClicked: {
                         if (captureView.state == "start") {
-                            mainTimer.interval = 6000
-                            mainTimer.start()
-                        }
+                            captureView.state = "beforecapture"
+                         }
 
                     }
                 }
