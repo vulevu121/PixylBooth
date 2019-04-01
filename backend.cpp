@@ -13,19 +13,6 @@ BackEnd::BackEnd(QObject *parent) :
 {
 }
 
-//QString BackEnd::userName()
-//{
-//    return m_userName;
-//}
-
-//void BackEnd::setUserName(const QString &userName)
-//{
-//    if (userName == m_userName)
-//        return;
-
-//    m_userName = userName;
-//    emit userNameChanged();
-//}
 
 QString BackEnd::actTakePictureFilePath() {
     return m_actTakePictureFilePath;
@@ -47,15 +34,32 @@ void BackEnd::startRecMode() {
     QNetworkRequest req(serviceURL);
     req.setRawHeader("Content-Type","application/json");
 
-    QByteArray start_rec ("{\"method\": \"startRecMode\", \"params\": [], \"id\": 1, \"version\": \"1.0\"}");
-    QByteArray postDataSize1 = QByteArray::number(start_rec.size());
-    req.setRawHeader("Content-Length",postDataSize1);
-    manager->post(req,start_rec);
+    QByteArray jsonRequest ("{\"method\": \"startRecMode\", \"params\": [], \"id\": 1, \"version\": \"1.0\"}");
+    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+    req.setRawHeader("Content-Length",postDataSize);
+    manager->post(req,jsonRequest);
 
 //    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
 //            this, SLOT(replyFinished(QNetworkReply*)));
 
     qDebug() << "startRecMode Requested!";
+}
+
+void BackEnd::startLiveview() {
+    manager = new QNetworkAccessManager(this);
+    QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
+    QNetworkRequest req(serviceURL);
+    req.setRawHeader("Content-Type","application/json");
+
+    QByteArray jsonRequest ("{\"method\": \"startLiveview\", \"params\": [], \"id\": 1, \"version\": \"1.0\"}");
+    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+    req.setRawHeader("Content-Length",postDataSize);
+    manager->post(req,jsonRequest);
+
+//    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+//            this, SLOT(replyFinished(QNetworkReply*)));
+
+    qDebug() << "startLiveview Requested!";
 }
 
 void BackEnd::actTakePicture()
@@ -65,10 +69,10 @@ void BackEnd::actTakePicture()
     QNetworkRequest req(serviceURL);
     req.setRawHeader("Content-Type","application/json");
 
-    QByteArray take_pic ("{\"method\": \"actTakePicture\", \"params\": [], \"id\": 1, \"version\": \"1.0\"}");
-    QByteArray postDataSize2 = QByteArray::number(take_pic.size());
-    req.setRawHeader("Content-Length",postDataSize2);
-    manager->post(req,take_pic);
+    QByteArray jsonRequest ("{\"method\": \"actTakePicture\", \"params\": [], \"id\": 1, \"version\": \"1.0\"}");
+    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+    req.setRawHeader("Content-Length",postDataSize);
+    manager->post(req,jsonRequest);
 
     connect(manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(replyFinished(QNetworkReply*)));
@@ -87,7 +91,7 @@ void BackEnd::replyFinished (QNetworkReply *reply)
         QByteArray response = reply->readAll();
 
         QString responseString(response); // grab picture url from result
-        qDebug() << responseString;
+//        qDebug() << responseString;
 
         // if "not available  now" in response, then camera is not ready for actTakePicture and need startRecMode
         if (responseString.indexOf("Not Available Now") >= 0) {
@@ -114,7 +118,7 @@ void BackEnd::replyFinished (QNetworkReply *reply)
             downloadManager->get(req);
 
             connect(downloadManager, SIGNAL(finished(QNetworkReply*)),
-                    this, SLOT(downloadPicFinished(QNetworkReply*)));
+                    this, SLOT(downloadPicture(QNetworkReply*)));
 
         }
 
@@ -127,7 +131,7 @@ void BackEnd::replyFinished (QNetworkReply *reply)
 }
 
 
-void BackEnd::downloadPicFinished(QNetworkReply *reply)
+void BackEnd::downloadPicture(QNetworkReply *reply)
 {
     QString filePath = m_saveFolder + "/" + m_fileName;
     QFile file(filePath);

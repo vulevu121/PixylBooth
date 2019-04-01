@@ -28,7 +28,6 @@
 #include <QThread>
 #include <QFile>
 
-
 class BackEnd : public QObject
 {
     Q_OBJECT
@@ -38,26 +37,22 @@ class BackEnd : public QObject
 
 public:
     explicit BackEnd(QObject *parent = nullptr);
-
-//    QString userName();
-//    void setUserName(const QString &userName);
     QString saveFolder();
     void setSaveFolder(const QString &saveFolder);
     QString actTakePictureFilePath();
 
 
 signals:
-//    void userNameChanged();
     void actTakePictureCompleted();
 
 public slots:
     void startRecMode();
+    void startLiveview();
     void actTakePicture();
     void replyFinished(QNetworkReply *reply);
-    void downloadPicFinished(QNetworkReply *reply);
+    void downloadPicture(QNetworkReply *reply);
 
 private:
-//    QString m_userName;
     QString m_actTakePictureFilePath;
     QString m_saveFolder;
     QString m_fileName;

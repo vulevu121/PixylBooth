@@ -50,7 +50,7 @@ ColumnLayout {
                     font.pixelSize: 24
                     height: 48
                     verticalAlignment: Text.AlignVCenter
-                    text: qsTr("Before Capture Video Timer")
+                    text: qsTr("Before Capture Video Time")
                     subtitle: qsTr("Time to display video before capture ")
                 }
 
@@ -84,7 +84,7 @@ ColumnLayout {
                     font.pixelSize: 24
                     height: 48
                     verticalAlignment: Text.AlignVCenter
-                    text: qsTr("Capture Timer")
+                    text: qsTr("Capture Countdown")
                     subtitle: qsTr("Time before picture taken")
                 }
 
@@ -130,7 +130,6 @@ ColumnLayout {
                 }
 
                 Label {
-                    id: captureTimerEdit1
                     height: 48
                     text: displayTimerSlider.value + " s"
                     verticalAlignment: Text.AlignVCenter
@@ -220,15 +219,8 @@ ColumnLayout {
                 }
             }
 
-
             RowLayout {
-                id: rowLayout10
-                width: 100
-                height: 100
             }
-
-
-
         }
     }
 

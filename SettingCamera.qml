@@ -7,9 +7,20 @@ import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1
 import QtQuick.Dialogs 1.3
+import Qt.labs.settings 1.1
+
 
 ColumnLayout {
-    id: columnLayout1
+    id: root
+
+    property alias liveVideoStartSwitch: liveVideoStartSwitch.checked
+    property alias liveVideoCountdownSwitch: liveVideoCountdownSwitch.checked
+
+    Settings {
+        category: "Camera"
+        property alias liveVideoStartSwitch: liveVideoStartSwitch.checked
+        property alias liveVideoCountdownSwitch: liveVideoCountdownSwitch.checked
+    }
 
     CustomPane {
         id: customPane
@@ -23,57 +34,40 @@ ColumnLayout {
             spacing: 20
 
             RowLayout {
-                id: rowLayout6
-                width: 100
-                height: 100
-
                 Switch {
-                    id: element1
-                    text: qsTr("Auto Trigger Camera")
-                    Layout.fillWidth: true
-                }
-            }
-
-            RowLayout {
-                id: rowLayout9
-                width: 100
-                height: 100
-
-                Switch {
-                    id: element6
-                    text: qsTr("Live Video During Countdown")
-                }
-            }
-
-            RowLayout {
-                id: rowLayout3
-                width: 100
-                height: 100
-
-                Switch {
-                    id: element2
+                    id: liveVideoStartSwitch
                     text: qsTr("Show Live Video on Start")
                     Layout.fillWidth: true
                 }
             }
 
             RowLayout {
-                id: rowLayout7
-                width: 100
-                height: 100
-
                 Switch {
-                    id: element3
+                    id: liveVideoCountdownSwitch
+                    text: qsTr("Show Live Video During Countdown")
+                    Layout.fillWidth: true
+                }
+            }
+
+            RowLayout {
+                Switch {
+                    id: autoTriggerSwitch
+                    text: qsTr("Auto Trigger Camera")
+                    Layout.fillWidth: true
+                }
+            }
+
+
+
+            RowLayout {
+                Switch {
+                    id: mirrorLiveVideoSwitch
                     text: qsTr("Mirror Live Video")
                     Layout.fillWidth: true
                 }
             }
 
             RowLayout {
-                id: rowLayout8
-                width: 100
-                height: 100
-
                 Dial {
                     id: dial
                     value: 0
@@ -91,16 +85,12 @@ ColumnLayout {
                 }
 
                 Label {
-                    id: label1
                     text: qsTr("Live Video Rotation")
                 }
             }
 
 
             RowLayout {
-                id: rowLayout10
-                width: 100
-                height: 100
             }
 
 
@@ -109,7 +99,9 @@ ColumnLayout {
     }
 }
 
+
+
 /*##^## Designer {
-    D{i:2;anchors_x:0;anchors_y:-621}
+    D{i:2;anchors_x:0;anchors_y:"-621"}
 }
  ##^##*/

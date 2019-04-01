@@ -20,10 +20,10 @@ Window {
     y: 0
     width: 1080
     height: 1920
-//    minimumWidth: 1080/2
-//    minimumHeight: 1920/2
-//    maximumWidth: 1080/2
-//    maximumHeight: 1920/2
+    minimumWidth: 1080/2
+    minimumHeight: 1920/2
+    maximumWidth: 1080/2
+    maximumHeight: 1920/2
     color: bgColor
     title: qsTr("PixylBooth")
 
@@ -33,7 +33,7 @@ Window {
     property real numberPhotos: 3
     property real currentPhoto: 0
     property string lastPhotoPath: ""
-    
+
 
     Settings {
         property alias x: root.x
@@ -124,40 +124,19 @@ Window {
         }
     }
 
-//    Timer {
-//        id: mainTimer
-//        interval: 6000
-//        triggeredOnStart: true
-//        repeat: true
+    Timer {
+        id: initialTimer
+        interval: 1000
+        running: true
+        repeat: false
 
-//        onTriggered: {
-//            switch (captureView.state) {
-//                case "start":
-//                    captureView.state = "beforecapture";
-//                    break;
-//                case "beforecapture":
-//                    captureView.state = "liveview";
-//                    root.currentPhoto++
-//                    break;
-////                case "liveview":
-////                    captureView.state = "review";
-////                    break;
-
-//                case "review":
-//                    if (root.currentPhoto < root.numberPhotos) {
-//                        captureView.state = "beforecapture";
-//                    } else {
-//                        captureView.state = "start"
-//                        root.currentPhoto = 0
-//                        mainTimer.stop()
-//                    }
-//                    break;
-
-//            }
-
-
-//        }
-//    }
+        onTriggered: {
+            captureView.state = "start"
+            if(settingCamera.liveVideoCountdownSwitch || settingCamera.liveVideoStartSwitch) {
+                backend.startLiveview()
+            }
+        }
+    }
 
     Timer {
         id: beforeCaptureTimer
@@ -191,14 +170,18 @@ Window {
 
     SwipeView {
         id: swipeview
-//        currentIndex: tabBar.currentIndex
+        currentIndex: tabBar.currentIndex
         anchors.fill: parent
 
         Item {
             id: captureView
+//            state: "start"
 
             ColumnLayout {
+                id: debugLayout
                 z: 10
+                visible: false
+
                 Button {
                     text: "Start"
                     onClicked: {
@@ -292,6 +275,7 @@ Window {
                         height: 120
                         y: 0
                         x: root.width - width
+                        visible: settingCamera.liveVideoStartSwitch
                     }
                     PropertyChanges {
                         target: contentLoader
@@ -347,10 +331,11 @@ Window {
                     PropertyChanges {
                         target: liveView
                         opacity: 1
-                        width: root.width * 0.8
+                        width: root.width
                         height: width * 0.75
                         x: (root.width - width) / 2
                         y: 0
+                        visible: settingCamera.liveVideoCountdownSwitch
                     }
                     PropertyChanges {
                         target: contentLoader
@@ -412,7 +397,7 @@ Window {
                     easing.type: Easing.InOutQuad;
                 }
             }
-            
+
             LiveView {
                 id: liveView
 //                width: root.width * 0.8
@@ -420,7 +405,7 @@ Window {
 //                x: (root.width - width) / 2
 //                y: 50
 //                opacity: 0
-                
+
 //                liveViewImageSource: root.addFilePrefix(settingGeneral.liveViewImage)
 
                 opacity: 1
@@ -446,13 +431,13 @@ Window {
                 opacity: 0
                 z: 5
             }
-            
+
             Timer {
                 id: captureTimer
                 running: false
                 repeat: true
                 interval: 1000
-    
+
                 onTriggered: {
                     console.log(countdownTimer.count)
                     if (countdownTimer.count <= 0) {
@@ -492,8 +477,8 @@ Window {
 
             Rectangle {
                 id: review
-                width: root.width * 0.8
-                height: width * 1080/1616
+                width: root.width
+                height: width * reviewImage.sourceSize.height / reviewImage.sourceSize.width
                 anchors.top: parent.top
                 anchors.topMargin: 0
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -581,44 +566,67 @@ Window {
         }
     }
 
-//    TabBar {
-//        id: tabBar
-//        x: 864
-//        anchors.top: parent.top
-//        anchors.horizontalCenter: parent.horizontalCenter
-//        currentIndex: swipeview.currentIndex
-//        Material.elevation: 1
-
-//        TabButton {
-//            text: "liveview"
-//            width: implicitWidth
-//        }
-
-
-//        TabButton {
-//            text: "General"
-//            width: implicitWidth
-//        }
+    TabBar {
+        id: tabBar
+        x: 864
+        position: TabBar.Footer
+        currentIndex: swipeview.currentIndex
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        Material.elevation: 1
+        background: Rectangle {
+            color: "transparent"
+        }
 
 
-//        TabButton {
-//            text: "Camera"
-//            width: implicitWidth
-//        }
 
-//        TabButton {
-//            text: "Color"
-//            width: implicitWidth
-//        }
+        TabButton {
+            text: "Start"
+            width: implicitWidth
+            icon.source: "qrc:/Images/camera_white_48dp.png"
+            display: AbstractButton.IconOnly
+        }
 
 
-//        TabButton {
-//            text: "Videos"
-//            width: implicitWidth
-//        }
+        TabButton {
+            text: "General"
+            width: implicitWidth
+            icon.source: "qrc:/Images/settings_white_48dp.png"
+            display: AbstractButton.IconOnly
+        }
 
 
-//    }
+        TabButton {
+            text: "Camera"
+            width: implicitWidth
+            icon.source: "qrc:/Images/camera_alt_white_48dp.png"
+            display: AbstractButton.IconOnly
+        }
+
+        TabButton {
+            text: "Action"
+            width: implicitWidth
+            icon.source: "qrc:/Images/apps_white_48dp.png"
+            display: AbstractButton.IconOnly
+        }
+
+        TabButton {
+            text: "Color"
+            width: implicitWidth
+            icon.source: "qrc:/Images/color_lens_white_48dp.png"
+            display: AbstractButton.IconOnly
+        }
+
+
+        TabButton {
+            text: "Videos"
+            width: implicitWidth
+            icon.source: "qrc:/Images/video_library_white_48dp.png"
+            display: AbstractButton.IconOnly
+        }
+
+
+    }
 
 }
 
