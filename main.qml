@@ -18,12 +18,14 @@ Window {
     visible: true
     x: 0
     y: 0
+
     width: 1080
     height: 1920
     minimumWidth: 1080/2
     minimumHeight: 1920/2
     maximumWidth: 1080/2
     maximumHeight: 1920/2
+
     color: bgColor
     title: qsTr("PixylBooth")
 
@@ -38,6 +40,7 @@ Window {
     Settings {
         property alias x: root.x
         property alias y: root.y
+        property alias visibility: root.visibility
     }
 
     Settings {
@@ -166,7 +169,41 @@ Window {
     }
 
 
+    RowLayout {
+        anchors.fill: parent
+        z: 10
 
+        RowLayout {}
+
+        Button {
+            text: "Full Screen"
+            Layout.alignment: Qt.AlignRight | Qt.AlignTop
+            icon.source: "qrc:/Images/fullscreen_white_48dp.png"
+            display: AbstractButton.IconOnly
+            background: Rectangle {
+                color: "transparent"
+            }
+
+            onClicked: {
+                if (root.visibility == Window.FullScreen) {
+                    root.showNormal();
+                }
+                else {
+                    root.showFullScreen();
+                }
+            }
+        }
+
+        Button {
+            Layout.alignment: Qt.AlignRight | Qt.AlignTop
+            icon.source: "qrc:/Images/backspace_white_48dp.png"
+            display: AbstractButton.IconOnly
+            background: Rectangle {
+                color: "transparent"
+            }
+        }
+
+    }
 
     SwipeView {
         id: swipeview
@@ -176,6 +213,8 @@ Window {
         Item {
             id: captureView
 //            state: "start"
+
+
 
             ColumnLayout {
                 id: debugLayout
@@ -271,10 +310,10 @@ Window {
                     PropertyChanges {
                         target: liveView
                         opacity: 1
-                        width: 160
-                        height: 120
-                        y: 0
-                        x: root.width - width
+                        width: 320
+                        height: 240
+                        y: 60
+                        x: (root.width - width)/2
                         visible: settingCamera.liveVideoStartSwitch
                     }
                     PropertyChanges {
@@ -300,11 +339,11 @@ Window {
                     name: "beforecapture"
                     PropertyChanges {
                         target: liveView
-                        opacity: 1
-                        width: 160
-                        height: 120
-                        y: 0
-                        x: root.width - width
+                        opacity: 0
+//                        width: 320
+//                        height: 240
+//                        y: 60
+//                        x: (root.width - width)/2
                     }
                     PropertyChanges {
                         target: contentLoader

@@ -25,5 +25,7 @@
         <file>Images/apps_white_48dp.png</file>
         <file>Images/video_library_white_48dp.png</file>
         <file>Images/color_lens_white_48dp.png</file>
+        <file>Images/fullscreen_white_48dp.png</file>
+        <file>Images/backspace_white_48dp.png</file>
     </qresource>
 </RCC>
