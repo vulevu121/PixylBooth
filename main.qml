@@ -12,6 +12,7 @@ import Qt.labs.settings 1.1
 import QtMultimedia 5.4
 import Process 1.0
 import BackEnd 1.0
+import LiveViewStream 1.0
 
 Window {
     id: root
@@ -127,6 +128,17 @@ Window {
         }
     }
 
+    LiveViewStream {
+        id: liveViewStream
+
+        onImageUpdated: {
+            liveView.liveViewImageSource = ""
+            liveView.liveViewImageSource = liveViewStream.image
+        }
+    }
+
+
+
     Timer {
         id: initialTimer
         interval: 1000
@@ -219,7 +231,7 @@ Window {
             ColumnLayout {
                 id: debugLayout
                 z: 10
-                visible: false
+                visible: true
 
                 Button {
                     text: "Start"
@@ -236,9 +248,9 @@ Window {
                 }
 
                 Button {
-                    text: "liveview"
+                    text: "Start Liveview"
                     onClicked: {
-                        captureView.state = "liveview"
+                        liveViewStream.start()
                     }
                 }
 

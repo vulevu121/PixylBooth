@@ -148,3 +148,5 @@ void BackEnd::downloadPicture(QNetworkReply *reply)
 //    qDebug() << m_fileName;
     emit actTakePictureCompleted();
 }
+
+

@@ -1,4 +1,4 @@
-QT += quick widgets multimedia webview
+QT += gui quick widgets multimedia webview
 CONFIG += c++11
 
 RC_ICONS = camera_white_48dp.ico
@@ -16,7 +16,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-    backend.cpp
+    backend.cpp \
+    liveviewstream.cpp
 
 RESOURCES += qml.qrc
 
@@ -36,4 +37,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     process.h \
-    backend.h
+    backend.h \
+    liveviewstream.h
