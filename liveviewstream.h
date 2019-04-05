@@ -12,7 +12,6 @@
 class LiveViewStream : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QImage image READ image NOTIFY imageUpdated)
 
 public:
     explicit LiveViewStream(QObject *parent = nullptr);
@@ -29,7 +28,6 @@ public slots:
 private:
     QTcpSocket *socket;
     QByteArray array;
-    QImage image;
 };
 
 #endif // LIVEVIEWSTREAM_H

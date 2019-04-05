@@ -13,6 +13,7 @@ import QtMultimedia 5.4
 import Process 1.0
 import BackEnd 1.0
 import LiveViewStream 1.0
+import ImageItem 1.0
 
 Window {
     id: root
@@ -128,12 +129,17 @@ Window {
         }
     }
 
+    ImageItem {
+        id: liveImageItem
+        height: 640
+        width: 424
+    }
+
     LiveViewStream {
         id: liveViewStream
 
         onImageUpdated: {
-            liveView.liveViewImageSource = ""
-            liveView.liveViewImageSource = liveViewStream.image
+            console.log("Image updated")
         }
     }
 
@@ -250,6 +256,7 @@ Window {
                 Button {
                     text: "Start Liveview"
                     onClicked: {
+                        backend.startLiveview()
                         liveViewStream.start()
                     }
                 }

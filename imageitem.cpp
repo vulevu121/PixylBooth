@@ -1,17 +1,39 @@
-#include "liveviewstream.h"
+#include "imageitem.h"
 #include "backend.h"
 
-LiveViewStream::LiveViewStream(QObject *parent) : QObject(parent)
-{
-
+ImageItem::ImageItem(QQuickItem *parent) : QQuickPaintedItem(parent)
+{    
+this->current_image = QImage("file:///home/eelab10/PixylBooth/Images/liveviewstream.jpg");
 }
 
-void LiveViewStream::start() {
+void ImageItem::paint(QPainter *painter)
+{
+    QRectF bounding_rect = boundingRect();
+    QImage scaled = this->current_image.scaledToHeight(bounding_rect.height());
+    QPointF center = bounding_rect.center() - scaled.rect().center();
+
+    if(center.x() < 0)
+        center.setX(0);
+    if(center.y() < 0)
+        center.setY(0);
+   painter->drawImage(center, scaled);
+}
+
+QImage ImageItem::image() const
+{    return this->current_image;
+}
+
+void ImageItem::setImage(const QImage &image)
+{
+    this->current_image = image;
+    update();
+}
+
+void ImageItem::start() {
 //    QTcpSocket *socket = new QTcpSocket(this);
     
 //    BackEnd backEnd;
 //    backEnd.startLiveview();
-    
 //    QThread::sleep(2);
 
     socket = new QTcpSocket(this);
@@ -43,7 +65,7 @@ void LiveViewStream::start() {
 //    qDebug() << "Socket closed.";
 }
 
-void LiveViewStream::connected() {
+void ImageItem::connected() {
 //    QThread::sleep(2);
     qDebug() << "Connected...";
 ////    QByteArray line1("GET /liveview/liveviewstream HTTP/1.1\r\n");
@@ -59,15 +81,11 @@ void LiveViewStream::connected() {
 
 }
 
-void LiveViewStream::disconnected() {
+void ImageItem::disconnected() {
     qDebug() << "Disconnected...";
 }
 
-void LiveViewStream::readyRead() {
-
-//    QByteArray data = QByteArray::fromHex(socket->readAll());
-//    qDebug() << data;
-
+void ImageItem::readyRead() {
     array += socket->readAll();
 
 
@@ -78,8 +96,7 @@ void LiveViewStream::readyRead() {
     int endIdx = array.indexOf(startPayload, startIdx+1);
 
     if (endIdx - startIdx >= 128) {
-//        qDebug() << "Image Found!";
-
+        qDebug() << "Found Image!";
         QByteArray payloadDataSizeArray = array.mid(startIdx + 12, 3);
         int payloadDataSize = int((unsigned char)(payloadDataSizeArray[0]) << 16 | (unsigned char)(payloadDataSizeArray[1]) << 8 | (unsigned char)(payloadDataSizeArray[2]));
 
@@ -87,46 +104,13 @@ void LiveViewStream::readyRead() {
 
         QByteArray payloadData = array.mid(payloadIdx, payloadDataSize);
 
-//        QImage image;
-//        image.loadFromData(payloadData, "JPG");
+        QImage image;
+        image.loadFromData(payloadData, "JPEG");
+        
+        setImage(image);
 
-        emit imageUpdated();
-
-
-
-
-
-
-//        qDebug() << payloadData.toHex();
-
-//        QFile file("C:/Users/Vu/Documents/Sony-Camera-API/example/downloaded.jpg");
-
-//        file.open(QIODevice::WriteOnly | QIODevice::Truncate);
-
-//        if(file.exists()) {
-//            file.write(payloadData);
-//            file.flush();
-//            file.close();
-//        }
+        emit imageChanged();
 
         array.clear();
-//        readyRead();
     }
-
-
-
-//    if(array.contains("$5hy"))
-//    {
-//        qDebug() << "Found!";
-//        int bytes = array.indexOf("$5hy") + 1;
-//        QByteArray message = array.left(bytes);
-//        array = array.mid(bytes);
-
-//        //processMessage(message);
-
-//        array.clear();
-//        readyRead();
-//    }
-
-//    qDebug() << socket->readAll();
 }

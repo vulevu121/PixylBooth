@@ -17,7 +17,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
     backend.cpp \
-    liveviewstream.cpp
+    liveviewstream.cpp \
+    imageitem.cpp
 
 RESOURCES += qml.qrc
 
@@ -38,4 +39,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     process.h \
     backend.h \
-    liveviewstream.h
+    liveviewstream.h \
+    imageitem.h

@@ -12,6 +12,7 @@ import QtQuick 2.0
 import QtMultimedia 5.4
 import QtWebView 1.0
 import Qt.labs.settings 1.1
+//import ImageItem 1.0
 
 Rectangle {
     id: root
@@ -26,6 +27,12 @@ Rectangle {
         property alias liveViewImageSource: imageLiveView.source
     }
     
+    
+//    ImageItem {
+//        id: liveImageItem
+//        height: parent.height
+//        width: parent.width
+//    }
 
 //    WebView {
 //        id: webView
@@ -39,24 +46,25 @@ Rectangle {
     Image {
         id: imageLiveView
         anchors.fill: parent
-        source: "file:///C:/Users/Vu/Documents/Sony-Camera-API/example/LiveView.jpg"
+//        source: "file:///C:/Users/Vu/Documents/Sony-Camera-API/example/LiveView.jpg"
         cache: false
+        visible: false
 
 //        onStatusChanged: if (imageLiveView.status == Image.Error) console.log('Error')
     }
 
 
-    Timer {
-        interval: 400
-        running: true
-        repeat: true
+//    Timer {
+//        interval: 400
+//        running: false
+//        repeat: true
 
-        onTriggered: {
-            var oldSource = imageLiveView.source
-            imageLiveView.source = ""
-            imageLiveView.source = "file:///C:/Users/Vu/Documents/Sony-Camera-API/example/LiveView.jpg"
-        }
-    }
+//        onTriggered: {
+//            var oldSource = imageLiveView.source
+//            imageLiveView.source = ""
+//            imageLiveView.source = "file:///C:/Users/Vu/Documents/Sony-Camera-API/example/LiveView.jpg"
+//        }
+//    }
 
 //    Camera {
 //        id: camera
