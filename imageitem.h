@@ -11,10 +11,9 @@
 #include <QThread>
 #include <QFile>
 
-
 class ImageItem : public QQuickPaintedItem
 {
-Q_OBJECT
+    Q_OBJECT
     Q_PROPERTY(QImage image READ image WRITE setImage NOTIFY imageChanged)
 
 public:
@@ -23,14 +22,15 @@ public:
     void paint(QPainter *painter);
     QImage image() const;
 
-signals:
-    void imageChanged();
-
 public slots:
     void connected();
     void disconnected();
     void readyRead();
     void start();
+
+signals:
+    void imageChanged();
+
 
 private:
     QImage current_image;
@@ -38,3 +38,5 @@ private:
     QByteArray array;
 };
 #endif // IMAGEITEM_H
+
+

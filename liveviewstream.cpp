@@ -1,8 +1,38 @@
 #include "liveviewstream.h"
-#include "backend.h"
 
-LiveViewStream::LiveViewStream(QObject *parent) : QObject(parent)
+LiveViewStream::LiveViewStream(QQuickItem *parent) : QQuickPaintedItem(parent)
 {
+}
+
+void LiveViewStream::paint(QPainter *painter)
+{
+    if (this->current_image.isNull()) {
+        return;
+    }
+
+    QRectF bounding_rect = boundingRect();
+    QImage scaled = this->current_image.scaledToHeight(int(bounding_rect.height()));
+    QPointF center = bounding_rect.center() - scaled.rect().center();
+
+    if(center.x() < 0)
+        center.setX(0);
+    if(center.y() < 0)
+        center.setY(0);
+   painter->drawImage(center, scaled);
+}
+
+QImage LiveViewStream::image() const
+{    return this->current_image;
+}
+
+void LiveViewStream::setImage(const QImage &image)
+{
+    this->current_image = image;
+    update();
+}
+
+void LiveViewStream::stop() {
+    disconnect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 
 }
 
@@ -45,7 +75,7 @@ void LiveViewStream::start() {
 
 void LiveViewStream::connected() {
 //    QThread::sleep(2);
-    qDebug() << "Connected...";
+//    qDebug() << "Connected...";
 ////    QByteArray line1("GET /liveview/liveviewstream HTTP/1.1\r\n");
 ////    QByteArray line2("Host: 192.168.122.1:8080\r\n");
 ////    QByteArray line3("User-Agent: curl/7.64.1\r\n");
@@ -55,8 +85,6 @@ void LiveViewStream::connected() {
     socket->write("User-Agent: curl/7.64.1\r\n");
     socket->write("Accept: */*\r\n\r\n");
 
-//    socket->write("HEAD / HTTP/1.0\r\n\r\n\r\n\r\n");
-
 }
 
 void LiveViewStream::disconnected() {
@@ -64,12 +92,7 @@ void LiveViewStream::disconnected() {
 }
 
 void LiveViewStream::readyRead() {
-
-//    QByteArray data = QByteArray::fromHex(socket->readAll());
-//    qDebug() << data;
-
     array += socket->readAll();
-
 
     QByteArray startPayload = QByteArray::fromHex("FF01");
     QByteArray startCode = QByteArray::fromHex("24356879");
@@ -81,52 +104,17 @@ void LiveViewStream::readyRead() {
 //        qDebug() << "Image Found!";
 
         QByteArray payloadDataSizeArray = array.mid(startIdx + 12, 3);
-        int payloadDataSize = int((unsigned char)(payloadDataSizeArray[0]) << 16 | (unsigned char)(payloadDataSizeArray[1]) << 8 | (unsigned char)(payloadDataSizeArray[2]));
+        int payloadDataSize = int(static_cast<unsigned char>(payloadDataSizeArray[0]) << 16 | static_cast<unsigned char>(payloadDataSizeArray[1]) << 8 | static_cast<unsigned char>(payloadDataSizeArray[2]));
 
         int payloadIdx = array.indexOf(startCode, startIdx) + 128 + 8;
 
         QByteArray payloadData = array.mid(payloadIdx, payloadDataSize);
 
-//        QImage image;
-//        image.loadFromData(payloadData, "JPG");
-
-        emit imageUpdated();
-
-
-
-
-
-
-//        qDebug() << payloadData.toHex();
-
-//        QFile file("C:/Users/Vu/Documents/Sony-Camera-API/example/downloaded.jpg");
-
-//        file.open(QIODevice::WriteOnly | QIODevice::Truncate);
-
-//        if(file.exists()) {
-//            file.write(payloadData);
-//            file.flush();
-//            file.close();
-//        }
+        QImage image = QImage::fromData(payloadData, "JPG");;
+        setImage(image);
 
         array.clear();
 //        readyRead();
     }
 
-
-
-//    if(array.contains("$5hy"))
-//    {
-//        qDebug() << "Found!";
-//        int bytes = array.indexOf("$5hy") + 1;
-//        QByteArray message = array.left(bytes);
-//        array = array.mid(bytes);
-
-//        //processMessage(message);
-
-//        array.clear();
-//        readyRead();
-//    }
-
-//    qDebug() << socket->readAll();
 }

@@ -13,7 +13,7 @@ import QtMultimedia 5.4
 import Process 1.0
 import BackEnd 1.0
 import LiveViewStream 1.0
-import ImageItem 1.0
+//import ImageItem 1.0
 
 Window {
     id: root
@@ -22,11 +22,13 @@ Window {
     y: 0
 
     width: 1080
-    height: 1920
-    minimumWidth: 1080/2
-    minimumHeight: 1920/2
-    maximumWidth: 1080/2
-    maximumHeight: 1920/2
+    height: width * 1920 / 1080
+
+//    maximumHeight:
+//    minimumWidth: 1080/2
+//    minimumHeight: 1920/2
+//    maximumWidth: 1080/2
+//    maximumHeight: 1920/2
 
     color: bgColor
     title: qsTr("PixylBooth")
@@ -42,6 +44,8 @@ Window {
     Settings {
         property alias x: root.x
         property alias y: root.y
+        property alias width: root.width
+        property alias height: root.height
         property alias visibility: root.visibility
     }
 
@@ -76,7 +80,7 @@ Window {
     }
 
     function addFilePrefix(a) {
-        if (a.search("file ://") >= 0){
+        if (a.search("file://") >= 0){
             return(a)
         }
 
@@ -129,21 +133,6 @@ Window {
         }
     }
 
-    ImageItem {
-        id: liveImageItem
-        height: 640
-        width: 424
-    }
-
-    LiveViewStream {
-        id: liveViewStream
-
-        onImageUpdated: {
-            console.log("Image updated")
-        }
-    }
-
-
 
     Timer {
         id: initialTimer
@@ -155,6 +144,7 @@ Window {
             captureView.state = "start"
             if(settingCamera.liveVideoCountdownSwitch || settingCamera.liveVideoStartSwitch) {
                 backend.startLiveview()
+                liveView.start()
             }
         }
     }
@@ -181,7 +171,6 @@ Window {
             } else {
                 captureView.state = "start"
                 root.currentPhoto = 0
-//                mainTimer.stop()
             }
         }
     }
@@ -196,7 +185,9 @@ Window {
         Button {
             text: "Full Screen"
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            icon.source: "qrc:/Images/fullscreen_white_48dp.png"
+            icon.source: root.visibility == Window.FullScreen ? "qrc:/Images/fullscreen_exit_white_48dp.png" : "qrc:/Images/fullscreen_white_48dp.png"
+            icon.width: 48
+            icon.height: 48
             display: AbstractButton.IconOnly
             background: Rectangle {
                 color: "transparent"
@@ -213,11 +204,30 @@ Window {
         }
 
         Button {
+            text: "Undo"
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            icon.source: "qrc:/Images/backspace_white_48dp.png"
+            icon.source: "qrc:/Images/refresh_white_48dp.png"
+            icon.width: 48
+            icon.height: 48
             display: AbstractButton.IconOnly
             background: Rectangle {
                 color: "transparent"
+            }
+        }
+
+        Button {
+            text: "Exit"
+            flat: true
+            Layout.alignment: Qt.AlignRight | Qt.AlignTop
+            icon.source: "qrc:/Images/cancel_white_48dp.png"
+            icon.width: 48
+            icon.height: 48
+            display: AbstractButton.IconOnly
+            background: Rectangle {
+                color: "transparent"
+            }
+            onClicked: {
+                root.close()
             }
         }
 
@@ -231,8 +241,6 @@ Window {
         Item {
             id: captureView
 //            state: "start"
-
-
 
             ColumnLayout {
                 id: debugLayout
@@ -256,8 +264,16 @@ Window {
                 Button {
                     text: "Start Liveview"
                     onClicked: {
-                        backend.startLiveview()
-                        liveViewStream.start()
+//                        backend.startLiveview()
+//                        liveImageItem.start()
+                        liveView.start()
+                    }
+                }
+
+                Button {
+                    text: "Stop Liveview"
+                    onClicked: {
+                        liveView.stop()
                     }
                 }
 
@@ -329,8 +345,8 @@ Window {
                     PropertyChanges {
                         target: liveView
                         opacity: 1
-                        width: 320
-                        height: 240
+                        width: root.width * 0.5
+                        height: width * 2 / 3
                         y: 60
                         x: (root.width - width)/2
                         visible: settingCamera.liveVideoStartSwitch
@@ -456,23 +472,34 @@ Window {
                 }
             }
 
-            LiveView {
+            LiveViewStream {
                 id: liveView
-//                width: root.width * 0.8
-//                height: width * 0.75
-//                x: (root.width - width) / 2
-//                y: 50
-//                opacity: 0
-
-//                liveViewImageSource: root.addFilePrefix(settingGeneral.liveViewImage)
-
                 opacity: 1
-                width: 160
-                height: 120
+                width: root.width * 0.5
+                height: width * 2 / 3
                 y: 0
                 x: root.width - width
                 z: 2
+
             }
+
+//            LiveView {
+//                id: liveView
+////                width: root.width * 0.8
+////                height: width * 0.75
+////                x: (root.width - width) / 2
+////                y: 50
+////                opacity: 0
+
+////                liveViewImageSource: root.addFilePrefix(settingGeneral.liveViewImage)
+
+//                opacity: 1
+//                width: root.width * 0.5
+//                height: width * 2 / 3
+//                y: 0
+//                x: root.width - width
+//                z: 2
+//            }
 
             Loader {
                 id: contentLoader
@@ -637,11 +664,12 @@ Window {
         }
 
 
-
         TabButton {
             text: "Start"
             width: implicitWidth
             icon.source: "qrc:/Images/camera_white_48dp.png"
+            icon.width: 24
+            icon.height: 24
             display: AbstractButton.IconOnly
         }
 
@@ -650,6 +678,8 @@ Window {
             text: "General"
             width: implicitWidth
             icon.source: "qrc:/Images/settings_white_48dp.png"
+            icon.width: 24
+            icon.height: 24
             display: AbstractButton.IconOnly
         }
 
@@ -658,6 +688,8 @@ Window {
             text: "Camera"
             width: implicitWidth
             icon.source: "qrc:/Images/camera_alt_white_48dp.png"
+            icon.width: 24
+            icon.height: 24
             display: AbstractButton.IconOnly
         }
 
@@ -665,6 +697,8 @@ Window {
             text: "Action"
             width: implicitWidth
             icon.source: "qrc:/Images/apps_white_48dp.png"
+            icon.width: 24
+            icon.height: 24
             display: AbstractButton.IconOnly
         }
 
@@ -672,6 +706,8 @@ Window {
             text: "Color"
             width: implicitWidth
             icon.source: "qrc:/Images/color_lens_white_48dp.png"
+            icon.width: 24
+            icon.height: 24
             display: AbstractButton.IconOnly
         }
 
@@ -680,6 +716,8 @@ Window {
             text: "Videos"
             width: implicitWidth
             icon.source: "qrc:/Images/video_library_white_48dp.png"
+            icon.width: 24
+            icon.height: 24
             display: AbstractButton.IconOnly
         }
 

@@ -46,11 +46,8 @@ Rectangle {
     Image {
         id: imageLiveView
         anchors.fill: parent
-//        source: "file:///C:/Users/Vu/Documents/Sony-Camera-API/example/LiveView.jpg"
         cache: false
-        visible: false
-
-//        onStatusChanged: if (imageLiveView.status == Image.Error) console.log('Error')
+        visible: true
     }
 
 

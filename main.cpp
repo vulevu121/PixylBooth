@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<Process>("Process", 1, 0, "Process");
     qmlRegisterType<BackEnd>("BackEnd", 1, 0, "BackEnd");
     qmlRegisterType<LiveViewStream>("LiveViewStream", 1, 0, "LiveViewStream");
-    qmlRegisterType<ImageItem>("ImageItem", 1, 0, "ImageItem");
+//    qmlRegisterType<ImageItem>("ImageItem", 1, 0, "ImageItem");
 
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
 

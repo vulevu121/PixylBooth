@@ -3,7 +3,7 @@
 
 ImageItem::ImageItem(QQuickItem *parent) : QQuickPaintedItem(parent)
 {    
-this->current_image = QImage("file:///home/eelab10/PixylBooth/Images/liveviewstream.jpg");
+//this->current_image = QImage("C:/Users/Vu/Documents/PixylBooth/Images/liveviewstream.jpg");
 }
 
 void ImageItem::paint(QPainter *painter)
@@ -29,11 +29,13 @@ void ImageItem::setImage(const QImage &image)
     update();
 }
 
+
 void ImageItem::start() {
 //    QTcpSocket *socket = new QTcpSocket(this);
-    
+
 //    BackEnd backEnd;
 //    backEnd.startLiveview();
+
 //    QThread::sleep(2);
 
     socket = new QTcpSocket(this);
@@ -67,7 +69,7 @@ void ImageItem::start() {
 
 void ImageItem::connected() {
 //    QThread::sleep(2);
-    qDebug() << "Connected...";
+//    qDebug() << "Connected...";
 ////    QByteArray line1("GET /liveview/liveviewstream HTTP/1.1\r\n");
 ////    QByteArray line2("Host: 192.168.122.1:8080\r\n");
 ////    QByteArray line3("User-Agent: curl/7.64.1\r\n");
@@ -86,6 +88,10 @@ void ImageItem::disconnected() {
 }
 
 void ImageItem::readyRead() {
+
+//    QByteArray data = QByteArray::fromHex(socket->readAll());
+//    qDebug() << data;
+
     array += socket->readAll();
 
 
@@ -96,7 +102,8 @@ void ImageItem::readyRead() {
     int endIdx = array.indexOf(startPayload, startIdx+1);
 
     if (endIdx - startIdx >= 128) {
-        qDebug() << "Found Image!";
+//        qDebug() << "Image Found!";
+
         QByteArray payloadDataSizeArray = array.mid(startIdx + 12, 3);
         int payloadDataSize = int((unsigned char)(payloadDataSizeArray[0]) << 16 | (unsigned char)(payloadDataSizeArray[1]) << 8 | (unsigned char)(payloadDataSizeArray[2]));
 
@@ -104,13 +111,33 @@ void ImageItem::readyRead() {
 
         QByteArray payloadData = array.mid(payloadIdx, payloadDataSize);
 
-        QImage image;
-        image.loadFromData(payloadData, "JPEG");
-        
+//        QImage image;
+//        image.fromData(payloadData, "JPG");
+
+//        QImage image = QImage("C:/Users/Vu/Documents/PixylBooth/Images/liveviewstream.jpg");
+
+        QImage image = QImage::fromData(payloadData, "JPG");;
         setImage(image);
 
-        emit imageChanged();
+//        qDebug() << image.height();
+//        qDebug() << image.width();
+
+
+
+//        qDebug() << payloadData.toHex();
+
+//        QFile file("C:/Users/Vu/Documents/PixylBooth/Images/liveviewstream.jpg");
+
+//        file.open(QIODevice::WriteOnly | QIODevice::Truncate);
+
+//        if(file.exists()) {
+//            file.write(payloadData);
+//            file.flush();
+//            file.close();
+//        }
 
         array.clear();
+
     }
+
 }
