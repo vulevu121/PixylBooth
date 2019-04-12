@@ -6,11 +6,27 @@ ImagePrint::ImagePrint(QObject *parent) : QObject(parent)
 }
 
 
-void ImagePrint::printText() {
+
+QString ImagePrint::getPrinterName() {
+    QPrinter printer;
+
+    QPrintDialog *dialog = new QPrintDialog(&printer);
+    dialog->setWindowTitle("Print Document");
+
+    if (dialog->exec() != QDialog::Accepted)
+        return "";
+
+    return printer.printerName();
+
+}
+
+
+void ImagePrint::printPhotos(const QString &photoPaths, const QString &printerName) {
     QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
     printer.setOrientation(QPrinter::Landscape);
     printer.setResolution(300);
+    printer.setPrinterName(printerName);
 
     QMarginsF margins(qreal(0), qreal(0), qreal(0), qreal(0));
 
@@ -24,19 +40,24 @@ void ImagePrint::printText() {
 
     QSizeF qsize = printer.paperSize(QPrinter::DevicePixel);
 
-    qDebug() << qsize;
-    qDebug() << printer.pageLayout().margins().top();
-    qDebug() << printer.pageLayout().margins().left();
-    qDebug() << printer.supportedResolutions();
+//    qDebug() << qsize;
+//    qDebug() << printer.pageLayout().margins().top();
+//    qDebug() << printer.pageLayout().margins().left();
+//    qDebug() << printer.supportedResolutions();
 
+    qDebug() << photoPaths;
+    qDebug() << printerName;
+
+    QStringList photoPathsList = photoPaths.split(";");
+    qDebug() << photoPathsList;
 
     QPainter printerPainter;
     printerPainter.begin(&printer);
 
     QImage templateBg("C:/Users/Vu/Pictures/dslrBooth/Templates/Mia Pham/background.png");
-    QImage image1("C:/Users/Vu/Pictures/DSC05090.JPG");
-    QImage image2("C:/Users/Vu/Pictures/DSC05091.JPG");
-    QImage image3("C:/Users/Vu/Pictures/DSC05092.JPG");
+    QImage image1(photoPathsList[0]);
+    QImage image2(photoPathsList[1]);
+    QImage image3(photoPathsList[2]);
 
     // resize photos to fit template
     image1 = image1.scaledToWidth(1560);
@@ -68,4 +89,14 @@ void ImagePrint::printText() {
 
     // print
     printerPainter.end();
+}
+
+QString ImagePrint::saveFolder() {
+    return m_saveFolder;
+}
+
+void ImagePrint::setSaveFolder(const QString &saveFolder) {
+    if (saveFolder == m_saveFolder)
+        return;
+    m_saveFolder = saveFolder;
 }

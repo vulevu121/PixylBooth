@@ -13,7 +13,6 @@
 class SonyAPI : public QObject
 {
     Q_OBJECT
-//    Q_PROPERTY(QString userName READ userName WRITE setUserName NOTIFY userNameChanged)
     Q_PROPERTY(QString actTakePictureFilePath READ actTakePictureFilePath)
     Q_PROPERTY(QString saveFolder READ saveFolder WRITE setSaveFolder)
 

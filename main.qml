@@ -17,7 +17,7 @@ import ImagePrint 1.0
 Window {
     id: root
     visible: true
-    x: 0
+    x: Screen.width / 2
     y: 0
 
     width: 1080/2
@@ -38,6 +38,8 @@ Window {
     property real currentPhoto: 0
     property string lastPhotoPath: ""
 
+//    property string photoPaths: "C:/Users/Vu/Pictures/DSC05103.JPG;C:/Users/Vu/Pictures/DSC05104.JPG;C:/Users/Vu/Pictures/DSC05105.JPG"
+    property string photoPaths: ""
 
     Settings {
 //        property alias x: root.x
@@ -111,7 +113,16 @@ Window {
         saveFolder: settingGeneral.saveFolder
         onActTakePictureCompleted: {
             reviewImage.source = addFilePrefix(actTakePictureFilePath)
-            console.log(actTakePictureFilePath)
+
+            if (root.photoPaths.length > 0) {
+                root.photoPaths = root.photoPaths.concat(";", actTakePictureFilePath)
+            }
+            else {
+                root.photoPaths = actTakePictureFilePath
+            }
+
+
+            console.log(root.photoPaths)
             captureView.state = "review"
         }
     }
@@ -311,12 +322,14 @@ Window {
                     text: "Print"
 
                     onClicked: {
-                        imageprint.printText()
+                        imageprint.printPhotos(root.photoPaths, settingPrinter.printerName)
                     }
                 }
 
             }
 
+
+            // ==== STATES ====
             states: [
                 State {
                     name: "start"
@@ -344,6 +357,7 @@ Window {
                             var randomItem = model.get(randomIdx)
                             playVideo(randomItem.filePath)
                             sonyAPI.startRecMode()
+//                            root.photoPaths = ""
                         }
                     }
                 },
@@ -372,7 +386,6 @@ Window {
                             var randomIdx = Math.round(Math.random(1) * (model.count-1))
                             var randomItem = model.get(randomIdx)
                             playVideo(randomItem.filePath)
-
                             beforeCaptureTimer.start()
                         }
                     }
@@ -403,6 +416,9 @@ Window {
                             countdownTimer.count = settingGeneral.captureTimer
                             captureTimer.start()
                             reviewImage.source = ""
+                            if (root.currentPhoto == 0) {
+                                root.photoPaths = ""
+                            }
                         }
                     }
                 },
@@ -466,8 +482,6 @@ Window {
                 anchors.fill: parent
                 opacity: 1
             }
-
-
 
             Countdown {
                 id: countdownTimer
@@ -536,6 +550,7 @@ Window {
                 }
             }
 
+        // ==== PAGES ====
         }
         Item {
             SettingGeneral {
@@ -570,6 +585,12 @@ Window {
             }
         }
 
+        Item {
+            SettingPrinter {
+                id: settingPrinter
+                anchors.fill: parent
+            }
+        }
 
         Item {
             SettingVideo {
@@ -580,7 +601,7 @@ Window {
 
     }
 
-
+    // ==== VIRTUAL KEYBOARD ====
     InputPanel {
         id: inputPanel
         z: 99
@@ -610,6 +631,7 @@ Window {
         }
     }
 
+    // ==== TAB BAR STUFF ====
     TabBar {
         id: tabBar
         x: 864
@@ -670,6 +692,15 @@ Window {
             display: AbstractButton.IconOnly
         }
 
+        TabButton {
+            text: "Printer"
+            width: implicitWidth
+            icon.source: "qrc:/Images/print_white_48dp.png"
+            icon.width: 24
+            icon.height: 24
+            display: AbstractButton.IconOnly
+        }
+
 
         TabButton {
             text: "Videos"
@@ -679,6 +710,8 @@ Window {
             icon.height: 24
             display: AbstractButton.IconOnly
         }
+
+
 
 
     }

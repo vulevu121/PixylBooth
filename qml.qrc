@@ -30,5 +30,7 @@
         <file>Images/fullscreen_exit_white_48dp.png</file>
         <file>Images/cancel_white_48dp.png</file>
         <file>Images/refresh_white_48dp.png</file>
+        <file>SettingPrinter.qml</file>
+        <file>Images/print_white_48dp.png</file>
     </qresource>
 </RCC>
