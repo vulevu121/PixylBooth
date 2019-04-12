@@ -1,34 +1,26 @@
-//#include "backend.h"
+#include "sonyapi.h"
 
-//BackEnd::BackEnd(QObject *parent) : QObject(parent)
-//{
-    
-//}
-
-
-#include "backend.h"
-
-BackEnd::BackEnd(QObject *parent) :
+SonyAPI::SonyAPI(QObject *parent) :
     QObject(parent)
 {
 }
 
 
-QString BackEnd::actTakePictureFilePath() {
+QString SonyAPI::actTakePictureFilePath() {
     return m_actTakePictureFilePath;
 }
 
-QString BackEnd::saveFolder() {
+QString SonyAPI::saveFolder() {
     return m_saveFolder;
 }
 
-void BackEnd::setSaveFolder(const QString &saveFolder) {
+void SonyAPI::setSaveFolder(const QString &saveFolder) {
     if (saveFolder == m_saveFolder)
         return;
     m_saveFolder = saveFolder;
 }
 
-void BackEnd::startRecMode() {
+void SonyAPI::startRecMode() {
     manager = new QNetworkAccessManager(this);
     QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
     QNetworkRequest req(serviceURL);
@@ -45,7 +37,7 @@ void BackEnd::startRecMode() {
     qDebug() << "startRecMode Requested!";
 }
 
-void BackEnd::startLiveview() {
+void SonyAPI::startLiveview() {
     manager = new QNetworkAccessManager(this);
     QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
     QNetworkRequest req(serviceURL);
@@ -62,7 +54,7 @@ void BackEnd::startLiveview() {
     qDebug() << "startLiveview Requested!";
 }
 
-void BackEnd::actTakePicture()
+void SonyAPI::actTakePicture()
 {
     manager = new QNetworkAccessManager(this);
     QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
@@ -82,7 +74,7 @@ void BackEnd::actTakePicture()
 }
 
 
-void BackEnd::replyFinished (QNetworkReply *reply)
+void SonyAPI::replyFinished (QNetworkReply *reply)
 {
     if(reply->error()) {
         qDebug() << "ERROR!";
@@ -131,7 +123,7 @@ void BackEnd::replyFinished (QNetworkReply *reply)
 }
 
 
-void BackEnd::downloadPicture(QNetworkReply *reply)
+void SonyAPI::downloadPicture(QNetworkReply *reply)
 {
     QString filePath = m_saveFolder + "/" + m_fileName;
     QFile file(filePath);

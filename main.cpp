@@ -1,24 +1,25 @@
-#include <QGuiApplication>
+//#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
-#include <QtWebView/QtWebView>
+//#include <QtWebView>
 #include "process.h"
-#include "backend.h"
-#include "liveviewstream.h"
-#include "imageitem.h"
+#include "sonyapi.h"
+#include "sonyliveview.h"
+#include "imageprint.h"
 
 int main(int argc, char *argv[])
 {
     qmlRegisterType<Process>("Process", 1, 0, "Process");
-    qmlRegisterType<BackEnd>("BackEnd", 1, 0, "BackEnd");
-    qmlRegisterType<LiveViewStream>("LiveViewStream", 1, 0, "LiveViewStream");
-//    qmlRegisterType<ImageItem>("ImageItem", 1, 0, "ImageItem");
+    qmlRegisterType<SonyAPI>("SonyAPI", 1, 0, "SonyAPI");
+    qmlRegisterType<SonyLiveview>("SonyLiveview", 1, 0, "SonyLiveview");
+    qmlRegisterType<ImagePrint>("ImagePrint", 1, 0, "ImagePrint");
 
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
-    QGuiApplication app(argc, argv);
-    QtWebView::initialize();
+    QApplication app(argc, argv);
+//    QtWebView::initialize();
     
     app.setOrganizationName("PixylBooth");
     app.setOrganizationDomain("PixylBooth.com");

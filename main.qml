@@ -8,12 +8,11 @@ import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1
 import QtQuick.Dialogs 1.3
 import Qt.labs.settings 1.1
-//import QtGraphicalEffects 1.12
 import QtMultimedia 5.4
 import Process 1.0
-import BackEnd 1.0
-import LiveViewStream 1.0
-//import ImageItem 1.0
+import SonyAPI 1.0
+import SonyLiveview 1.0
+import ImagePrint 1.0
 
 Window {
     id: root
@@ -21,14 +20,13 @@ Window {
     x: 0
     y: 0
 
-    width: 1080
-    height: width * 1920 / 1080
+    width: 1080/2
+    height: 1920/2
 
-//    maximumHeight:
-//    minimumWidth: 1080/2
-//    minimumHeight: 1920/2
-//    maximumWidth: 1080/2
-//    maximumHeight: 1920/2
+    minimumWidth: 1080/2
+    minimumHeight: 1920/2
+    maximumWidth: 1080/2
+    maximumHeight: 1920/2
 
     color: bgColor
     title: qsTr("PixylBooth")
@@ -42,11 +40,11 @@ Window {
 
 
     Settings {
-        property alias x: root.x
-        property alias y: root.y
-        property alias width: root.width
-        property alias height: root.height
-        property alias visibility: root.visibility
+//        property alias x: root.x
+//        property alias y: root.y
+//        property alias width: root.width
+//        property alias height: root.height
+//        property alias visibility: root.visibility
     }
 
     Settings {
@@ -104,33 +102,23 @@ Window {
     }
 
     function saveCapture() {
-//        var processPath = settingAction.pythonPath
-//        var arg1 = settingAction.captureAction
-//        var arg2 = settingGeneral.saveFolder
-//        console.log(processPath)
-//        console.log(arg1)
-//        console.log(arg2)
-
-//        process.start(processPath, [arg1, arg2])
-
-//        backend.saveFolder = settingGeneral.saveFolder
-
-        backend.actTakePicture()
+//        sonyAPI.saveFolder = settingGeneral.saveFolder
+        sonyAPI.actTakePicture()
     }
 
-    BackEnd {
-        id: backend
+    SonyAPI {
+        id: sonyAPI
         saveFolder: settingGeneral.saveFolder
         onActTakePictureCompleted: {
             reviewImage.source = addFilePrefix(actTakePictureFilePath)
             console.log(actTakePictureFilePath)
-
-//            var result = String(process.readAllStandardOutput())
-//            root.lastPhotoPath = addFilePrefix(result)
-//            console.log(root.lastPhotoPath)
-//            reviewImage.source = root.lastPhotoPath
             captureView.state = "review"
         }
+    }
+
+
+    ImagePrint {
+        id: imageprint
     }
 
 
@@ -143,7 +131,7 @@ Window {
         onTriggered: {
             captureView.state = "start"
             if(settingCamera.liveVideoCountdownSwitch || settingCamera.liveVideoStartSwitch) {
-                backend.startLiveview()
+                sonyAPI.startLiveview()
                 liveView.start()
             }
         }
@@ -175,12 +163,26 @@ Window {
         }
     }
 
-
-    RowLayout {
+    // ==== PUT DEBUG BUTTONS HERE!!! ====
+    ColumnLayout {
         anchors.fill: parent
         z: 10
 
-        RowLayout {}
+        Button {
+            text: "Exit"
+            flat: true
+            Layout.alignment: Qt.AlignRight | Qt.AlignTop
+            icon.source: "qrc:/Images/cancel_white_48dp.png"
+            icon.width: 48
+            icon.height: 48
+            display: AbstractButton.IconOnly
+            background: Rectangle {
+                color: "transparent"
+            }
+            onClicked: {
+                root.close()
+            }
+        }
 
         Button {
             text: "Full Screen"
@@ -215,21 +217,7 @@ Window {
             }
         }
 
-        Button {
-            text: "Exit"
-            flat: true
-            Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            icon.source: "qrc:/Images/cancel_white_48dp.png"
-            icon.width: 48
-            icon.height: 48
-            display: AbstractButton.IconOnly
-            background: Rectangle {
-                color: "transparent"
-            }
-            onClicked: {
-                root.close()
-            }
-        }
+        ColumnLayout {}
 
     }
 
@@ -240,7 +228,6 @@ Window {
 
         Item {
             id: captureView
-//            state: "start"
 
             ColumnLayout {
                 id: debugLayout
@@ -262,16 +249,30 @@ Window {
                 }
 
                 Button {
-                    text: "Start Liveview"
+                    text: "StartRecMode"
                     onClicked: {
-//                        backend.startLiveview()
+                        sonyAPI.startRecMode()
+                    }
+                }
+
+                Button {
+                    text: "StartLiveview"
+                    onClicked: {
+                        sonyAPI.startLiveview()
+                    }
+                }
+
+                Button {
+                    text: "Open Stream"
+                    onClicked: {
+//                        sonyAPI.startLiveview()
 //                        liveImageItem.start()
                         liveView.start()
                     }
                 }
 
                 Button {
-                    text: "Stop Liveview"
+                    text: "End Stream"
                     onClicked: {
                         liveView.stop()
                     }
@@ -284,58 +285,35 @@ Window {
                     }
                 }
 
-                Process {
-                        id: process
-                        onReadyRead: {
-                            var result = String(process.readAllStandardOutput())
-                            root.lastPhotoPath = addFilePrefix(result)
-                            console.log(root.lastPhotoPath)
-                            reviewImage.source = root.lastPhotoPath
-                            captureView.state = "review"
-                        }
-                }
+//                Process {
+//                        id: process
+//                        onReadyRead: {
+//                            var result = String(process.readAllStandardOutput())
+//                            root.lastPhotoPath = addFilePrefix(result)
+//                            console.log(root.lastPhotoPath)
+//                            reviewImage.source = root.lastPhotoPath
+//                            captureView.state = "review"
+//                        }
+//                }
 
                 Button {
                     id: captureButton
                     text: "Capture Action"
 
                     onClicked: {
-                        backend.actTakePicture()
+                        sonyAPI.actTakePicture()
 //                        saveCapture()
                     }
                 }
 
+                Button {
+                    id: imageprintButton
+                    text: "Print"
 
-
-//                Button {
-//                    id: liveviewButton
-//                    text: "Live View"
-
-//                    onClicked: {
-//                        console.log(root.stripFilePrefix(settingAction.liveviewAction))
-//                        process.start("python", [root.stripFilePrefix(settingAction.liveviewAction)])
-//                    }
-//                }
-
-//                Button {
-//                    id: closeLiveview
-//                    text: "Stop Live View"
-//                    onClicked: {
-//                        console.log(process.kill())
-//                    }
-//                }
-
-//                TextField {
-//                        text: backend.userName
-//                        placeholderText: qsTr("User name")
-//                        onTextChanged: backend.userName = text
-//                }
-
-//                TextField {
-//                        text: backend.saveFolder
-//                }
-
-
+                    onClicked: {
+                        imageprint.printText()
+                    }
+                }
 
             }
 
@@ -365,7 +343,7 @@ Window {
                             var randomIdx = Math.round(Math.random(1) * (model.count-1))
                             var randomItem = model.get(randomIdx)
                             playVideo(randomItem.filePath)
-                            backend.startRecMode()
+                            sonyAPI.startRecMode()
                         }
                     }
                 },
@@ -472,7 +450,7 @@ Window {
                 }
             }
 
-            LiveViewStream {
+            SonyLiveview {
                 id: liveView
                 opacity: 1
                 width: root.width * 0.5
@@ -482,24 +460,6 @@ Window {
                 z: 2
 
             }
-
-//            LiveView {
-//                id: liveView
-////                width: root.width * 0.8
-////                height: width * 0.75
-////                x: (root.width - width) / 2
-////                y: 50
-////                opacity: 0
-
-////                liveViewImageSource: root.addFilePrefix(settingGeneral.liveViewImage)
-
-//                opacity: 1
-//                width: root.width * 0.5
-//                height: width * 2 / 3
-//                y: 0
-//                x: root.width - width
-//                z: 2
-//            }
 
             Loader {
                 id: contentLoader
@@ -555,7 +515,6 @@ Window {
                         if (captureView.state == "start") {
                             captureView.state = "beforecapture"
                          }
-
                     }
                 }
             }

@@ -1,23 +1,5 @@
-//#ifndef BACKEND_H
-//#define BACKEND_H
-
-//#include <QObject>
-
-//class BackEnd : public QObject
-//{
-//    Q_OBJECT
-//public:
-//    explicit BackEnd(QObject *parent = nullptr);
-    
-//signals:
-    
-//public slots:
-//};
-
-//#endif // BACKEND_H
-
-#ifndef BACKEND_H
-#define BACKEND_H
+#ifndef SONYAPI_H
+#define SONYAPI_H
 
 #include <QObject>
 #include <QString>
@@ -28,7 +10,7 @@
 #include <QThread>
 #include <QFile>
 
-class BackEnd : public QObject
+class SonyAPI : public QObject
 {
     Q_OBJECT
 //    Q_PROPERTY(QString userName READ userName WRITE setUserName NOTIFY userNameChanged)
@@ -36,7 +18,7 @@ class BackEnd : public QObject
     Q_PROPERTY(QString saveFolder READ saveFolder WRITE setSaveFolder)
 
 public:
-    explicit BackEnd(QObject *parent = nullptr);
+    explicit SonyAPI(QObject *parent = nullptr);
     QString saveFolder();
     void setSaveFolder(const QString &saveFolder);
     QString actTakePictureFilePath();
@@ -60,4 +42,4 @@ private:
     QNetworkAccessManager *downloadManager;
 };
 
-#endif // BACKEND_H
+#endif // SONYAPI_H

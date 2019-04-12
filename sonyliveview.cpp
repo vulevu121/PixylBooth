@@ -1,10 +1,10 @@
-#include "liveviewstream.h"
+#include "sonyliveview.h"
 
-LiveViewStream::LiveViewStream(QQuickItem *parent) : QQuickPaintedItem(parent)
+SonyLiveview::SonyLiveview(QQuickItem *parent) : QQuickPaintedItem(parent)
 {
 }
 
-void LiveViewStream::paint(QPainter *painter)
+void SonyLiveview::paint(QPainter *painter)
 {
     if (this->current_image.isNull()) {
         return;
@@ -21,25 +21,25 @@ void LiveViewStream::paint(QPainter *painter)
    painter->drawImage(center, scaled);
 }
 
-QImage LiveViewStream::image() const
+QImage SonyLiveview::image() const
 {    return this->current_image;
 }
 
-void LiveViewStream::setImage(const QImage &image)
+void SonyLiveview::setImage(const QImage &image)
 {
     this->current_image = image;
     update();
 }
 
-void LiveViewStream::stop() {
+void SonyLiveview::stop() {
     disconnect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 
 }
 
-void LiveViewStream::start() {
+void SonyLiveview::start() {
 //    QTcpSocket *socket = new QTcpSocket(this);
     
-//    BackEnd backEnd;
+//    SonyAPI backEnd;
 //    backEnd.startLiveview();
     
 //    QThread::sleep(2);
@@ -73,7 +73,7 @@ void LiveViewStream::start() {
 //    qDebug() << "Socket closed.";
 }
 
-void LiveViewStream::connected() {
+void SonyLiveview::connected() {
 //    QThread::sleep(2);
 //    qDebug() << "Connected...";
 ////    QByteArray line1("GET /liveview/liveviewstream HTTP/1.1\r\n");
@@ -87,11 +87,11 @@ void LiveViewStream::connected() {
 
 }
 
-void LiveViewStream::disconnected() {
+void SonyLiveview::disconnected() {
     qDebug() << "Disconnected...";
 }
 
-void LiveViewStream::readyRead() {
+void SonyLiveview::readyRead() {
     array += socket->readAll();
 
     QByteArray startPayload = QByteArray::fromHex("FF01");
@@ -109,6 +109,8 @@ void LiveViewStream::readyRead() {
         int payloadIdx = array.indexOf(startCode, startIdx) + 128 + 8;
 
         QByteArray payloadData = array.mid(payloadIdx, payloadDataSize);
+
+//        QImage image("C:/Users/Vu/Documents/Sony-Camera-API/example/DCIM/pict20190406_012452_0.JPG");
 
         QImage image = QImage::fromData(payloadData, "JPG");;
         setImage(image);
