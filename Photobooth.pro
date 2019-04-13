@@ -18,7 +18,8 @@ SOURCES += \
         main.cpp \
     sonyapi.cpp \
     imageprint.cpp \
-    sonyliveview.cpp
+    sonyliveview.cpp \
+    printThread.cpp
 
 RESOURCES += qml.qrc
 
@@ -40,4 +41,5 @@ HEADERS += \
     process.h \
     sonyapi.h \
     imageprint.h \
-    sonyliveview.h
+    sonyliveview.h \
+    printThread.h

@@ -38,8 +38,8 @@ Window {
     property real currentPhoto: 0
     property string lastPhotoPath: ""
 
-//    property string photoPaths: "C:/Users/Vu/Pictures/DSC05103.JPG;C:/Users/Vu/Pictures/DSC05104.JPG;C:/Users/Vu/Pictures/DSC05105.JPG"
-    property string photoPaths: ""
+    property string photoPaths: "C:/Users/Vu/Pictures/dslrBooth/Templates/Mia Pham/background.png;C:/Users/Vu/Pictures/DSC05103.JPG;C:/Users/Vu/Pictures/DSC05104.JPG;C:/Users/Vu/Pictures/DSC05105.JPG"
+//    property string photoPaths: ""
 
     Settings {
 //        property alias x: root.x
@@ -48,6 +48,8 @@ Window {
 //        property alias height: root.height
 //        property alias visibility: root.visibility
     }
+
+
 
     Settings {
         category: "Color"
@@ -322,7 +324,7 @@ Window {
                     text: "Print"
 
                     onClicked: {
-                        imageprint.printPhotos(root.photoPaths, settingPrinter.printerName)
+                        imageprint.printPhotos(root.photoPaths, settingPrinter.printerName, settingGeneral.saveFolder)
                     }
                 }
 

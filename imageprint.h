@@ -10,20 +10,20 @@
 class ImagePrint : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString saveFolder READ saveFolder WRITE setSaveFolder)
+//    Q_PROPERTY(QString saveFolder READ saveFolder WRITE setSaveFolder)
 public:
     explicit ImagePrint(QObject *parent = nullptr);
-    QString saveFolder();
-    void setSaveFolder(const QString &saveFolder);
+//    QString saveFolder();
+//    void setSaveFolder(const QString &saveFolder);
 
 signals:
 
 public slots:
-    void printPhotos(const QString &photoPaths, const QString &printerName);
+    void printPhotos(const QString &photoPaths, const QString &printerName, const QString &saveFolder);
     QString getPrinterName();
 
 private:
-    QString m_saveFolder;
+//    QString m_saveFolder;
 };
 
 #endif // IMAGEPRINT_H
