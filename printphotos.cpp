@@ -1,12 +1,12 @@
-#include "imageprint.h"
-#include "printThread.h"
+#include "printphotos.h"
+#include "printthread.h"
 
-ImagePrint::ImagePrint(QObject *parent) : QObject(parent)
+PrintPhotos::PrintPhotos(QObject *parent) : QObject(parent)
 {
 
 }
 
-QString ImagePrint::getPrinterName() {
+QString PrintPhotos::getPrinterName() {
     QPrinter printer;
 
     QPrintDialog *dialog = new QPrintDialog(&printer);
@@ -20,8 +20,8 @@ QString ImagePrint::getPrinterName() {
 }
 
 // print in a new thread to prevent gui lag
-void ImagePrint::printPhotos(const QString &photoPaths, const QString &printerName, const QString &saveFolder) {
-    PrintThread *thread = new PrintThread(photoPaths, printerName, saveFolder, this);
+void PrintPhotos::printPhotos(const QString &photoPaths, const QString &printerName, const QString &saveFolder, int copyCount) {
+    PrintThread *thread = new PrintThread(photoPaths, printerName, saveFolder, copyCount, this);
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
 }

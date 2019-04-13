@@ -5,14 +5,14 @@
 #include "process.h"
 #include "sonyapi.h"
 #include "sonyliveview.h"
-#include "imageprint.h"
+#include "printphotos.h"
 
 int main(int argc, char *argv[])
 {
     qmlRegisterType<Process>("Process", 1, 0, "Process");
     qmlRegisterType<SonyAPI>("SonyAPI", 1, 0, "SonyAPI");
     qmlRegisterType<SonyLiveview>("SonyLiveview", 1, 0, "SonyLiveview");
-    qmlRegisterType<ImagePrint>("ImagePrint", 1, 0, "ImagePrint");
+    qmlRegisterType<PrintPhotos>("PrintPhotos", 1, 0, "PrintPhotos");
 
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
 

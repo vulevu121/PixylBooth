@@ -12,7 +12,7 @@ import QtMultimedia 5.4
 import Process 1.0
 import SonyAPI 1.0
 import SonyLiveview 1.0
-import ImagePrint 1.0
+import PrintPhotos 1.0
 
 ColumnLayout {
     id: root
@@ -24,7 +24,7 @@ ColumnLayout {
         property alias printerName: printerNameField.text
     }
 
-    ImagePrint {
+    PrintPhotos {
         id: imagePrint
     }
 

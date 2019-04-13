@@ -1,7 +1,7 @@
-#include "printThread.h"
+#include "printthread.h"
 
-PrintThread::PrintThread(const QString &photoPaths, const QString &printerName, const QString &saveFolder, QObject *parent)
-    : QThread(parent), photoPaths(photoPaths), printerName(printerName), saveFolder(saveFolder)
+PrintThread::PrintThread(const QString &photoPaths, const QString &printerName, const QString &saveFolder, int copyCount, QObject *parent)
+    : QThread(parent), photoPaths(photoPaths), printerName(printerName), saveFolder(saveFolder), copyCount(copyCount)
 {
 
 }
@@ -10,8 +10,8 @@ void PrintThread::run() {
     QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
     printer.setOrientation(QPrinter::Landscape);
-    printer.setResolution(600);
     printer.setPrinterName(printerName);
+    printer.setCopyCount(copyCount);
 
     QMarginsF margins(qreal(0), qreal(0), qreal(0), qreal(0));
 
@@ -24,7 +24,11 @@ void PrintThread::run() {
 //        return;
 
     QSizeF qsize = printer.paperSize(QPrinter::DevicePixel);
+    QList<int> supportedResolutions = printer.supportedResolutions();
 
+    printer.setResolution(supportedResolutions[0]);
+
+    // debug prints
     qDebug() << qsize;
 //    qDebug() << printer.pageLayout().margins().top();
 //    qDebug() << printer.pageLayout().margins().left();
@@ -39,11 +43,16 @@ void PrintThread::run() {
     QPainter printerPainter;
     printerPainter.begin(&printer);
 
-//    QImage templateImage("C:/Users/Vu/Pictures/dslrBooth/Templates/Mia Pham/background.png");
-    QImage templateImage(photoPathsList[0]);
-    QImage image1(photoPathsList[1]);
-    QImage image2(photoPathsList[2]);
-    QImage image3(photoPathsList[3]);
+    QDir templateDir(photoPathsList[0]);
+    QDir image1Dir(photoPathsList[1]);
+    QDir image2Dir(photoPathsList[2]);
+    QDir image3Dir(photoPathsList[3]);
+
+    // define paths for images
+    QImage templateImage(templateDir.absolutePath());
+    QImage image1(image1Dir.absolutePath());
+    QImage image2(image2Dir.absolutePath());
+    QImage image3(image2Dir.absolutePath());
 
     // resize photos to fit template
     QImage image1Scaled = image1.scaledToWidth(1560);

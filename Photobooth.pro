@@ -17,9 +17,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
     sonyapi.cpp \
-    imageprint.cpp \
     sonyliveview.cpp \
-    printThread.cpp
+    printphotos.cpp \
+    printthread.cpp
 
 RESOURCES += qml.qrc
 
@@ -40,6 +40,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     process.h \
     sonyapi.h \
-    imageprint.h \
     sonyliveview.h \
-    printThread.h
+    printphotos.h \
+    printthread.h

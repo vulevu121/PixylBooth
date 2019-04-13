@@ -12,7 +12,7 @@ import QtMultimedia 5.4
 import Process 1.0
 import SonyAPI 1.0
 import SonyLiveview 1.0
-import ImagePrint 1.0
+import PrintPhotos 1.0
 
 Window {
     id: root
@@ -130,7 +130,7 @@ Window {
     }
 
 
-    ImagePrint {
+    PrintPhotos {
         id: imageprint
     }
 
@@ -324,7 +324,7 @@ Window {
                     text: "Print"
 
                     onClicked: {
-                        imageprint.printPhotos(root.photoPaths, settingPrinter.printerName, settingGeneral.saveFolder)
+                        imageprint.printPhotos(root.photoPaths, settingPrinter.printerName, settingGeneral.saveFolder, 1)
                     }
                 }
 
@@ -360,6 +360,9 @@ Window {
                             playVideo(randomItem.filePath)
                             sonyAPI.startRecMode()
 //                            root.photoPaths = ""
+                            captureTimer.stop()
+                            countdownTimer.visible = false
+                            countdownTimer.count = settingGeneral.captureTimer
                         }
                     }
                 },
