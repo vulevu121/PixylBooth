@@ -12,16 +12,18 @@ import Qt.labs.settings 1.1
 ColumnLayout {
     id: root
     property alias captureTimer: captureTimerSlider.value
-    property alias durationPhoto: displayTimerSlider.value
+    property alias beforeCaptureTimer: beforeCaptureTimerSlider.value
+    property alias reviewTimer: reviewTimerSlider.value
     property alias saveFolder: saveFolderField.text
-//    property alias liveViewImage: liveViewImageField.text
+    property alias endSessionTimer: endSessionTimerSlider.value
 
 
     Settings {
-        property alias captureTimer: root.captureTimer
-        property alias durationPhoto: root.durationPhoto
+        property alias captureTimer: captureTimerSlider.value
+        property alias beforeCaptureTimer: beforeCaptureTimerSlider.value
+        property alias reviewTimer: reviewTimerSlider.value
         property alias saveFolder: saveFolderField.text
-//        property alias liveViewImage: liveViewImageField.text
+        property alias endSessionTimer: endSessionTimerSlider.value
     }
 
     function stripFilePrefix(a) {
@@ -74,10 +76,8 @@ ColumnLayout {
             }
 
             RowLayout {
-                id: rowLayout1
                 width: 100
                 height: 100
-
 
                 CustomLabel {
 //                    id: mainLabel
@@ -108,7 +108,6 @@ ColumnLayout {
             }
 
             RowLayout {
-                id: rowLayout2
                 width: 100
                 height: 100
 
@@ -122,7 +121,7 @@ ColumnLayout {
                 }
 
                 Slider {
-                    id: displayTimerSlider
+                    id: reviewTimerSlider
                     Layout.fillWidth: true
                     transformOrigin: Item.Left
                     value: 5
@@ -132,7 +131,37 @@ ColumnLayout {
 
                 Label {
                     height: 48
-                    text: displayTimerSlider.value + " s"
+                    text: reviewTimerSlider.value + " s"
+                    verticalAlignment: Text.AlignVCenter
+                    font.pixelSize: 24
+                }
+            }
+
+            RowLayout {
+                width: 100
+                height: 100
+
+                CustomLabel {
+                    Layout.minimumWidth: 200
+                    font.pixelSize: 24
+                    height: 48
+                    verticalAlignment: Text.AlignVCenter
+                    text: qsTr("End Session Timer   ")
+                    subtitle: qsTr("Duration to show the end of session")
+                }
+
+                Slider {
+                    id: endSessionTimerSlider
+                    Layout.fillWidth: true
+                    transformOrigin: Item.Left
+                    value: 5
+                    stepSize: 1
+                    to: 20
+                }
+
+                Label {
+                    height: 48
+                    text: endSessionTimerSlider.value + " s"
                     verticalAlignment: Text.AlignVCenter
                     font.pixelSize: 24
                 }

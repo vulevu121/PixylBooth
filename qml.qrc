@@ -32,5 +32,7 @@
         <file>Images/refresh_white_48dp.png</file>
         <file>SettingPrinter.qml</file>
         <file>Images/print_white_48dp.png</file>
+        <file>Images/refresh_white_48dp_1.png</file>
+        <file>Images/refresh_white_48dp_all.png</file>
     </qresource>
 </RCC>

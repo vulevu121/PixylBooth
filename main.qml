@@ -35,11 +35,11 @@ Window {
     property string bgColor: "#222"
     property string countDownColor: "#fff"
     property real numberPhotos: 3
-    property real currentPhoto: 0
+//    property real currentPhoto: 0
     property string lastPhotoPath: ""
 
     property string photoPaths: "C:/Users/Vu/Pictures/dslrBooth/Templates/Mia Pham/background.png;C:/Users/Vu/Pictures/DSC05103.JPG;C:/Users/Vu/Pictures/DSC05104.JPG;C:/Users/Vu/Pictures/DSC05105.JPG"
-//    property string photoPaths: ""
+    property string templatePath: "C:/Users/Vu/Pictures/dslrBooth/Templates/Mia Pham/background.png"
 
     Settings {
 //        property alias x: root.x
@@ -48,8 +48,6 @@ Window {
 //        property alias height: root.height
 //        property alias visibility: root.visibility
     }
-
-
 
     Settings {
         category: "Color"
@@ -62,9 +60,9 @@ Window {
     }
 
     function playVideo(path) {
-        contentLoader.source = "ContentVideo.qml"
-        contentLoader.item.mediaSource = path
-        contentLoader.item.play()
+        videoLoader.source = "ContentVideo.qml"
+        videoLoader.item.mediaSource = path
+        videoLoader.item.play()
 
     }
 
@@ -114,21 +112,31 @@ Window {
         id: sonyAPI
         saveFolder: settingGeneral.saveFolder
         onActTakePictureCompleted: {
+//            currentPhoto += 1
             reviewImage.source = addFilePrefix(actTakePictureFilePath)
-
-            if (root.photoPaths.length > 0) {
-                root.photoPaths = root.photoPaths.concat(";", actTakePictureFilePath)
-            }
-            else {
-                root.photoPaths = actTakePictureFilePath
-            }
-
-
-            console.log(root.photoPaths)
+            photoList.append({"path": actTakePictureFilePath})
             captureView.state = "review"
         }
     }
 
+    ListModel {
+        id: photoList
+
+        ListElement {
+            photoNum: 1
+            path: "C:/Users/Vu/Pictures/DSC05584.JPG"
+        }
+
+        ListElement {
+            photoNum: 2
+            path: "C:/Users/Vu/Pictures/DSC05585.JPG"
+        }
+
+        ListElement {
+            photoNum: 3
+            path: "C:/Users/Vu/Pictures/DSC05586.JPG"
+        }
+    }
 
     PrintPhotos {
         id: imageprint
@@ -144,6 +152,7 @@ Window {
         onTriggered: {
             captureView.state = "start"
             if(settingCamera.liveVideoCountdownSwitch || settingCamera.liveVideoStartSwitch) {
+                sonyAPI.startRecMode()
                 sonyAPI.startLiveview()
                 liveView.start()
             }
@@ -152,34 +161,45 @@ Window {
 
     Timer {
         id: beforeCaptureTimer
-        interval: 6000
+        interval: settingGeneral.beforeCaptureTimer * 1000
         repeat: false
 
         onTriggered: {
             captureView.state = "liveview"
-            root.currentPhoto++
+
         }
     }
 
     Timer {
         id: reviewTimer
-        interval: 6000
+        interval: settingGeneral.reviewTimer * 1000
         repeat: false
 
         onTriggered: {
-            if (root.currentPhoto < root.numberPhotos) {
+            if (photoList.count < root.numberPhotos) {
                 captureView.state = "beforecapture";
             } else {
-                captureView.state = "start"
-                root.currentPhoto = 0
+                captureView.state = "endsession"
+                endSessionTimer.start()
             }
         }
     }
 
-    // ==== PUT DEBUG BUTTONS HERE!!! ====
+    Timer {
+        id: endSessionTimer
+        interval: settingGeneral.endSessionTimer * 1000
+        repeat: false
+
+        onTriggered: {
+            captureView.state = "start"
+        }
+    }
+
+
     ColumnLayout {
         anchors.fill: parent
         z: 10
+        opacity: 0.5
 
         Button {
             text: "Exit"
@@ -219,14 +239,42 @@ Window {
         }
 
         Button {
-            text: "Undo"
+            text: "Undo 1"
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            icon.source: "qrc:/Images/refresh_white_48dp.png"
+            icon.source: "qrc:/Images/refresh_white_48dp_1.png"
             icon.width: 48
             icon.height: 48
             display: AbstractButton.IconOnly
             background: Rectangle {
                 color: "transparent"
+            }
+
+            onClicked: {
+                captureTimer.stop()
+//                countdownTimer.visible = false
+                countdownTimer.count = settingGeneral.captureTimer
+                if (photoList.count > 0) {
+                    photoList.remove(photoList.count-1, 1)
+                }
+
+                captureView.state = "beforeCapture"
+
+            }
+        }
+
+        Button {
+            text: "Undo All"
+            Layout.alignment: Qt.AlignRight | Qt.AlignTop
+            icon.source: "qrc:/Images/refresh_white_48dp_all.png"
+            icon.width: 48
+            icon.height: 48
+            display: AbstractButton.IconOnly
+            background: Rectangle {
+                color: "transparent"
+            }
+
+            onClicked: {
+                captureView.state = "start"
             }
         }
 
@@ -242,9 +290,11 @@ Window {
         Item {
             id: captureView
 
+            // ==== PUT DEBUG BUTTONS HERE!!! ====
             ColumnLayout {
                 id: debugLayout
                 z: 10
+                opacity: 0.5
                 visible: true
 
                 Button {
@@ -315,7 +365,6 @@ Window {
 
                     onClicked: {
                         sonyAPI.actTakePicture()
-//                        saveCapture()
                     }
                 }
 
@@ -324,7 +373,21 @@ Window {
                     text: "Print"
 
                     onClicked: {
-                        imageprint.printPhotos(root.photoPaths, settingPrinter.printerName, settingGeneral.saveFolder, 1)
+                        // make the template as the first image in the list
+                        var photos = templatePath.concat(";")
+
+                        // iterate and append all the photos to the list
+                        var i
+                        for(i = 0 ; i < photoList.count ; i++) {
+                            photos = photos.concat(photoList.get(i).path)
+                            if (i < photoList.count-1) {
+                                photos = photos.concat(";")
+                            }
+                        }
+
+//                        console.log(photos)
+
+                        imageprint.printPhotos(photos, settingPrinter.printerName, settingGeneral.saveFolder, 1)
                     }
                 }
 
@@ -337,19 +400,21 @@ Window {
                     name: "start"
                     PropertyChanges {
                         target: liveView
-                        opacity: 1
-                        width: root.width * 0.5
-                        height: width * 2 / 3
-                        y: 60
-                        x: (root.width - width)/2
-                        visible: settingCamera.liveVideoStartSwitch
+                        opacity: settingCamera.liveVideoStartSwitch
+                        scale: 1
+
+//                        visible: settingCamera.liveVideoStartSwitch
                     }
                     PropertyChanges {
-                        target: contentLoader
+                        target: videoLoader
                         opacity: 1
                     }
                     PropertyChanges {
                         target: countdownTimer
+                        opacity: 0
+                    }
+                    PropertyChanges {
+                        target: endSession
                         opacity: 0
                     }
                     StateChangeScript {
@@ -358,8 +423,8 @@ Window {
                             var randomIdx = Math.round(Math.random(1) * (model.count-1))
                             var randomItem = model.get(randomIdx)
                             playVideo(randomItem.filePath)
-                            sonyAPI.startRecMode()
-//                            root.photoPaths = ""
+
+                            photoList.clear()
                             captureTimer.stop()
                             countdownTimer.visible = false
                             countdownTimer.count = settingGeneral.captureTimer
@@ -372,17 +437,18 @@ Window {
                     PropertyChanges {
                         target: liveView
                         opacity: 0
-//                        width: 320
-//                        height: 240
-//                        y: 60
-//                        x: (root.width - width)/2
+                        scale: 0.1
                     }
                     PropertyChanges {
-                        target: contentLoader
+                        target: videoLoader
                         opacity: 1
                     }
                     PropertyChanges {
                         target: countdownTimer
+                        opacity: 0
+                    }
+                    PropertyChanges {
+                        target: endSession
                         opacity: 0
                     }
                     StateChangeScript {
@@ -408,12 +474,16 @@ Window {
                         visible: settingCamera.liveVideoCountdownSwitch
                     }
                     PropertyChanges {
-                        target: contentLoader
+                        target: videoLoader
                         opacity: 0
                     }
                     PropertyChanges {
                         target: countdownTimer
                         opacity: 1
+                    }
+                    PropertyChanges {
+                        target: endSession
+                        opacity: 0
                     }
                     StateChangeScript {
                         script: {
@@ -421,9 +491,12 @@ Window {
                             countdownTimer.count = settingGeneral.captureTimer
                             captureTimer.start()
                             reviewImage.source = ""
-                            if (root.currentPhoto == 0) {
-                                root.photoPaths = ""
-                            }
+
+//                            if (currentPhoto == 0) {
+//                                photoList.clear()
+//                            }
+
+
                         }
                     }
                 },
@@ -433,17 +506,14 @@ Window {
                     PropertyChanges {
                         target: liveView
                         opacity: 0
-//                        width: root.width * 0.8
-//                        height: width * 0.75
-//                        x: (root.width - width) / 2
-//                        y: 0
+                        scale: 0.1
                     }
                     PropertyChanges {
                         target: countdownTimer
                         opacity: 0
                     }
                     PropertyChanges {
-                        target: contentLoader
+                        target: videoLoader
                         opacity: 0
                     }
                     PropertyChanges {
@@ -454,18 +524,55 @@ Window {
                         target: review
                         opacity: 1
                     }
+                    PropertyChanges {
+                        target: endSession
+                        opacity: 0
+                    }
                     StateChangeScript {
                         script: {
                             reviewTimer.start()
                         }
                     }
+                },
+
+                State {
+                    name: "endsession"
+
+                    PropertyChanges {
+                        target: liveView
+                        opacity: 0
+                        scale: 0.1
+                    }
+                    PropertyChanges {
+                        target: countdownTimer
+                        opacity: 0
+                    }
+                    PropertyChanges {
+                        target: videoLoader
+                        opacity: 0
+                    }
+                    PropertyChanges {
+                        target: countdownTimer
+                        opacity: 0
+                    }
+                    PropertyChanges {
+                        target: review
+                        opacity: 0
+                    }
+
+                    PropertyChanges {
+                        target: endSession
+                        opacity: 1
+                    }
+
 
                 }
+
             ]
 
             transitions: Transition {
                 NumberAnimation {
-                    properties: "opacity,x,y,width,height";
+                    properties: "opacity,scale,x,y,width,height";
                     duration: 200;
                     easing.type: Easing.InOutQuad;
                 }
@@ -474,16 +581,17 @@ Window {
             SonyLiveview {
                 id: liveView
                 opacity: 1
+
                 width: root.width * 0.5
                 height: width * 2 / 3
-                y: 0
-                x: root.width - width
+                y: 60
+                x: (root.width - width)/2
                 z: 2
 
             }
 
             Loader {
-                id: contentLoader
+                id: videoLoader
                 anchors.fill: parent
                 opacity: 1
             }
@@ -555,6 +663,23 @@ Window {
                 }
             }
 
+            Rectangle {
+                id: endSession
+                anchors.fill: parent
+
+                color: "#222"
+
+                Text {
+                    id: name
+                    text: qsTr("End of Session")
+                    font.pointSize: 36
+                    color: "white"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+
+                }
+            }
+
         // ==== PAGES ====
         }
         Item {
@@ -604,6 +729,8 @@ Window {
             }
         }
 
+
+
     }
 
     // ==== VIRTUAL KEYBOARD ====
@@ -645,6 +772,7 @@ Window {
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         Material.elevation: 1
+        opacity: 0.5
         background: Rectangle {
             color: "transparent"
         }
