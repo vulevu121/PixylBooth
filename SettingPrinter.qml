@@ -18,10 +18,12 @@ ColumnLayout {
     id: root
 
     property alias printerName: printerNameField.text
+    property alias maxCopyCount: maxCopyCountSlider.value
 
     Settings {
         category: "Printer"
         property alias printerName: printerNameField.text
+        property alias maxCopyCount: maxCopyCountSlider.value
     }
 
     PrintPhotos {
@@ -38,8 +40,10 @@ ColumnLayout {
             RowLayout {
                 spacing: 20
                 CustomLabel {
-                    text: "Printer Name         "
+                    text: "Printer Name"
                     subtitle: "The printer of your choice"
+                    font.pixelSize: 24
+                    height: 48
                 }
                 TextField {
                     id: printerNameField
@@ -54,6 +58,33 @@ ColumnLayout {
                         }
                     }
                 }
+            }
+
+            RowLayout {
+                spacing: 20
+                CustomLabel {
+                    text: "Max Print Copies"
+                    subtitle: "Print limit per session"
+                    font.pixelSize: 24
+                    height: 48
+                }
+                Slider {
+                    id: maxCopyCountSlider
+                    height: 48
+                    Layout.fillWidth: true
+                    stepSize: 1
+                    to: 20
+                    value: 5
+                }
+
+                Label {
+                    height: 48
+                    text: maxCopyCountSlider.value
+                    verticalAlignment: Text.AlignVCenter
+                    font.pixelSize: 24
+                }
+
+
             }
         }
     }

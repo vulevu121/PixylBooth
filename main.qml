@@ -35,10 +35,8 @@ Window {
     property string bgColor: "#222"
     property string countDownColor: "#fff"
     property real numberPhotos: 3
-//    property real currentPhoto: 0
-    property string lastPhotoPath: ""
-
-    property string photoPaths: "C:/Users/Vu/Pictures/dslrBooth/Templates/Mia Pham/background.png;C:/Users/Vu/Pictures/DSC05103.JPG;C:/Users/Vu/Pictures/DSC05104.JPG;C:/Users/Vu/Pictures/DSC05105.JPG"
+    property real printCopyCount: printCopyCountTumbler.currentIndex + 1
+//    property string photoPaths: "C:/Users/Vu/Pictures/dslrBooth/Templates/Mia Pham/background.png;C:/Users/Vu/Pictures/DSC05103.JPG;C:/Users/Vu/Pictures/DSC05104.JPG;C:/Users/Vu/Pictures/DSC05105.JPG"
     property string templatePath: "C:/Users/Vu/Pictures/dslrBooth/Templates/Mia Pham/background.png"
 
     Settings {
@@ -55,6 +53,7 @@ Window {
         property alias countDownColor: root.countDownColor
     }
 
+    // function to assist in scaling with different resolutions and dpi
     function toPixels(percentage) {
         return percentage * Math.min(root.width, root.height);
     }
@@ -63,7 +62,6 @@ Window {
         videoLoader.source = "ContentVideo.qml"
         videoLoader.item.mediaSource = path
         videoLoader.item.play()
-
     }
 
     function getFileName(path) {
@@ -104,45 +102,33 @@ Window {
     }
 
     function saveCapture() {
-//        sonyAPI.saveFolder = settingGeneral.saveFolder
         sonyAPI.actTakePicture()
     }
 
+    // Sony API to initialize camera, take picture, etc.
     SonyAPI {
         id: sonyAPI
         saveFolder: settingGeneral.saveFolder
         onActTakePictureCompleted: {
-//            currentPhoto += 1
             reviewImage.source = addFilePrefix(actTakePictureFilePath)
             photoList.append({"path": actTakePictureFilePath})
             captureView.state = "review"
         }
     }
 
+    // a list model for storing photo paths
     ListModel {
         id: photoList
-
-        ListElement {
-            photoNum: 1
-            path: "C:/Users/Vu/Pictures/DSC05584.JPG"
-        }
-
-        ListElement {
-            photoNum: 2
-            path: "C:/Users/Vu/Pictures/DSC05585.JPG"
-        }
-
-        ListElement {
-            photoNum: 3
-            path: "C:/Users/Vu/Pictures/DSC05586.JPG"
-        }
     }
 
+    // print class to print photos
     PrintPhotos {
         id: imageprint
+        saveFolder: settingGeneral.saveFolder
+        printerName: settingPrinter.printerName
     }
 
-
+    // timer to initialize to a default state
     Timer {
         id: initialTimer
         interval: 1000
@@ -159,6 +145,7 @@ Window {
         }
     }
 
+    // timer for before capture video
     Timer {
         id: beforeCaptureTimer
         interval: settingGeneral.beforeCaptureTimer * 1000
@@ -170,6 +157,7 @@ Window {
         }
     }
 
+    // timer to review photo after each capture
     Timer {
         id: reviewTimer
         interval: settingGeneral.reviewTimer * 1000
@@ -185,6 +173,7 @@ Window {
         }
     }
 
+    // timer for end of session to print and share photos
     Timer {
         id: endSessionTimer
         interval: settingGeneral.endSessionTimer * 1000
@@ -195,7 +184,7 @@ Window {
         }
     }
 
-
+    // ==== MAIN BUTTONS ====
     ColumnLayout {
         anchors.fill: parent
         z: 10
@@ -282,6 +271,7 @@ Window {
 
     }
 
+    // ==== SWIPEVIEW ====
     SwipeView {
         id: swipeview
         currentIndex: tabBar.currentIndex
@@ -312,6 +302,20 @@ Window {
                 }
 
                 Button {
+                    text: "Review"
+                    onClicked: {
+                        captureView.state = "review"
+                    }
+                }
+
+                Button {
+                    text: "EndSession"
+                    onClicked: {
+                        captureView.state = "endsession"
+                    }
+                }
+
+                Button {
                     text: "StartRecMode"
                     onClicked: {
                         sonyAPI.startRecMode()
@@ -324,6 +328,8 @@ Window {
                         sonyAPI.startLiveview()
                     }
                 }
+
+
 
                 Button {
                     text: "Open Stream"
@@ -341,12 +347,7 @@ Window {
                     }
                 }
 
-                Button {
-                    text: "Review"
-                    onClicked: {
-                        captureView.state = "review"
-                    }
-                }
+
 
 //                Process {
 //                        id: process
@@ -387,7 +388,7 @@ Window {
 
 //                        console.log(photos)
 
-                        imageprint.printPhotos(photos, settingPrinter.printerName, settingGeneral.saveFolder, 1)
+                        imageprint.printPhotos(photos, 1)
                     }
                 }
 
@@ -424,6 +425,7 @@ Window {
                             var randomItem = model.get(randomIdx)
                             playVideo(randomItem.filePath)
 
+                            // clear photo list before we start capture
                             photoList.clear()
                             captureTimer.stop()
                             countdownTimer.visible = false
@@ -491,12 +493,6 @@ Window {
                             countdownTimer.count = settingGeneral.captureTimer
                             captureTimer.start()
                             reviewImage.source = ""
-
-//                            if (currentPhoto == 0) {
-//                                photoList.clear()
-//                            }
-
-
                         }
                     }
                 },
@@ -669,15 +665,109 @@ Window {
 
                 color: "#222"
 
-                Text {
-                    id: name
-                    text: qsTr("End of Session")
-                    font.pointSize: 36
-                    color: "white"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
+                ColumnLayout {
+                    anchors.fill: parent
+
+                    ColumnLayout {}
+
+                    Tumbler {
+                        id: printCopyCountTumbler
+                        width: 200
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                        font.pointSize: 18
+                        model: 5
+                        wrap: false
+
+                        background: Item {
+                            Rectangle {
+                                width: parent.width
+                                height: parent.height
+                                opacity: 0.1
+                                border.color: "black"
+                                border.width: 1
+
+                                gradient: Gradient {
+                                    GradientStop { position: 0.0; color: "black" }
+                                    GradientStop { position: 0.5; color: "white" }
+                                    GradientStop { position: 1.0; color: "black" }
+                                }
+
+                            }
+
+                        }
+
+                        delegate: Text {
+                            text: qsTr("%1").arg(modelData + 1)
+                            font: printCopyCountTumbler.font
+                            color: "white"
+                            horizontalAlignment: Text.AlignHCenter
+                            verticalAlignment: Text.AlignVCenter
+                            opacity: 1.0 - Math.abs(Tumbler.displacement) / (printCopyCountTumbler.visibleItemCount / 2)
+                        }
+
+                        Rectangle {
+                            anchors.horizontalCenter: printCopyCountTumbler.horizontalCenter
+                            y: printCopyCountTumbler.height * 0.4
+                            width: parent.width * 0.9
+                            height: 1
+                            color: "white"
+                        }
+
+                        Rectangle {
+                            anchors.horizontalCenter: printCopyCountTumbler.horizontalCenter
+                            y: printCopyCountTumbler.height * 0.6
+                            width: parent.width * 0.9
+                            height: 1
+                            color: "white"
+                        }
+                    }
+
+                    Button {
+                        text: "Print"
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+
+                        onClicked: {
+                            // make the template as the first image in the list
+                            var photos = templatePath.concat(";")
+
+                            // iterate and append all the photos to the list string
+                            var i
+                            if (photoList.count > 0) {
+
+                                for(i = 0 ; i < photoList.count ; i++) {
+                                    photos = photos.concat(photoList.get(i).path)
+                                    if (i < photoList.count-1) {
+                                        photos = photos.concat(";")
+                                    }
+                                }
+
+                                console.log(printCopyCount)
+                                console.log(settingPrinter.maxCopyCount)
+
+
+                                imageprint.printPhotos(photos, printCopyCount)
+                            }
+
+                        }
+
+                    }
+                    ColumnLayout {}
 
                 }
+
+
+
+
+
+//                Text {
+//                    id: name
+//                    text: qsTr("End of Session")
+//                    font.pointSize: 36
+//                    color: "white"
+//                    anchors.horizontalCenter: parent.horizontalCenter
+//                    anchors.verticalCenter: parent.verticalCenter
+
+//                }
             }
 
         // ==== PAGES ====
@@ -848,6 +938,8 @@ Window {
 
 
     }
+
+
 
 }
 

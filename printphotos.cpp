@@ -20,19 +20,28 @@ QString PrintPhotos::getPrinterName() {
 }
 
 // print in a new thread to prevent gui lag
-void PrintPhotos::printPhotos(const QString &photoPaths, const QString &printerName, const QString &saveFolder, int copyCount) {
-    PrintThread *thread = new PrintThread(photoPaths, printerName, saveFolder, copyCount, this);
+void PrintPhotos::printPhotos(const QString &photoPaths, int copyCount) {
+    PrintThread *thread = new PrintThread(photoPaths, printerName(), saveFolder(), copyCount, this);
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
 }
 
-//QString ImagePrint::saveFolder() {
-//    return m_saveFolder;
-//}
+QString PrintPhotos::saveFolder() {
+    return m_saveFolder;
+}
 
-//void ImagePrint::setSaveFolder(const QString &saveFolder) {
-//    if (saveFolder == m_saveFolder)
-//        return;
-//    m_saveFolder = saveFolder;
-//}
+void PrintPhotos::setSaveFolder(const QString &saveFolder) {
+    if (saveFolder == m_saveFolder)
+        return;
+    m_saveFolder = saveFolder;
+}
 
+QString PrintPhotos::printerName() {
+    return m_printerName;
+}
+
+void PrintPhotos::setPrinterName(const QString &printerName) {
+    if (printerName == m_printerName)
+        return;
+    m_printerName = printerName;
+}

@@ -54,6 +54,8 @@ void PrintThread::run() {
     QImage image2(image2Dir.absolutePath());
     QImage image3(image2Dir.absolutePath());
 
+    qDebug() << image1Dir.dirName();
+
     // resize photos to fit template
     QImage image1Scaled = image1.scaledToWidth(1560);
     QImage image2Scaled = image2.scaledToWidth(1560);
@@ -74,7 +76,13 @@ void PrintThread::run() {
     imagePainter.drawImage(0, 0, templateImage);
 
     // save output
-    QString saveOutputPath = saveFolder.append("/output.png");
+
+    QString saveOutputPath = QString("%1/%2_%3_%4.png")
+            .arg(saveFolder)
+            .arg(image1Dir.dirName())
+            .arg(image2Dir.dirName())
+            .arg(image3Dir.dirName());
+
     output.save(saveOutputPath);
 
     // scale output image to printer dimensions
