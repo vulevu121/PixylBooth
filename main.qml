@@ -12,13 +12,14 @@ import QtMultimedia 5.4
 import Process 1.0
 import SonyAPI 1.0
 import SonyLiveview 1.0
+import ProcessPhotos 1.0
 import PrintPhotos 1.0
 
 Window {
     id: root
     visible: true
-    x: Screen.width / 2
-    y: 0
+    //    x: Screen.width / 2
+    //    y: 0
 
     width: 1080/2
     height: 1920/2
@@ -36,15 +37,18 @@ Window {
     property string countDownColor: "#fff"
     property real numberPhotos: 3
     property real printCopyCount: printCopyCountTumbler.currentIndex + 1
-//    property string photoPaths: "C:/Users/Vu/Pictures/dslrBooth/Templates/Mia Pham/background.png;C:/Users/Vu/Pictures/DSC05103.JPG;C:/Users/Vu/Pictures/DSC05104.JPG;C:/Users/Vu/Pictures/DSC05105.JPG"
+    property string lastCombinedPhoto
     property string templatePath: "C:/Users/Vu/Pictures/dslrBooth/Templates/Mia Pham/background.png"
 
+
+
     Settings {
-//        property alias x: root.x
-//        property alias y: root.y
-//        property alias width: root.width
-//        property alias height: root.height
-//        property alias visibility: root.visibility
+        property alias x: root.x
+        property alias y: root.y
+        property alias lastCombinedPhoto: root.lastCombinedPhoto
+        //        property alias width: root.width
+        //        property alias height: root.height
+        //        property alias visibility: root.visibility
     }
 
     Settings {
@@ -89,7 +93,7 @@ Window {
         } else {
             filePrefix = "file://".concat(String(a)).replace("\r", "").replace("\n", "")
         }
-//        console.log(filePrefix)
+        //        console.log(filePrefix)
         return(filePrefix)
     }
 
@@ -103,6 +107,31 @@ Window {
 
     function saveCapture() {
         sonyAPI.actTakePicture()
+    }
+
+    function combinePhotos() {
+        // make the template as the first image in the list
+        var photos = templatePath.concat(";")
+
+        // iterate and append all the photos to the list string
+        var i
+        if (photoList.count > 0) {
+
+            for(i = 0 ; i < photoList.count ; i++) {
+                photos = photos.concat(photoList.get(i).path)
+                if (i < photoList.count-1) {
+                    photos = photos.concat(";")
+                }
+            }
+
+            lastCombinedPhoto = processPhotos.combine(photos)
+            endSessionImage.source = addFilePrefix(lastCombinedPhoto)
+            console.log(lastCombinedPhoto)
+        }
+    }
+
+    function printLastCombinedPhoto() {
+        imagePrint.printPhotos(lastCombinedPhoto, printCopyCount)
     }
 
     // Sony API to initialize camera, take picture, etc.
@@ -121,10 +150,15 @@ Window {
         id: photoList
     }
 
+    // process the photos into tempalte
+    ProcessPhotos {
+        id: processPhotos
+        saveFolder: settingGeneral.saveFolder.concat("/Prints")
+    }
+
     // print class to print photos
     PrintPhotos {
-        id: imageprint
-        saveFolder: settingGeneral.saveFolder
+        id: imagePrint
         printerName: settingPrinter.printerName
     }
 
@@ -152,8 +186,11 @@ Window {
         repeat: false
 
         onTriggered: {
+            countdownTimer.visible = true
+            countdownTimer.count = settingGeneral.captureTimer
+            captureTimer.start()
+            reviewImage.source = ""
             captureView.state = "liveview"
-
         }
     }
 
@@ -165,8 +202,9 @@ Window {
 
         onTriggered: {
             if (photoList.count < root.numberPhotos) {
-                captureView.state = "beforecapture";
+                captureView.state = "beforecapture"
             } else {
+                combinePhotos()
                 captureView.state = "endsession"
                 endSessionTimer.start()
             }
@@ -184,10 +222,31 @@ Window {
         }
     }
 
+    // timer for countdown
+    Timer {
+        id: captureTimer
+        running: false
+        repeat: true
+        interval: 1000
+
+        onTriggered: {
+            console.log(countdownTimer.count)
+            if (countdownTimer.count <= 0) {
+                countdownTimer.count = countdownTimer.timer
+                captureTimer.stop()
+                countdownTimer.visible = false
+                saveCapture()
+            }
+            else {
+                countdownTimer.count--
+            }
+        }
+    }
+
     // ==== MAIN BUTTONS ====
     ColumnLayout {
         anchors.fill: parent
-        z: 10
+        z: 5
         opacity: 0.5
 
         Button {
@@ -240,7 +299,7 @@ Window {
 
             onClicked: {
                 captureTimer.stop()
-//                countdownTimer.visible = false
+                //                countdownTimer.visible = false
                 countdownTimer.count = settingGeneral.captureTimer
                 if (photoList.count > 0) {
                     photoList.remove(photoList.count-1, 1)
@@ -267,7 +326,7 @@ Window {
             }
         }
 
-        ColumnLayout {}
+        ColumnLayout { }
 
     }
 
@@ -283,7 +342,7 @@ Window {
             // ==== PUT DEBUG BUTTONS HERE!!! ====
             ColumnLayout {
                 id: debugLayout
-                z: 10
+                z: 5
                 opacity: 0.5
                 visible: true
 
@@ -312,6 +371,7 @@ Window {
                     text: "EndSession"
                     onClicked: {
                         captureView.state = "endsession"
+                        endSessionImage.source = addFilePrefix("C:/Users/Vu/Pictures/PixylBooth/Prints/DSC05755_DSC05756_DSC05757.jpg")
                     }
                 }
 
@@ -329,13 +389,9 @@ Window {
                     }
                 }
 
-
-
                 Button {
                     text: "Open Stream"
                     onClicked: {
-//                        sonyAPI.startLiveview()
-//                        liveImageItem.start()
                         liveView.start()
                     }
                 }
@@ -347,18 +403,16 @@ Window {
                     }
                 }
 
-
-
-//                Process {
-//                        id: process
-//                        onReadyRead: {
-//                            var result = String(process.readAllStandardOutput())
-//                            root.lastPhotoPath = addFilePrefix(result)
-//                            console.log(root.lastPhotoPath)
-//                            reviewImage.source = root.lastPhotoPath
-//                            captureView.state = "review"
-//                        }
-//                }
+                //                Process {
+                //                        id: process
+                //                        onReadyRead: {
+                //                            var result = String(process.readAllStandardOutput())
+                //                            root.lastPhotoPath = addFilePrefix(result)
+                //                            console.log(root.lastPhotoPath)
+                //                            reviewImage.source = root.lastPhotoPath
+                //                            captureView.state = "review"
+                //                        }
+                //                }
 
                 Button {
                     id: captureButton
@@ -370,28 +424,13 @@ Window {
                 }
 
                 Button {
-                    id: imageprintButton
+                    id: imagePrintButton
                     text: "Print"
 
                     onClicked: {
-                        // make the template as the first image in the list
-                        var photos = templatePath.concat(";")
-
-                        // iterate and append all the photos to the list
-                        var i
-                        for(i = 0 ; i < photoList.count ; i++) {
-                            photos = photos.concat(photoList.get(i).path)
-                            if (i < photoList.count-1) {
-                                photos = photos.concat(";")
-                            }
-                        }
-
-//                        console.log(photos)
-
-                        imageprint.printPhotos(photos, 1)
+                        imagePrint.printPhotos(lastCombinedPhoto, 1)
                     }
                 }
-
             }
 
 
@@ -403,8 +442,6 @@ Window {
                         target: liveView
                         opacity: settingCamera.liveVideoStartSwitch
                         scale: 1
-
-//                        visible: settingCamera.liveVideoStartSwitch
                     }
                     PropertyChanges {
                         target: videoLoader
@@ -489,10 +526,7 @@ Window {
                     }
                     StateChangeScript {
                         script: {
-                            countdownTimer.visible = true
-                            countdownTimer.count = settingGeneral.captureTimer
-                            captureTimer.start()
-                            reviewImage.source = ""
+
                         }
                     }
                 },
@@ -560,7 +594,11 @@ Window {
                         target: endSession
                         opacity: 1
                     }
+                    StateChangeScript {
+                        script: {
 
+                        }
+                    }
 
                 }
 
@@ -574,6 +612,7 @@ Window {
                 }
             }
 
+            // live view from camera
             SonyLiveview {
                 id: liveView
                 opacity: 1
@@ -586,6 +625,7 @@ Window {
 
             }
 
+            // loader for all videos
             Loader {
                 id: videoLoader
                 anchors.fill: parent
@@ -600,25 +640,6 @@ Window {
                 z: 5
             }
 
-            Timer {
-                id: captureTimer
-                running: false
-                repeat: true
-                interval: 1000
-
-                onTriggered: {
-                    console.log(countdownTimer.count)
-                    if (countdownTimer.count <= 0) {
-                        countdownTimer.count = countdownTimer.timer
-                        captureTimer.stop()
-                        countdownTimer.visible = false
-                        saveCapture()
-                    }
-                    else {
-                        countdownTimer.count--
-                    }
-                }
-            }
 
 
             Rectangle {
@@ -630,6 +651,7 @@ Window {
                 border.width: 0
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
+                z: 10
 
                 MouseArea {
                     anchors.fill: parent
@@ -637,7 +659,7 @@ Window {
                     onClicked: {
                         if (captureView.state == "start") {
                             captureView.state = "beforecapture"
-                         }
+                        }
                     }
                 }
             }
@@ -655,25 +677,76 @@ Window {
                     id: reviewImage
                     anchors.fill: parent
                     fillMode: Image.PreserveAspectFit
-//                    source: "file:///C:/Users/Vu/Documents/Sony-Camera-API/example/DCIM/DSC04492.JPG"
                 }
             }
 
             Rectangle {
                 id: endSession
                 anchors.fill: parent
-
-                color: "#222"
+                opacity: 0
+                color: "black"
 
                 ColumnLayout {
                     anchors.fill: parent
 
-                    ColumnLayout {}
+                    ColumnLayout {
+                    }
+
+                    Image {
+                        id: endSessionImage
+                        width: 400
+                        height: 300
+                        sourceSize.width: 400
+                        sourceSize.height: 300
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                        fillMode: Image.PreserveAspectFit
+                    }
+
+                    RowLayout {
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+
+                        Button {
+                            text: qsTr("Print")
+                            onClicked: {
+//                                printLastCombinedPhoto()
+                                console.log("Print!")
+                                endSessionPopup.open()
+                            }
+
+                        }
+
+                        Button {
+                            text: qsTr("Email")
+                            onClicked: {
+                                console.log("Email!")
+                            }
+                        }
+
+                        Button {
+                            text: qsTr("SMS")
+                            onClicked: {
+                                console.log("SMS!")
+                            }
+                        }
+                    }
+                    ColumnLayout {
+                    }
+                }
+
+                Popup {
+                    id: endSessionPopup
+                    focus: true
+                    modal: true
+                    width: 100
+                    height: 200
+//                    anchors.centerIn: parent
+                    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside | Popup.CloseOnReleaseOutside
+                    z: 30
 
                     Tumbler {
                         id: printCopyCountTumbler
-                        width: 200
-                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+//                        width: 100
+//                        height: 200
                         font.pointSize: 18
                         model: 5
                         wrap: false
@@ -722,36 +795,6 @@ Window {
                         }
                     }
 
-                    Button {
-                        text: "Print"
-                        Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-
-                        onClicked: {
-                            // make the template as the first image in the list
-                            var photos = templatePath.concat(";")
-
-                            // iterate and append all the photos to the list string
-                            var i
-                            if (photoList.count > 0) {
-
-                                for(i = 0 ; i < photoList.count ; i++) {
-                                    photos = photos.concat(photoList.get(i).path)
-                                    if (i < photoList.count-1) {
-                                        photos = photos.concat(";")
-                                    }
-                                }
-
-                                console.log(printCopyCount)
-                                console.log(settingPrinter.maxCopyCount)
-
-
-                                imageprint.printPhotos(photos, printCopyCount)
-                            }
-
-                        }
-
-                    }
-                    ColumnLayout {}
 
                 }
 
@@ -759,18 +802,10 @@ Window {
 
 
 
-//                Text {
-//                    id: name
-//                    text: qsTr("End of Session")
-//                    font.pointSize: 36
-//                    color: "white"
-//                    anchors.horizontalCenter: parent.horizontalCenter
-//                    anchors.verticalCenter: parent.verticalCenter
 
-//                }
             }
 
-        // ==== PAGES ====
+            // ==== PAGES ====
         }
         Item {
             SettingGeneral {
