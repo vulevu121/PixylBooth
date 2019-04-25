@@ -34,5 +34,10 @@
         <file>Images/print_white_48dp.png</file>
         <file>Images/refresh_white_48dp_1.png</file>
         <file>Images/refresh_white_48dp_all.png</file>
+        <file>Images/sms_white_48dp.png</file>
+        <file>Images/email_white_48dp.png</file>
+        <file>Images/play_circle_filled_white_white_48dp.png</file>
+        <file>Gallery.qml</file>
+        <file>Images/box-shadow.png</file>
     </qresource>
 </RCC>
