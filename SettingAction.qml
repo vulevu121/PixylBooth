@@ -13,14 +13,12 @@ import QtMultimedia 5.4
 
 ColumnLayout {
     id: root
-//    property alias captureAction: captureActionField.text
-//    property alias liveviewAction: liveViewField.text
+
     property alias pythonPath: pythonField.text
 
     Settings {
         category: "Action"
-//        property alias captureAction: captureActionField.text
-//        property alias liveviewAction: liveViewField.text
+
         property alias pythonPath: pythonField.text
     }
 

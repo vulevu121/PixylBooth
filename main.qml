@@ -1,4 +1,4 @@
-import QtQuick 2.0
+import QtQuick 2.12
 import QtQuick.Window 2.2
 import QtQuick.VirtualKeyboard 2.2
 import QtQuick.Controls.Styles 1.4
@@ -15,6 +15,7 @@ import SonyLiveview 1.0
 import ProcessPhotos 1.0
 import PrintPhotos 1.0
 import Qt.labs.folderlistmodel 2.0
+
 
 
 Window {
@@ -136,6 +137,12 @@ Window {
         captureTimer.stop()
     }
 
+
+    Text {
+        text: Screen.pixelDensity
+        color: "white"
+    }
+
     // Sony API to initialize camera, take picture, etc.
     SonyAPI {
         id: sonyAPI
@@ -161,7 +168,7 @@ Window {
     // print class to print photos
     PrintPhotos {
         id: imagePrint
-        printerName: settingPrinter.printerName
+        printerName: settingGeneral.printerName
     }
 
     // timer to initialize to a default state
@@ -173,7 +180,7 @@ Window {
 
         onTriggered: {
             captureView.state = "start"
-            if(settingCamera.liveVideoCountdownSwitch || settingCamera.liveVideoStartSwitch) {
+            if(settingGeneral.liveVideoCountdownSwitch || settingGeneral.liveVideoStartSwitch) {
                 sonyAPI.startRecMode()
                 sonyAPI.startLiveview()
             }
@@ -190,7 +197,7 @@ Window {
 
         onTriggered: {
             liveView.start()
-            liveView.visible = settingCamera.liveVideoStartSwitch
+            liveView.visible = settingGeneral.liveVideoStartSwitch
         }
     }
 
@@ -304,7 +311,7 @@ Window {
         Button {
             text: "Undo 1"
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            icon.source: "qrc:/Images/refresh_white_48dp_1.png"
+            icon.source: "qrc:/Images/settings_backup_restore_white_48dp.png"
             icon.width: 48
             icon.height: 48
             display: AbstractButton.IconOnly
@@ -328,7 +335,7 @@ Window {
         Button {
             text: "Undo All"
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            icon.source: "qrc:/Images/refresh_white_48dp_all.png"
+            icon.source: "qrc:/Images/settings_backup_restore_white_48dp_all.png"
             icon.width: 48
             icon.height: 48
             display: AbstractButton.IconOnly
@@ -342,6 +349,7 @@ Window {
         }
 
         ColumnLayout { }
+
 
     }
 
@@ -455,7 +463,7 @@ Window {
                     name: "start"
                     PropertyChanges {
                         target: liveView
-                        opacity: settingCamera.liveVideoStartSwitch
+                        opacity: settingGeneral.liveVideoStartSwitch
                         scale: 1
                     }
                     PropertyChanges {
@@ -472,7 +480,7 @@ Window {
                     }
                     StateChangeScript {
                         script: {
-                            var model = settingVideos.startVideoListModel
+                            var model = settingGeneral.startVideoListModel
                             var randomIdx = Math.round(Math.random(1) * (model.count-1))
                             var randomItem = model.get(randomIdx)
                             playVideo(randomItem.filePath)
@@ -507,7 +515,7 @@ Window {
                     }
                     StateChangeScript {
                         script: {
-                            var model = settingVideos.beforeCaptureVideoListModel
+                            var model = settingGeneral.beforeCaptureVideoListModel
                             var randomIdx = Math.round(Math.random(1) * (model.count-1))
                             var randomItem = model.get(randomIdx)
                             playVideo(randomItem.filePath)
@@ -525,7 +533,7 @@ Window {
                         height: width * 0.75
                         x: (root.width - width) / 2
                         y: 0
-                        visible: settingCamera.liveVideoCountdownSwitch
+                        visible: settingGeneral.liveVideoCountdownSwitch
                     }
                     PropertyChanges {
                         target: videoLoader
@@ -846,81 +854,10 @@ Window {
             // ==== PAGES ====
         }
         Item {
-            id: element
-            FolderListModel {
-                id: folderListModel
+            Gallery {
+                id: gallery
+                anchors.fill: parent
                 folder: "file:///C:/Users/Vu/Pictures/PixylBooth/Prints/"
-                nameFilters: ["*.jpg", "*.JPG", "*.png", "*.PNG"]
-                showDirs: false
-            }
-
-            Component {
-                id: photoDelegate
-                Item {
-                    width: galleryGridView.cellWidth
-                    height: galleryGridView.cellHeight
-                    Column {
-                        anchors.fill: parent
-//                        BorderImage {
-//                            source: "qrc:/Images/box-shadow.png"
-//                            width: galleryGridView.cellWidth * 0.9
-//                            height: galleryGridView.cellHeight * 0.9
-//                            border.left: 10; border.top: 10
-//                            border.right: 10; border.bottom: 10
-//                            anchors.horizontalCenter: parent.horizontalCenter
-
-//                            Image {
-//                                source: "file:///" + filePath
-//                                width: parent.width - 5
-//                                height: parent.height - 5
-//                                fillMode: Image.PreserveAspectFit
-//                                sourceSize.width: 100
-//                                anchors.horizontalCenter: parent.horizontalCenter
-//                                anchors.verticalCenter: parent.verticalCenter
-//                                MouseArea {
-//                                    anchors.fill: parent
-//                                    onClicked: galleryGridView.currentIndex = index
-//                                }
-//                            }
-
-//                        }
-                        Image {
-                            source: "file:///" + filePath
-                            width: parent.width * 0.9
-                            height: parent.height * 0.9
-                            fillMode: Image.PreserveAspectFit
-                            sourceSize.width: 600
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            asynchronous: true
-
-                            MouseArea {
-                                anchors.fill: parent
-                                onClicked: galleryGridView.currentIndex = index
-                            }
-                        }
-                        Text {
-                            text: fileName
-                            color: "white"
-                            anchors.horizontalCenter: parent.horizontalCenter
-                        }
-
-
-                    }
-                }
-            }
-
-            GridView {
-                id: galleryGridView
-                width: root.width - toPixels(0.05)
-                height: root.height - toPixels(0.05)
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-                cellWidth: root.width / 2.5
-                cellHeight: cellWidth * 0.75
-                model: folderListModel
-                delegate: photoDelegate
-                highlight: Rectangle { color: "gray"; radius: 5 }
-                focus: true
             }
         }
         Item {
@@ -930,45 +867,45 @@ Window {
             }
         }
 
-        Item {
-            SettingCamera {
-                id: settingCamera
-                anchors.fill: parent
-            }
-        }
+//        Item {
+//            SettingCamera {
+//                id: settingGeneral
+//                anchors.fill: parent
+//            }
+//        }
 
-        Item {
-            SettingAction {
-                id: settingAction
-                anchors.fill: parent
-            }
-        }
+//        Item {
+//            SettingAction {
+//                id: settingAction
+//                anchors.fill: parent
+//            }
+//        }
 
-        Item {
-            SettingColor {
-                id: settingColors
-                anchors.fill: parent
+//        Item {
+//            SettingColor {
+//                id: settingColors
+//                anchors.fill: parent
 
-                Component.onCompleted: {
-                    countDownColorSelected.connect(root.setcountDownColor)
-                    bgColorSelected.connect(root.setBgColor)
-                }
-            }
-        }
+//                Component.onCompleted: {
+//                    countDownColorSelected.connect(root.setcountDownColor)
+//                    bgColorSelected.connect(root.setBgColor)
+//                }
+//            }
+//        }
 
-        Item {
-            SettingPrinter {
-                id: settingPrinter
-                anchors.fill: parent
-            }
-        }
+//        Item {
+//            SettingPrinter {
+//                id: settingGeneral
+//                anchors.fill: parent
+//            }
+//        }
 
-        Item {
-            SettingVideo {
-                id: settingVideos
-                anchors.fill: parent
-            }
-        }
+//        Item {
+//            SettingVideo {
+//                id: settingGeneral
+//                anchors.fill: parent
+//            }
+//        }
 
 
 
@@ -1004,6 +941,8 @@ Window {
         }
     }
 
+
+
     // ==== TAB BAR STUFF ====
     TabBar {
         id: tabBar
@@ -1015,7 +954,8 @@ Window {
         Material.elevation: 1
         opacity: 0.5
         background: Rectangle {
-            color: "transparent"
+            color: Material.background
+            radius: 10
         }
 
 
@@ -1048,58 +988,53 @@ Window {
         }
 
 
-        TabButton {
-            text: "Camera"
-            width: implicitWidth
-            icon.source: "qrc:/Images/camera_alt_white_48dp.png"
-            icon.width: 24
-            icon.height: 24
-            display: AbstractButton.IconOnly
-        }
+//        TabButton {
+//            text: "Camera"
+//            width: implicitWidth
+//            icon.source: "qrc:/Images/camera_alt_white_48dp.png"
+//            icon.width: 24
+//            icon.height: 24
+//            display: AbstractButton.IconOnly
+//        }
 
-        TabButton {
-            text: "Action"
-            width: implicitWidth
-            icon.source: "qrc:/Images/apps_white_48dp.png"
-            icon.width: 24
-            icon.height: 24
-            display: AbstractButton.IconOnly
-        }
+//        TabButton {
+//            text: "Action"
+//            width: implicitWidth
+//            icon.source: "qrc:/Images/apps_white_48dp.png"
+//            icon.width: 24
+//            icon.height: 24
+//            display: AbstractButton.IconOnly
+//        }
 
-        TabButton {
-            text: "Color"
-            width: implicitWidth
-            icon.source: "qrc:/Images/color_lens_white_48dp.png"
-            icon.width: 24
-            icon.height: 24
-            display: AbstractButton.IconOnly
-        }
+//        TabButton {
+//            text: "Color"
+//            width: implicitWidth
+//            icon.source: "qrc:/Images/color_lens_white_48dp.png"
+//            icon.width: 24
+//            icon.height: 24
+//            display: AbstractButton.IconOnly
+//        }
 
-        TabButton {
-            text: "Printer"
-            width: implicitWidth
-            icon.source: "qrc:/Images/print_white_48dp.png"
-            icon.width: 24
-            icon.height: 24
-            display: AbstractButton.IconOnly
-        }
-
-
-        TabButton {
-            text: "Videos"
-            width: implicitWidth
-            icon.source: "qrc:/Images/video_library_white_48dp.png"
-            icon.width: 24
-            icon.height: 24
-            display: AbstractButton.IconOnly
-        }
+//        TabButton {
+//            text: "Printer"
+//            width: implicitWidth
+//            icon.source: "qrc:/Images/print_white_48dp.png"
+//            icon.width: 24
+//            icon.height: 24
+//            display: AbstractButton.IconOnly
+//        }
 
 
-
+//        TabButton {
+//            text: "Videos"
+//            width: implicitWidth
+//            icon.source: "qrc:/Images/video_library_white_48dp.png"
+//            icon.width: 24
+//            icon.height: 24
+//            display: AbstractButton.IconOnly
+//        }
 
     }
-
-
 
 }
 

@@ -13,7 +13,11 @@ ColumnLayout {
     id: root
     signal bgColorSelected(string color)
     signal countDownColorSelected(string color)
-
+    Settings {
+        category: "Color"
+        property alias backgroundColor: bgColorRectangle.color
+        property alias countDownColor: countDownColorRectangle.color
+    }
     CustomPane {
         id: customPane
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
@@ -131,11 +135,7 @@ ColumnLayout {
         }
     }
 
-    Settings {
-        category: "Color"
-        property alias backgroundColor: bgColorRectangle.color
-        property alias countDownColor: countDownColorRectangle.color
-    }
+
 
 
 

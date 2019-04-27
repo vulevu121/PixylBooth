@@ -65,6 +65,44 @@ Rectangle {
         }
     }
 
+    Component {
+        id: fileDelegate
+        Item {
+            id: wrapper
+            anchors.fill: parent
+            Row {
+                spacing: 5
+
+                Image {
+                    id: folderPicture
+                    source: "qrc:/Images/file_white_48dp.png"
+                    width: 32
+                    height: 32
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            listView.currentIndex = index
+                            console.log(index)
+                        }
+
+                    }
+                }
+
+                Text {
+                    text: fileName
+                    anchors.verticalCenter: fileDelegate.verticalCenter
+                    font.bold: true
+                    color: "white"
+                }
+
+
+            }
+
+        }
+
+    }
+
     ListView {
         id: listView
         anchors.top: topBar.bottom
@@ -75,34 +113,7 @@ Rectangle {
         Layout.fillWidth: true
         spacing: 5
         delegate: fileDelegate
-        
-        Component {
-            id: fileDelegate
-            Row {
-                spacing: 5
-    
-                Image {
-                    id: folderPicture
-                    source: "qrc:/Images/file_white_48dp.png"
-                    width: 32
-                    height: 32
-                }
-    
-                Text {
-                    text: fileName
-                    anchors.verticalCenter: parent.verticalCenter
-                    font.bold: true
-                    color: "white"
-                }
-    
-                Rectangle {
-                    id: wrapper
-                    width: 200
-                    height: 48
-                    visible: false
-                }
-            }
-        }
+        focus: true
 
         highlight: Rectangle {
             color: Material.color(Material.LightBlue)
@@ -111,7 +122,6 @@ Rectangle {
         }
         highlightMoveVelocity: 1000
         pressDelay: 100
-        focus: true
         
     }
     

@@ -11,19 +11,20 @@ import Qt.labs.settings 1.1
 
 Label {
     id: mainLabel
-    text: qsTr("Capture Timer")
+    text: ""
     property alias subtitle: sub.text
     property alias textColor: mainLabel.color
     property alias subtitleColor: sub.color
+    color: Material.foreground
 
     Label {
         id: sub
         x: 0
-        text: qsTr("Time between each photo")
+        text: ""
         anchors.topMargin: 0
         anchors.top: mainLabel.bottom
-        color: "#555"
-        font.pixelSize: mainLabel.font.pixelSize * 0.6
+        color: Material.primary
+        font.pixelSize: mainLabel.font.pixelSize * 0.8
     }
 
 }
