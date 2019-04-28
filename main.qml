@@ -16,8 +16,6 @@ import ProcessPhotos 1.0
 import PrintPhotos 1.0
 import Qt.labs.folderlistmodel 2.0
 
-
-
 Window {
     id: root
     visible: true
@@ -32,12 +30,12 @@ Window {
     maximumWidth: 1080/2
     maximumHeight: 1920/2
 
-    color: bgColor
+    color: settingGeneral.bgColor
     title: qsTr("PixylBooth")
 
     property real pixelDensity: Screen.pixelDensity
-    property string bgColor: "#222"
-    property string countDownColor: "#fff"
+    property string bgColor: settingGeneral.bgColor
+    property string countDownColor: settingGeneral.countDownColor
     property real numberPhotos: 3
     property real printCopyCount: printCopyCountTumbler.currentIndex + 1
     property string lastCombinedPhoto
@@ -54,15 +52,13 @@ Window {
         //        property alias visibility: root.visibility
     }
 
-    Settings {
-        category: "Color"
-        property alias backgroundColor: root.bgColor
-        property alias countDownColor: root.countDownColor
-    }
-
     // function to assist in scaling with different resolutions and dpi
     function toPixels(percentage) {
         return percentage * Math.min(root.width, root.height);
+    }
+
+    function pixel(pixel) {
+        return pixel * Screen.pixelDensity
     }
 
     function playVideo(path) {
@@ -91,14 +87,6 @@ Window {
             filePrefix += "/"
 
         return filePrefix.concat(path)
-    }
-
-    function setcountDownColor(color) {
-        countDownColor = color
-    }
-
-    function setBgColor(color) {
-        bgColor = color
     }
 
     function saveCapture() {
@@ -265,6 +253,100 @@ Window {
         }
     }
 
+    // ==== PUT DEBUG BUTTONS HERE!!! ====
+    ColumnLayout {
+        id: debugLayout
+        z: 5
+        opacity: 0.5
+        visible: false
+
+        Button {
+            text: "Start"
+            onClicked: {
+                captureView.state = "start"
+            }
+        }
+
+        Button {
+            text: "BeforeCapture"
+            onClicked: {
+                captureView.state = "beforecapture"
+            }
+        }
+
+        Button {
+            text: "Review"
+            onClicked: {
+                captureView.state = "review"
+            }
+        }
+
+        Button {
+            text: "EndSession"
+            onClicked: {
+                captureView.state = "endsession"
+                endSessionImage.source = addFilePrefix("C:/Users/Vu/Pictures/PixylBooth/Prints/DSC05755_DSC05756_DSC05757.jpg")
+            }
+        }
+
+        Button {
+            text: "StartRecMode"
+            onClicked: {
+                sonyAPI.startRecMode()
+            }
+        }
+
+        Button {
+            text: "StartLiveview"
+            onClicked: {
+                sonyAPI.startLiveview()
+            }
+        }
+
+        Button {
+            text: "Open Stream"
+            onClicked: {
+                liveView.start()
+            }
+        }
+
+        Button {
+            text: "End Stream"
+            onClicked: {
+                liveView.stop()
+            }
+        }
+
+        //                Process {
+        //                        id: process
+        //                        onReadyRead: {
+        //                            var result = String(process.readAllStandardOutput())
+        //                            root.lastPhotoPath = addFilePrefix(result)
+        //                            console.log(root.lastPhotoPath)
+        //                            reviewImage.source = root.lastPhotoPath
+        //                            captureView.state = "review"
+        //                        }
+        //                }
+
+        Button {
+            id: captureButton
+            text: "Capture Action"
+
+            onClicked: {
+                sonyAPI.actTakePicture()
+            }
+        }
+
+        Button {
+            id: imagePrintButton
+            text: "Print"
+
+            onClicked: {
+                imagePrint.printPhotos(lastCombinedPhoto, 1)
+            }
+        }
+    }
+
     // ==== MAIN BUTTONS ====
     ColumnLayout {
         anchors.fill: parent
@@ -362,99 +444,7 @@ Window {
         Item {
             id: captureView
 
-            // ==== PUT DEBUG BUTTONS HERE!!! ====
-            ColumnLayout {
-                id: debugLayout
-                z: 5
-                opacity: 0.5
-                visible: true
 
-                Button {
-                    text: "Start"
-                    onClicked: {
-                        captureView.state = "start"
-                    }
-                }
-
-                Button {
-                    text: "BeforeCapture"
-                    onClicked: {
-                        captureView.state = "beforecapture"
-                    }
-                }
-
-                Button {
-                    text: "Review"
-                    onClicked: {
-                        captureView.state = "review"
-                    }
-                }
-
-                Button {
-                    text: "EndSession"
-                    onClicked: {
-                        captureView.state = "endsession"
-                        endSessionImage.source = addFilePrefix("C:/Users/Vu/Pictures/PixylBooth/Prints/DSC05755_DSC05756_DSC05757.jpg")
-                    }
-                }
-
-                Button {
-                    text: "StartRecMode"
-                    onClicked: {
-                        sonyAPI.startRecMode()
-                    }
-                }
-
-                Button {
-                    text: "StartLiveview"
-                    onClicked: {
-                        sonyAPI.startLiveview()
-                    }
-                }
-
-                Button {
-                    text: "Open Stream"
-                    onClicked: {
-                        liveView.start()
-                    }
-                }
-
-                Button {
-                    text: "End Stream"
-                    onClicked: {
-                        liveView.stop()
-                    }
-                }
-
-                //                Process {
-                //                        id: process
-                //                        onReadyRead: {
-                //                            var result = String(process.readAllStandardOutput())
-                //                            root.lastPhotoPath = addFilePrefix(result)
-                //                            console.log(root.lastPhotoPath)
-                //                            reviewImage.source = root.lastPhotoPath
-                //                            captureView.state = "review"
-                //                        }
-                //                }
-
-                Button {
-                    id: captureButton
-                    text: "Capture Action"
-
-                    onClicked: {
-                        sonyAPI.actTakePicture()
-                    }
-                }
-
-                Button {
-                    id: imagePrintButton
-                    text: "Print"
-
-                    onClicked: {
-                        imagePrint.printPhotos(lastCombinedPhoto, 1)
-                    }
-                }
-            }
 
 
             // ==== STATES ====
@@ -867,48 +857,6 @@ Window {
             }
         }
 
-//        Item {
-//            SettingCamera {
-//                id: settingGeneral
-//                anchors.fill: parent
-//            }
-//        }
-
-//        Item {
-//            SettingAction {
-//                id: settingAction
-//                anchors.fill: parent
-//            }
-//        }
-
-//        Item {
-//            SettingColor {
-//                id: settingColors
-//                anchors.fill: parent
-
-//                Component.onCompleted: {
-//                    countDownColorSelected.connect(root.setcountDownColor)
-//                    bgColorSelected.connect(root.setBgColor)
-//                }
-//            }
-//        }
-
-//        Item {
-//            SettingPrinter {
-//                id: settingGeneral
-//                anchors.fill: parent
-//            }
-//        }
-
-//        Item {
-//            SettingVideo {
-//                id: settingGeneral
-//                anchors.fill: parent
-//            }
-//        }
-
-
-
     }
 
     // ==== VIRTUAL KEYBOARD ====
@@ -946,17 +894,16 @@ Window {
     // ==== TAB BAR STUFF ====
     TabBar {
         id: tabBar
-        x: 864
         position: TabBar.Footer
         currentIndex: swipeview.currentIndex
         anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         Material.elevation: 1
-        opacity: 0.5
+        opacity: 1
         background: Rectangle {
             color: Material.background
-            radius: 10
-        }
+            radius: pixel(3)
+         }
 
 
         TabButton {

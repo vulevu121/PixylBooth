@@ -31,7 +31,7 @@ Rectangle {
     Popup {
         id: imagePopup
         anchors.centerIn: parent
-        width: root.width * 0.9
+        width: root.width - pixel(10)
         height: width * 0.75
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
         modal: true
@@ -58,8 +58,8 @@ Rectangle {
                 Image {
                     id: mainImage
                     source: addFilePrefix(filePath)
-                    width: parent.width * 0.9
-                    height: parent.height * 0.9
+                    width: parent.width - pixel(5)
+                    height: width * 0.75
                     fillMode: Image.PreserveAspectFit
                     sourceSize.width: 600
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -81,7 +81,7 @@ Rectangle {
                 }
                 Text {
                     text: fileName
-                    color: "white"
+                    color: Material.foreground
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
             }
@@ -90,16 +90,20 @@ Rectangle {
     
     GridView {
         id: gridView
-        width: root.width - toPixels(0.05)
-        height: root.height - toPixels(0.10)
+        width: root.width - pixel(5)
+        height: root.height - pixel(5)
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
-        cellWidth: root.width / 2.5
-        cellHeight: cellWidth * 0.75
+        cellWidth: (root.width / 2) - pixel(10)
+        cellHeight: cellWidth * 0.75 + pixel(3)
         model: folderListModel
         delegate: photoDelegate
-        highlight: Rectangle { color: "gray"; radius: 5 }
+        highlight: Rectangle {
+            color: Material.accent
+            radius: pixel(2)
+        }
         focus: true
         cacheBuffer: 40
+
     }
 }

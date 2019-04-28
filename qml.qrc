@@ -38,5 +38,9 @@
         <file>Gallery.qml</file>
         <file>Images/settings_backup_restore_white_48dp.png</file>
         <file>Images/settings_backup_restore_white_48dp_all.png</file>
+        <file>Images/corner.png</file>
+        <file>Images/add_white_48dp.png</file>
+        <file>Images/remove_white_48dp.png</file>
+        <file>UpDownButton.qml</file>
     </qresource>
 </RCC>
