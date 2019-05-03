@@ -18,19 +18,21 @@ Rectangle {
     color: Material.background
     radius: height / 2
     
-    property real minimumValue: 0
+    property real min: 0
     property real value: 0
-    property real maximumValue: 99
+    property real max: 99
     
     RoundButton {
         height: parent.height
         width: height
         icon.source: "qrc:/Images/remove_white_48dp.png"
+        icon.width: root.height
+        icon.height: root.height
         anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
 
         onClicked: {
-            root.value = root.value > minimumValue ? (root.value - 1) : minimumValue
+            root.value = root.value > min ? (root.value - 1) : min
         }
     }
     
@@ -51,11 +53,13 @@ Rectangle {
         height: parent.height
         width: height
         icon.source: "qrc:/Images/add_white_48dp.png"
+        icon.width: root.height
+        icon.height: root.height
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
 
         onClicked: {
-            root.value = root.value < maximumValue ? (root.value + 1) : maximumValue
+            root.value = root.value < max ? (root.value + 1) : max
         }
     }
     

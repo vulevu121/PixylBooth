@@ -1,4 +1,4 @@
-QT += gui quick widgets multimedia network printsupport
+QT += gui quick widgets multimedia network printsupport webview
 CONFIG += c++11
 
 RC_ICONS = camera_white_48dp.ico
@@ -16,10 +16,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-    sonyapi.cpp \
-    sonyliveview.cpp \
-    printphotos.cpp \
-    ProcessPhotos.cpp
+    ProcessPhotos.cpp \
+    PrintPhotos.cpp \
+    SonyLiveview.cpp \
+    SonyAPI.cpp
 
 RESOURCES += qml.qrc
 
@@ -39,7 +39,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     process.h \
-    sonyapi.h \
-    sonyliveview.h \
-    printphotos.h \
-    ProcessPhotos.h
+    ProcessPhotos.h \
+    PrintPhotos.h \
+    SonyLiveview.h \
+    SonyAPI.h

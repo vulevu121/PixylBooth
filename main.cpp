@@ -1,12 +1,12 @@
 //#include <QGuiApplication>
 #include <QApplication>
 #include <QQmlApplicationEngine>
-//#include <QtWebView>
+#include <QtWebView/QtWebView>
 #include "process.h"
-#include "sonyapi.h"
-#include "sonyliveview.h"
+#include "SonyAPI.h"
+#include "SonyLiveview.h"
 #include "ProcessPhotos.h"
-#include "printphotos.h"
+#include "PrintPhotos.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,14 +16,13 @@ int main(int argc, char *argv[])
     qmlRegisterType<ProcessPhotos>("ProcessPhotos", 1, 0, "ProcessPhotos");
     qmlRegisterType<PrintPhotos>("PrintPhotos", 1, 0, "PrintPhotos");
 
-
-
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QApplication app(argc, argv);
-//    QtWebView::initialize();
+//    QGuiApplication app(argc, argv);
+    QtWebView::initialize();
     
     app.setOrganizationName("PixylBooth");
     app.setOrganizationDomain("PixylBooth.com");

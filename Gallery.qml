@@ -16,11 +16,13 @@ import ProcessPhotos 1.0
 import PrintPhotos 1.0
 import Qt.labs.folderlistmodel 2.0
 
-
 Rectangle {
     id: root
     color: "transparent"
     property alias folder: folderListModel.folder
+    property alias model: gridView.model
+    property alias cellWidth: gridView.cellWidth
+
 
     FolderListModel {
         id: folderListModel
@@ -28,25 +30,13 @@ Rectangle {
         nameFilters: ["*.jpg", "*.JPG", "*.png", "*.PNG"]
         showDirs: false
     }
-    Popup {
+    ImagePopup {
         id: imagePopup
         anchors.centerIn: parent
-        width: root.width - pixel(10)
+        width: root.width * 0.9
         height: width * 0.75
-        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-        modal: true
-
-        Image {
-            id: imageView
-            anchors.fill: parent
-            asynchronous: true
-            BusyIndicator {
-                anchors.centerIn: parent
-                running: imageView.status == Image.Loading
-            }
-        }
     }
-    
+
     Component {
         id: photoDelegate
         Item {
@@ -64,6 +54,7 @@ Rectangle {
                     sourceSize.width: 600
                     anchors.horizontalCenter: parent.horizontalCenter
                     asynchronous: true
+
                     
                     BusyIndicator {
                         anchors.centerIn: parent
@@ -74,7 +65,7 @@ Rectangle {
                         anchors.fill: parent
                         onClicked: {
                             gridView.currentIndex = index
-                            imageView.source = addFilePrefix(filePath)
+                            imagePopup.source = addFilePrefix(filePath)
                             imagePopup.open()
                         }
                     }

@@ -13,19 +13,23 @@ import QtGraphicalEffects 1.12
 
 Item {
     id: root
+    property alias saveFolder: saveFolderField.text
 
     property alias bgColor: bgColorRectangle.color
     property alias countDownColor: countDownColorRectangle.color
 
-    property alias captureTimer: captureTimerButton.value
+    property alias countdownTimer: countdownTimerButton.value
     property alias beforeCaptureTimer: beforeCaptureTimerButton.value
     property alias reviewTimer: reviewTimerButton.value
-    property alias saveFolder: saveFolderField.text
     property alias endSessionTimer: endSessionTimerButton.value
     property alias liveVideoStartSwitch: liveVideoStartSwitch.checked
     property alias liveVideoCountdownSwitch: liveVideoCountdownSwitch.checked
+    property alias mirrorLiveVideoSwitch: mirrorLiveVideoSwitch.checked
+
     property alias printerName: printerNameField.text
-    property alias maxCopyCount: maxCopyCountButton.value
+    property alias autoPrint: autoPrint.checked
+    property alias autoPrintCopies: autoPrintCopies.value
+    property alias printCopiesPerSession: printCopiesPerSessionButton.value
 
     property alias startVideoListModel: startVideoListModel
     property alias beforeCaptureVideoListModel: beforeCaptureVideoListModel
@@ -44,7 +48,7 @@ Item {
 
     Settings {
         category: "General"
-        property alias captureTimer: captureTimerButton.value
+        property alias countdownTimer: countdownTimerButton.value
         property alias beforeCaptureTimer: beforeCaptureTimerButton.value
         property alias reviewTimer: reviewTimerButton.value
         property alias saveFolder: saveFolderField.text
@@ -55,6 +59,7 @@ Item {
         category: "Camera"
         property alias liveVideoStartSwitch: liveVideoStartSwitch.checked
         property alias liveVideoCountdownSwitch: liveVideoCountdownSwitch.checked
+        property alias mirrorLiveVideoSwitch: mirrorLiveVideoSwitch.checked
     }
 
 
@@ -68,7 +73,9 @@ Item {
     Settings {
         category: "Printer"
         property alias printerName: printerNameField.text
-        property alias maxCopyCount: maxCopyCountButton.value
+        property alias autoPrint: autoPrint.checked
+        property alias autoPrintCopies: autoPrintCopies.value
+        property alias printCopiesPerSession: printCopiesPerSessionButton.value
     }
 
     Settings {
@@ -87,7 +94,6 @@ Item {
     function setLastFolder(folder) {
         lastFolder = folder
     }
-
 
     function addStartVideo(path) {
         var pathSplit = ""
@@ -114,8 +120,6 @@ Item {
 
         afterCaptureVideoListModel.append({ "fileName": fileName, "filePath": path })
     }
-
-
 
     ListModel {
         id: settingModel
@@ -146,10 +150,11 @@ Item {
         Item {
             anchors.left: parent.left
             anchors.right: parent.right
-            height: iconImage.height + pixel(4)
+            height: pixel(12)
 
             Row {
-                anchors.margins: pixel(2)
+                anchors.margins: pixel(5)
+//                anchors.leftMargin: pixel(5)
                 anchors.fill: parent
                 spacing: pixel(1)
                 Image {
@@ -322,9 +327,6 @@ Item {
                     }
                 }
 
-
-
-
             }
 
             Item {
@@ -357,7 +359,7 @@ Item {
                     }
 
                     UpDownButton {
-                        id: captureTimerButton
+                        id: countdownTimerButton
                         height: pixel(10)
                         width: height * 3
                     }
@@ -414,7 +416,7 @@ Item {
                             id: folderDialog
                             title: "Please select save directory"
                             onAccepted: {
-                                saveFolderField.text = root.stripFilePrefix(String(folder))
+                                saveFolderField.text = stripFilePrefix(String(folder))
                             }
                         }
                     }
@@ -423,7 +425,6 @@ Item {
                     }
                 }
             }
-
 
             Item {
                 id: cameraView
@@ -630,7 +631,7 @@ Item {
                     }
 
                     Switch {
-                        id: autoPrinting
+                        id: autoPrint
                     }
 
                     CustomLabel {
@@ -655,7 +656,7 @@ Item {
                     }
 
                     UpDownButton {
-                        id: maxCopyCountButton
+                        id: printCopiesPerSessionButton
                         height: pixel(10)
                         width: height * 3
                     }
