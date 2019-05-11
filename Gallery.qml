@@ -89,10 +89,10 @@ Rectangle {
         cellHeight: cellWidth * 0.75 + pixel(3)
         model: folderListModel
         delegate: photoDelegate
-        highlight: Rectangle {
-            color: Material.accent
-            radius: pixel(2)
-        }
+//        highlight: Rectangle {
+//            color: Material.accent
+//            radius: pixel(2)
+//        }
         focus: true
         cacheBuffer: 40
 

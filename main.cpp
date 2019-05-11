@@ -7,6 +7,8 @@
 #include "SonyLiveview.h"
 #include "ProcessPhotos.h"
 #include "PrintPhotos.h"
+#include "CSVFile.h"
+#include "MoveMouse.h"
 
 int main(int argc, char *argv[])
 {
@@ -15,6 +17,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<SonyLiveview>("SonyLiveview", 1, 0, "SonyLiveview");
     qmlRegisterType<ProcessPhotos>("ProcessPhotos", 1, 0, "ProcessPhotos");
     qmlRegisterType<PrintPhotos>("PrintPhotos", 1, 0, "PrintPhotos");
+    qmlRegisterType<CSVFile>("CSVFile", 1, 0, "CSVFile");
+    qmlRegisterType<MoveMouse>("MoveMouse", 1, 0, "MoveMouse");
 
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
 

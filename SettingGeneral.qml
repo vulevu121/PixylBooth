@@ -13,7 +13,11 @@ import QtGraphicalEffects 1.12
 
 Item {
     id: root
+    property alias templateImagePath: templateImageField.text
+    property alias printFolder: printFolderField.text
     property alias saveFolder: saveFolderField.text
+    property alias emailFolder: emailFolderField.text
+    property alias displayScale: displayScalingButton.value
 
     property alias bgColor: bgColorRectangle.color
     property alias countDownColor: countDownColorRectangle.color
@@ -45,14 +49,20 @@ Item {
     property real spacing: pixel(3)
     property real columnMargins: pixel(3)
 
+    property string tempFilePath
+
 
     Settings {
         category: "General"
         property alias countdownTimer: countdownTimerButton.value
         property alias beforeCaptureTimer: beforeCaptureTimerButton.value
         property alias reviewTimer: reviewTimerButton.value
-        property alias saveFolder: saveFolderField.text
         property alias endSessionTimer: endSessionTimerButton.value
+        property alias saveFolder: saveFolderField.text
+        property alias templateImagePath: templateImageField.text
+        property alias printFolder: printFolderField.text
+        property alias emailFolder: emailFolderField.text
+        property alias displayScale: displayScalingButton.value
     }
 
     Settings {
@@ -395,6 +405,36 @@ Item {
                     CustomLabel {
                         height: root.rowHeight
                         Layout.fillWidth: true
+                        text: qsTr("Template Image")
+                        subtitle: "Location of template image"
+                    }
+
+                    TextField {
+                        id: templateImageField
+                        font.pixelSize: root.textSize
+                        Layout.fillWidth: true
+                        placeholderText: "Choose a template..."
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                templateImageFileDialog.open()
+                            }
+                        }
+
+                        FileDialog {
+                            id: templateImageFileDialog
+                            title: "Please select a template"
+                            nameFilters: ["Image Files (*.jpg *.png)"]
+                            onAccepted: {
+                                templateImageField.text = stripFilePrefix(String(fileUrl))
+                            }
+                        }
+                    }
+
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
                         text: qsTr("Save Folder")
                         subtitle: "Location to save photos"
                     }
@@ -420,6 +460,79 @@ Item {
                             }
                         }
                     }
+
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: qsTr("Print Folder")
+                        subtitle: "Location to save prints"
+                    }
+
+                    TextField {
+                        id: printFolderField
+                        font.pixelSize: root.textSize
+                        Layout.fillWidth: true
+                        placeholderText: "Choose a print folder..."
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                printFolderDialog.open()
+                            }
+                        }
+
+                        FolderDialog {
+                            id: printFolderDialog
+                            title: "Please select print directory"
+                            onAccepted: {
+                                printFolderField.text = stripFilePrefix(String(folder))
+                            }
+                        }
+                    }
+
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: qsTr("Email Folder")
+                        subtitle: "Location to save email list"
+                    }
+
+                    TextField {
+                        id: emailFolderField
+                        font.pixelSize: root.textSize
+                        Layout.fillWidth: true
+                        placeholderText: "Choose a email folder..."
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                emailFolderDialog.open()
+                            }
+                        }
+
+                        FolderDialog {
+                            id: emailFolderDialog
+                            title: "Please select email directory"
+                            onAccepted: {
+                                emailFolderField.text = stripFilePrefix(String(folder))
+                            }
+                        }
+                    }
+
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: qsTr("Display Scaling")
+                        subtitle: qsTr("Scaling factor for display buttons and text")
+                    }
+
+                    UpDownButton {
+                        id: displayScalingButton
+                        height: pixel(10)
+                        width: height * 3
+                    }
+
+
 
                     RowLayout {
                     }

@@ -19,7 +19,7 @@ QString PrintPhotos::getPrinterName() {
 }
 
 // print in a new thread to prevent gui lag
-void PrintPhotos::printPhotos(const QString &photoPath, int copyCount) {
+void PrintPhotos::printPhoto(const QString &photoPath, int copyCount) {
     PrintThread *thread = new PrintThread(photoPath, printerName(), copyCount, this);
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
@@ -71,7 +71,8 @@ void PrintThread::run() {
     QSizeF qsize = printer.paperSize(QPrinter::DevicePixel);
     QList<int> supportedResolutions = printer.supportedResolutions();
 
-    int res = supportedResolutions[0];
+
+    int res = supportedResolutions[supportedResolutions.length()-1];
 
     printer.setResolution(res);
 
@@ -86,6 +87,7 @@ void PrintThread::run() {
 
     QPainter printerPainter;
     printerPainter.begin(&printer);
+//    photoPath = "c:/Users/Vu/Pictures/PixylBooth/Prints/DSC05785_DSC05786_DSC05787.jpg";
 
     QImage photo(photoPath);
 

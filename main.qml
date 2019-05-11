@@ -16,6 +16,8 @@ import ProcessPhotos 1.0
 import PrintPhotos 1.0
 import Qt.labs.folderlistmodel 2.0
 import QtWebView 1.1
+import CSVFile 1.0
+import MoveMouse 1.0
 
 Window {
     id: root
@@ -40,7 +42,8 @@ Window {
     property real numberPhotos: 3
     property string lastCombinedPhoto
     property bool liveviewStarted: false
-    property string templatePath: "C:/Users/Vu/Pictures/dslrBooth/Templates/Mia Pham/background.png"
+    property string templatePath: settingGeneral.templateImagePath
+
 
     Settings {
         property alias x: root.x
@@ -57,7 +60,7 @@ Window {
     }
 
     function pixel(pixel) {
-        return pixel * Screen.pixelDensity
+        return pixel * 4
     }
 
     function playVideo(path) {
@@ -73,7 +76,9 @@ Window {
     }
 
     function stripFilePrefix(path) {
-        return path.replace("file:///", "").replace("file://", "")
+        var newPath = String(path)
+        newPath = newPath.replace("file:///", "").replace("file://", "")
+        return newPath
     }
 
     function addFilePrefix(path) {
@@ -111,7 +116,7 @@ Window {
 
     function printLastCombinedPhoto() {
         console.log("Printing last combined photo!")
-//        imagePrint.printPhotos(lastCombinedPhoto, printCopyCount)
+//        imagePrint.printPhoto(lastCombinedPhoto, printCopyCount)
     }
 
     function stopAllTimers() {
@@ -143,13 +148,10 @@ Window {
         stopAllTimers()
         resetCountdownTimer()
 
-
-
         if (settingGeneral.liveVideoCountdownSwitch) {
             liveView.visible = true
         }
 
-//        initialTimer2.start()
         captureView.state = "start"
     }
 
@@ -182,6 +184,13 @@ Window {
         captureView.state = "endsession"
     }
 
+    CSVFile {
+        id: csvFile
+        saveFolder: settingGeneral.emailFolder
+    }
+
+
+
 
 //    Text {
 //        text: Screen.pixelDensity
@@ -199,6 +208,12 @@ Window {
         }
     }
 
+    // email list
+    ListModel {
+        id: emailList
+
+    }
+
     // a list model for storing photo paths
     ListModel {
         id: photoList
@@ -207,13 +222,33 @@ Window {
     // process the photos into tempalte
     ProcessPhotos {
         id: processPhotos
-        saveFolder: settingGeneral.saveFolder.concat("/Prints")
+        saveFolder: settingGeneral.printFolder
     }
 
     // print class to print photos
     PrintPhotos {
         id: imagePrint
         printerName: settingGeneral.printerName
+    }
+
+    MoveMouse {
+        id: moveMouse
+    }
+
+    Timer {
+        id: moveMouseTimer
+        interval: 15000
+        repeat: true
+        running: true
+
+        onTriggered: {
+            var min = Screen.height - 10;
+            var max = Screen.height;
+            var x = Screen.width;
+            var y = (Math.random() * (max - min + 1) + min).toFixed();
+            moveMouse.move(x, y);
+//            console.log(x,y);
+        }
     }
 
     Timer {
@@ -234,6 +269,15 @@ Window {
                 }
             }
         }
+    }
+
+    Image {
+        source: "file:///C:/Users/Vu/Pictures/dslrBooth/Templates/Jordan and Allan/blurBg.jpg"
+        height: parent.height
+//        width: parent.width * 2
+
+        anchors.centerIn: parent
+        fillMode: Image.PreserveAspectCrop
     }
 
 
@@ -382,45 +426,45 @@ Window {
 
 
     // ==== PUT DEBUG BUTTONS HERE!!! ====
-    ColumnLayout {
-        id: debugLayout
-        z: 5
-        opacity: 0.5
-        visible: true
-        enabled: visible
+//    ColumnLayout {
+//        id: debugLayout
+//        z: 5
+//        opacity: 0.5
+//        visible: true
+//        enabled: visible
 
-        Button {
-            text: "Start"
-            onClicked: {
-                startState()
-            }
-        }
+//        Button {
+//            text: "Start"
+//            onClicked: {
+//                startState()
+//            }
+//        }
 
-        Button {
-            text: "BeforeCapture"
-            onClicked: {
-                beforeCaptureState()
-            }
-        }
+//        Button {
+//            text: "BeforeCapture"
+//            onClicked: {
+//                beforeCaptureState()
+//            }
+//        }
 
-        Button {
-            text: "Review"
-            onClicked: {
-                reviewState()
-            }
-        }
+//        Button {
+//            text: "Review"
+//            onClicked: {
+//                reviewState()
+//            }
+//        }
 
-        Button {
-            text: "EndSession"
-            onClicked: {
-                endSessionState()
-//                photoList.append({"fileName": "DSC05695.JPG", "filePath": "C:/Users/Vu/Pictures/PixylBooth/DSC05695.JPG"})
-//                photoList.append({"fileName": "DSC05695.JPG", "filePath": "C:/Users/Vu/Pictures/PixylBooth/DSC05695.JPG"})
-//                photoList.append({"fileName": "DSC05695.JPG", "filePath": "C:/Users/Vu/Pictures/PixylBooth/DSC05695.JPG"})
-            }
-        }
+//        Button {
+//            text: "EndSession"
+//            onClicked: {
+//                endSessionState()
+////                photoList.append({"fileName": "DSC05695.JPG", "filePath": "C:/Users/Vu/Pictures/PixylBooth/DSC05695.JPG"})
+////                photoList.append({"fileName": "DSC05695.JPG", "filePath": "C:/Users/Vu/Pictures/PixylBooth/DSC05695.JPG"})
+////                photoList.append({"fileName": "DSC05695.JPG", "filePath": "C:/Users/Vu/Pictures/PixylBooth/DSC05695.JPG"})
+//            }
+//        }
 
-    }
+//    }
 
     // ==== MAIN BUTTONS ====
     ColumnLayout {
@@ -428,15 +472,15 @@ Window {
         anchors.fill: parent
         z: 5
         opacity: 0.5
-        property real iconSize: 36
+        property real iconSize: pixel(10)
 
         Button {
             text: "Exit"
             flat: true
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
             icon.source: "qrc:/Images/cancel_white_48dp.png"
-            icon.width: parent.iconSize
-            icon.height: parent.iconSize
+            icon.width: mainButtonsLayout.iconSize
+            icon.height: mainButtonsLayout.iconSize
             display: AbstractButton.IconOnly
             background: Rectangle {
                 color: "transparent"
@@ -451,8 +495,8 @@ Window {
             text: "Full Screen"
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
             icon.source: root.visibility == Window.FullScreen ? "qrc:/Images/fullscreen_exit_white_48dp.png" : "qrc:/Images/fullscreen_white_48dp.png"
-            icon.width: parent.iconSize
-            icon.height: parent.iconSize
+            icon.width: mainButtonsLayout.iconSize
+            icon.height: mainButtonsLayout.iconSize
             display: AbstractButton.IconOnly
             background: Rectangle {
                 color: "transparent"
@@ -497,8 +541,8 @@ Window {
             text: "Play/Pause"
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
             icon.source: checked ? "qrc:/Images/play_circle_filled_white_white_48dp.png" : "qrc:/Images/pause_circle_outline_white_48dp.png"
-            icon.width: parent.iconSize
-            icon.height: parent.iconSize
+            icon.width: mainButtonsLayout.iconSize
+            icon.height: mainButtonsLayout.iconSize
             display: AbstractButton.IconOnly
             background: Rectangle {
                 color: "transparent"
@@ -521,7 +565,7 @@ Window {
                     NumberAnimation {
                         target: playPauseButton
                         property: "scale";
-                        from: 0.5;
+                        from: 0.8;
                         to: 1;
                         duration: 600;
                         easing.type: Easing.InOutQuad;
@@ -546,37 +590,88 @@ Window {
 
 
         Button {
-            text: "Undo Last One"
+            id: undoLastButton
+            text: "Undo Last"
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
             icon.source: "qrc:/Images/settings_backup_restore_white_48dp.png"
-            icon.width: parent.iconSize
-            icon.height: parent.iconSize
+            icon.width: mainButtonsLayout.iconSize
+            icon.height: mainButtonsLayout.iconSize
             display: AbstractButton.IconOnly
             background: Rectangle {
                 color: "transparent"
             }
 
-            onClicked: {
-                resetCountdownTimer()
-                if (photoList.count > 0) {
-                    photoList.remove(photoList.count-1, 1)
+            ParallelAnimation {
+                id: undoLastButtonAnimation
+                NumberAnimation {
+                    target: undoLastButton
+                    property: "opacity";
+                    from: 0.5;
+                    to: 1;
+                    duration: 800;
+                    easing.type: Easing.InOutQuad;
                 }
-                beforeCaptureState()
+
+                NumberAnimation {
+                    target: undoLastButton
+                    property: "scale";
+                    from: 0.8;
+                    to: 1;
+                    duration: 600;
+                    easing.type: Easing.InOutQuad;
+                }
+
+            }
+
+
+            onClicked: {
+                undoLastButtonAnimation.start()
+                if (captureView.state != "start") {
+                    resetCountdownTimer()
+                    if (photoList.count > 0) {
+                        photoList.remove(photoList.count-1, 1)
+                    }
+                    beforeCaptureState()
+                }
             }
         }
 
         Button {
+            id: undoAllButton
             text: "Undo All"
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
             icon.source: "qrc:/Images/settings_backup_restore_white_48dp_all.png"
-            icon.width: parent.iconSize
-            icon.height: parent.iconSize
+            icon.width: mainButtonsLayout.iconSize
+            icon.height: mainButtonsLayout.iconSize
             display: AbstractButton.IconOnly
             background: Rectangle {
                 color: "transparent"
             }
 
+            ParallelAnimation {
+                id: undoAllButtonAnimation
+                NumberAnimation {
+                    target: undoAllButton
+                    property: "opacity";
+                    from: 0.5;
+                    to: 1;
+                    duration: 800;
+                    easing.type: Easing.InOutQuad;
+                }
+
+                NumberAnimation {
+                    target: undoAllButton
+                    property: "scale";
+                    from: 0.8;
+                    to: 1;
+                    duration: 600;
+                    easing.type: Easing.InOutQuad;
+                }
+
+            }
+
             onClicked: {
+                undoAllButtonAnimation.start()
                 startState()
             }
         }
@@ -646,7 +741,7 @@ Window {
                     name: "start"
                     PropertyChanges {
                         target: liveView
-                        opacity: 0.8
+                        opacity: settingGeneral.liveVideoStartSwitch ? 1 : 0
                         scale: 1
                     }
                     PropertyChanges {
@@ -684,12 +779,18 @@ Window {
                         opacity: 0
                     }
                 },
+
+
                 // ==== liveview state ====
                 State {
                     name: "liveview"
                     PropertyChanges {
                         target: liveView
                         opacity: 1
+                        width: root.width * 0.9
+                        height: width * 0.67
+                        x: 0
+                        y: pixel(30)
                     }
                     PropertyChanges {
                         target: videoLoader
@@ -711,6 +812,7 @@ Window {
                         target: liveView
                         opacity: 0
                         scale: 0.1
+
                     }
                     PropertyChanges {
                         target: countdown
@@ -802,11 +904,14 @@ Window {
                 id: liveView
                 opacity: 0.6
 
+
+
                 flipHorizontally: settingGeneral.mirrorLiveVideoSwitch
                 height: parent.height
-                width: height * 1.5
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
+                width: root.width * 1.5
+
+//                anchors.horizontalCenter: parent.horizontalCenter
+//                anchors.verticalCenter: parent.verticalCenter
 
 //                width: root.width - pixel(10)
 //                height: width * 0.75
@@ -868,9 +973,9 @@ Window {
 
                 ImagePopup {
                     id: endSessionImage
-                    anchors.centerIn: parent
+                    anchors.centerIn: endSession
                     width: root.width * 0.9
-                    height: width * 0.75
+                    height: width * 0.67
                 }
 
             }
@@ -881,7 +986,7 @@ Window {
             Gallery {
                 id: gallery
                 anchors.fill: parent
-                folder: addFilePrefix(settingGeneral.saveFolder + "/Prints")
+                folder: addFilePrefix(settingGeneral.printFolder)
             }
         }
 //        Item {
@@ -904,34 +1009,34 @@ Window {
     }
 
     // ==== VIRTUAL KEYBOARD ====
-    InputPanel {
-        id: inputPanel
-        z: 99
-        x: 0
-        y: root.height
-        width: root.width
+//    InputPanel {
+//        id: inputPanel
+//        z: 99
+//        x: 0
+//        y: root.height
+//        width: root.width
 
-        states: State {
-            name: "visible"
-            when: inputPanel.active
-            PropertyChanges {
-                target: inputPanel
-                y: root.height - inputPanel.height
-            }
-        }
-        transitions: Transition {
-            from: ""
-            to: "visible"
-            reversible: true
-            ParallelAnimation {
-                NumberAnimation {
-                    properties: "y"
-                    duration: 250
-                    easing.type: Easing.InOutQuad
-                }
-            }
-        }
-    }
+//        states: State {
+//            name: "visible"
+//            when: inputPanel.active
+//            PropertyChanges {
+//                target: inputPanel
+//                y: root.height - inputPanel.height
+//            }
+//        }
+//        transitions: Transition {
+//            from: ""
+//            to: "visible"
+//            reversible: true
+//            ParallelAnimation {
+//                NumberAnimation {
+//                    properties: "y"
+//                    duration: 250
+//                    easing.type: Easing.InOutQuad
+//                }
+//            }
+//        }
+//    }
 
     // ==== TAB BAR STUFF ====
     TabBar {
@@ -944,16 +1049,18 @@ Window {
         opacity: 1
         background: Rectangle {
             color: Material.background
-            radius: pixel(2)
+            radius: pixel(3)
          }
+
+        property real iconSize: pixel(10)
 
 
         TabButton {
             text: "Start"
             width: implicitWidth
             icon.source: "qrc:/Images/camera_white_48dp.png"
-            icon.width: 24
-            icon.height: 24
+            icon.width: tabBar.iconSize
+            icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly
         }
 
@@ -961,16 +1068,16 @@ Window {
             text: "Play"
             width: implicitWidth
             icon.source: "qrc:/Images/play_circle_filled_white_white_48dp.png"
-            icon.width: 24
-            icon.height: 24
+            icon.width: tabBar.iconSize
+            icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly
         }
 //        TabButton {
 //            text: "Game"
 //            width: implicitWidth
 //            icon.source: "qrc:/Images/apps_white_48dp.png"
-//            icon.width: 24
-//            icon.height: 24
+//            icon.width: iconSize
+//            icon.height: iconSize
 //            display: AbstractButton.IconOnly
 //        }
 
@@ -978,8 +1085,8 @@ Window {
             text: "General"
             width: implicitWidth
             icon.source: "qrc:/Images/settings_white_48dp.png"
-            icon.width: 24
-            icon.height: 24
+            icon.width: tabBar.iconSize
+            icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly
         }
 

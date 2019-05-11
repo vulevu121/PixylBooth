@@ -130,7 +130,7 @@ void SonyAPI::downloadPicture(QNetworkReply *reply)
     }
     reply->deleteLater();
     m_actTakePictureFilePath = filePath;
-//    qDebug() << m_fileName;
+    qDebug() << m_actTakePictureFilePath;
     emit actTakePictureCompleted();
 }
 

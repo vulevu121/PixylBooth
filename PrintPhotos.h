@@ -28,7 +28,7 @@ public:
 signals:
 
 public slots:
-    void printPhotos(const QString &photoPath, int copyCount);
+    void printPhoto(const QString &photoPath, int copyCount);
     QString getPrinterName();
 
 private:
