@@ -18,11 +18,11 @@ Popup {
 //    }
 
     Overlay.modal: Rectangle {
-            color: "#A0101010"
+            color: "#E0101010"
     }
 
     property alias source: imageView.source
-    property real iconSize: pixel(8)
+    property real iconSize: pixel(14)
     property real buttonWidth: pixel(20)
     property real buttonHeight: pixel(10)
 
@@ -34,10 +34,13 @@ Popup {
         fillMode: Image.PreserveAspectFit
     }
 
-    Row {
+    RowLayout {
         height: iconSize
         anchors.top: imageView.bottom
-        spacing: pixel(3)
+        width: root.width
+        spacing: pixel(6)
+
+        RowLayout {}
 
         Button {
             id: printButton
@@ -45,10 +48,8 @@ Popup {
             icon.source: "qrc:/Images/print_white_48dp.png"
             icon.width: iconSize
             icon.height: iconSize
-            display: AbstractButton.IconOnly
+            display: AbstractButton.TextUnderIcon
             Layout.alignment: Qt.AlignHCenter
-//            width: buttonWidth
-//            height: buttonHeight
             Material.accent: Material.color(Material.Cyan, Material.Shade700)
             highlighted: true
             onClicked: {
@@ -61,10 +62,8 @@ Popup {
             icon.source: "qrc:/Images/email_white_48dp.png"
             icon.width: iconSize
             icon.height: iconSize
-            display: AbstractButton.IconOnly
+            display: AbstractButton.TextUnderIcon
             Layout.alignment: Qt.AlignHCenter
-//            width: buttonWidth
-//            height: buttonHeight
             Material.accent: Material.color(Material.Orange, Material.Shade700)
             highlighted: true
             onClicked: {
@@ -73,6 +72,23 @@ Popup {
                 emailTextField.forceActiveFocus()
             }
         }
+
+        Button {
+            id: closeButton
+            text: "Close"
+            icon.source: "qrc:/Images/clear_white_48dp.png"
+            icon.width: iconSize
+            icon.height: iconSize
+            display: AbstractButton.TextUnderIcon
+            Layout.alignment: Qt.AlignHCenter
+            Material.accent: Material.color(Material.Grey, Material.Shade900)
+            highlighted: true
+            onClicked: {
+                root.close()
+            }
+        }
+
+        RowLayout {}
 
 //            Button {
 //                text: qsTr("SMS")
@@ -269,6 +285,7 @@ Popup {
         ColumnLayout {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.fill: parent
+            spacing: pixel(6)
 
             ColumnLayout {}
 
@@ -286,6 +303,7 @@ Popup {
 
             Button {
                 text: qsTr("Print")
+                font.pixelSize: iconSize
                 Layout.alignment: Qt.AlignCenter
                 Material.accent: Material.color(Material.Cyan, Material.Shade700)
                 highlighted: true

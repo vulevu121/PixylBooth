@@ -47,5 +47,6 @@
         <file>Images/pause_white_48dp.png</file>
         <file>Images/play_arrow_white_48dp.png</file>
         <file>Images/pause_circle_outline_white_48dp.png</file>
+        <file>Images/close_white_48dp.png</file>
     </qresource>
 </RCC>

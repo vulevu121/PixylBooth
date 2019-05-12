@@ -29,6 +29,9 @@ Rectangle {
         folder: ""
         nameFilters: ["*.jpg", "*.JPG", "*.png", "*.PNG"]
         showDirs: false
+        sortField: FolderListModel.Name
+        sortReversed: true
+
     }
     ImagePopup {
         id: imagePopup

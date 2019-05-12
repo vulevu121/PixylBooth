@@ -17,7 +17,7 @@ import PrintPhotos 1.0
 import Qt.labs.folderlistmodel 2.0
 import QtWebView 1.1
 import CSVFile 1.0
-import MoveMouse 1.0
+//import MoveMouse 1.0
 
 Window {
     id: root
@@ -190,8 +190,6 @@ Window {
     }
 
 
-
-
 //    Text {
 //        text: Screen.pixelDensity
 //        color: "white"
@@ -231,25 +229,26 @@ Window {
         printerName: settingGeneral.printerName
     }
 
-    MoveMouse {
-        id: moveMouse
-    }
+//    MoveMouse {
+//        id: moveMouse
+//    }
 
-    Timer {
-        id: moveMouseTimer
-        interval: 15000
-        repeat: true
-        running: true
+//    // moves the mouse to keep screen active
+//    Timer {
+//        id: moveMouseTimer
+//        interval: 15000
+//        repeat: true
+//        running: true
 
-        onTriggered: {
-            var min = Screen.height - 10;
-            var max = Screen.height;
-            var x = Screen.width;
-            var y = (Math.random() * (max - min + 1) + min).toFixed();
-            moveMouse.move(x, y);
-//            console.log(x,y);
-        }
-    }
+//        onTriggered: {
+//            var min = Screen.height - 10;
+//            var max = Screen.height;
+//            var x = Screen.width;
+//            var y = (Math.random() * (max - min + 1) + min).toFixed();
+//            moveMouse.move(x, y);
+////            console.log(x,y);
+//        }
+//    }
 
     Timer {
         id: liveviewCheckTimer
@@ -271,14 +270,13 @@ Window {
         }
     }
 
-    Image {
-        source: "file:///C:/Users/Vu/Pictures/dslrBooth/Templates/Jordan and Allan/blurBg.jpg"
-        height: parent.height
-//        width: parent.width * 2
-
-        anchors.centerIn: parent
-        fillMode: Image.PreserveAspectCrop
-    }
+//    Image {
+//        source: "file:///C:/Users/Vu/Pictures/dslrBooth/Templates/Jordan and Allan/blurBg.jpg"
+//        height: parent.height
+////        width: parent.width * 2
+//        anchors.centerIn: parent
+//        fillMode: Image.PreserveAspectCrop
+//    }
 
 
 
@@ -466,219 +464,7 @@ Window {
 
 //    }
 
-    // ==== MAIN BUTTONS ====
-    ColumnLayout {
-        id: mainButtonsLayout
-        anchors.fill: parent
-        z: 5
-        opacity: 0.5
-        property real iconSize: pixel(10)
 
-        Button {
-            text: "Exit"
-            flat: true
-            Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            icon.source: "qrc:/Images/cancel_white_48dp.png"
-            icon.width: mainButtonsLayout.iconSize
-            icon.height: mainButtonsLayout.iconSize
-            display: AbstractButton.IconOnly
-            background: Rectangle {
-                color: "transparent"
-            }
-            onClicked: {
-                root.close()
-            }
-        }
-
-        Button {
-            id: fullScreenButton
-            text: "Full Screen"
-            Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            icon.source: root.visibility == Window.FullScreen ? "qrc:/Images/fullscreen_exit_white_48dp.png" : "qrc:/Images/fullscreen_white_48dp.png"
-            icon.width: mainButtonsLayout.iconSize
-            icon.height: mainButtonsLayout.iconSize
-            display: AbstractButton.IconOnly
-            background: Rectangle {
-                color: "transparent"
-            }
-
-            onClicked: {
-                if (root.visibility == Window.FullScreen) {
-                    root.showNormal();
-                }
-                else {
-                    root.showFullScreen();
-                }
-            }
-
-            Behavior on icon.source {
-                ParallelAnimation {
-                    NumberAnimation {
-                        target: fullScreenButton
-                        property: "opacity";
-                        from: 0.5;
-                        to: 1;
-                        duration: 800;
-                        easing.type: Easing.InOutQuad;
-                    }
-
-                    NumberAnimation {
-                        target: fullScreenButton
-                        property: "scale";
-                        from: 0.5;
-                        to: 1;
-                        duration: 600;
-                        easing.type: Easing.InOutQuad;
-                    }
-
-                }
-
-            }
-        }
-
-        Button {
-            id: playPauseButton
-            text: "Play/Pause"
-            Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            icon.source: checked ? "qrc:/Images/play_circle_filled_white_white_48dp.png" : "qrc:/Images/pause_circle_outline_white_48dp.png"
-            icon.width: mainButtonsLayout.iconSize
-            icon.height: mainButtonsLayout.iconSize
-            display: AbstractButton.IconOnly
-            background: Rectangle {
-                color: "transparent"
-            }
-            checkable: true
-
-            Behavior on icon.source {
-                ParallelAnimation {
-                    id: playPauseButtonParallelAnimation
-
-                    NumberAnimation {
-                        target: playPauseButton
-                        property: "opacity";
-                        from: 0.5;
-                        to: 1;
-                        duration: 800;
-                        easing.type: Easing.InOutQuad;
-                    }
-
-                    NumberAnimation {
-                        target: playPauseButton
-                        property: "scale";
-                        from: 0.8;
-                        to: 1;
-                        duration: 600;
-                        easing.type: Easing.InOutQuad;
-                    }
-
-                }
-
-            }
-
-            // checked means pause
-            onClicked: {
-                if (captureView.state == "beforecapture")
-                    beforeCaptureTimer.running = !playPauseButton.checked
-                if (captureView.state == "liveview")
-                    countdownTimer.running = !playPauseButton.checked
-                if (captureView.state == "review")
-                    reviewTimer.running = !playPauseButton.checked
-                if (captureView.state == "endsession")
-                    endSessionTimer.running = !playPauseButton.checked
-            }
-        }
-
-
-        Button {
-            id: undoLastButton
-            text: "Undo Last"
-            Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            icon.source: "qrc:/Images/settings_backup_restore_white_48dp.png"
-            icon.width: mainButtonsLayout.iconSize
-            icon.height: mainButtonsLayout.iconSize
-            display: AbstractButton.IconOnly
-            background: Rectangle {
-                color: "transparent"
-            }
-
-            ParallelAnimation {
-                id: undoLastButtonAnimation
-                NumberAnimation {
-                    target: undoLastButton
-                    property: "opacity";
-                    from: 0.5;
-                    to: 1;
-                    duration: 800;
-                    easing.type: Easing.InOutQuad;
-                }
-
-                NumberAnimation {
-                    target: undoLastButton
-                    property: "scale";
-                    from: 0.8;
-                    to: 1;
-                    duration: 600;
-                    easing.type: Easing.InOutQuad;
-                }
-
-            }
-
-
-            onClicked: {
-                undoLastButtonAnimation.start()
-                if (captureView.state != "start") {
-                    resetCountdownTimer()
-                    if (photoList.count > 0) {
-                        photoList.remove(photoList.count-1, 1)
-                    }
-                    beforeCaptureState()
-                }
-            }
-        }
-
-        Button {
-            id: undoAllButton
-            text: "Undo All"
-            Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            icon.source: "qrc:/Images/settings_backup_restore_white_48dp_all.png"
-            icon.width: mainButtonsLayout.iconSize
-            icon.height: mainButtonsLayout.iconSize
-            display: AbstractButton.IconOnly
-            background: Rectangle {
-                color: "transparent"
-            }
-
-            ParallelAnimation {
-                id: undoAllButtonAnimation
-                NumberAnimation {
-                    target: undoAllButton
-                    property: "opacity";
-                    from: 0.5;
-                    to: 1;
-                    duration: 800;
-                    easing.type: Easing.InOutQuad;
-                }
-
-                NumberAnimation {
-                    target: undoAllButton
-                    property: "scale";
-                    from: 0.8;
-                    to: 1;
-                    duration: 600;
-                    easing.type: Easing.InOutQuad;
-                }
-
-            }
-
-            onClicked: {
-                undoAllButtonAnimation.start()
-                startState()
-            }
-        }
-
-        ColumnLayout { }
-
-    }
 
     Item {
         id: playPauseItem
@@ -887,7 +673,7 @@ Window {
                 border.width: 0
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                z: 30
+                z: 4
                 visible: captureView.state == 'start'
 
                 MouseArea {
@@ -899,12 +685,229 @@ Window {
                 }
             }
 
+            // ==== MAIN BUTTONS ====
+            ColumnLayout {
+                id: mainButtonsLayout
+//                anchors.fill: parent
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.right: parent.right
+                z: 5
+                opacity: 0.5
+                property real iconSize: pixel(10)
+
+                Button {
+                    id: playPauseButton
+                    text: "Play/Pause"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
+                    icon.source: checked ? "qrc:/Images/play_circle_filled_white_white_48dp.png" : "qrc:/Images/pause_circle_outline_white_48dp.png"
+                    icon.width: mainButtonsLayout.iconSize
+                    icon.height: mainButtonsLayout.iconSize
+                    display: AbstractButton.IconOnly
+        //            background: Rectangle {
+        //                color: "transparent"
+        //            }
+                    checkable: true
+
+                    Behavior on icon.source {
+                        ParallelAnimation {
+                            id: playPauseButtonParallelAnimation
+
+                            NumberAnimation {
+                                target: playPauseButton
+                                property: "opacity";
+                                from: 0.5;
+                                to: 1;
+                                duration: 800;
+                                easing.type: Easing.InOutQuad;
+                            }
+
+                            NumberAnimation {
+                                target: playPauseButton
+                                property: "scale";
+                                from: 0.8;
+                                to: 1;
+                                duration: 600;
+                                easing.type: Easing.InOutQuad;
+                            }
+
+                        }
+
+                    }
+
+                    // checked means pause
+                    onClicked: {
+                        if (captureView.state == "beforecapture")
+                            beforeCaptureTimer.running = !playPauseButton.checked
+                        if (captureView.state == "liveview")
+                            countdownTimer.running = !playPauseButton.checked
+                        if (captureView.state == "review")
+                            reviewTimer.running = !playPauseButton.checked
+                        if (captureView.state == "endsession")
+                            endSessionTimer.running = !playPauseButton.checked
+                    }
+                }
+
+                Button {
+                    id: undoLastButton
+                    text: "Undo Last"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
+                    icon.source: "qrc:/Images/settings_backup_restore_white_48dp.png"
+                    icon.width: mainButtonsLayout.iconSize
+                    icon.height: mainButtonsLayout.iconSize
+                    display: AbstractButton.IconOnly
+        //            background: Rectangle {
+        //                color: "transparent"
+        //            }
+
+                    ParallelAnimation {
+                        id: undoLastButtonAnimation
+                        NumberAnimation {
+                            target: undoLastButton
+                            property: "opacity";
+                            from: 0.5;
+                            to: 1;
+                            duration: 800;
+                            easing.type: Easing.InOutQuad;
+                        }
+
+                        NumberAnimation {
+                            target: undoLastButton
+                            property: "scale";
+                            from: 0.8;
+                            to: 1;
+                            duration: 600;
+                            easing.type: Easing.InOutQuad;
+                        }
+
+                    }
+
+
+                    onClicked: {
+                        undoLastButtonAnimation.start()
+                        if (captureView.state != "start") {
+                            resetCountdownTimer()
+                            if (photoList.count > 0) {
+                                photoList.remove(photoList.count-1, 1)
+                            }
+                            beforeCaptureState()
+                        }
+                    }
+                }
+
+                Button {
+                    id: undoAllButton
+                    text: "Undo All"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
+                    icon.source: "qrc:/Images/settings_backup_restore_white_48dp_all.png"
+                    icon.width: mainButtonsLayout.iconSize
+                    icon.height: mainButtonsLayout.iconSize
+                    display: AbstractButton.IconOnly
+        //            background: Rectangle {
+        //                color: "transparent"
+        //            }
+
+                    ParallelAnimation {
+                        id: undoAllButtonAnimation
+                        NumberAnimation {
+                            target: undoAllButton
+                            property: "opacity";
+                            from: 0.5;
+                            to: 1;
+                            duration: 800;
+                            easing.type: Easing.InOutQuad;
+                        }
+
+                        NumberAnimation {
+                            target: undoAllButton
+                            property: "scale";
+                            from: 0.8;
+                            to: 1;
+                            duration: 600;
+                            easing.type: Easing.InOutQuad;
+                        }
+
+                    }
+
+                    onClicked: {
+                        undoAllButtonAnimation.start()
+                        startState()
+                    }
+                }
+
+                Button {
+                    id: fullScreenButton
+                    text: "Full Screen"
+                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
+                    icon.source: root.visibility == Window.FullScreen ? "qrc:/Images/fullscreen_exit_white_48dp.png" : "qrc:/Images/fullscreen_white_48dp.png"
+                    icon.width: mainButtonsLayout.iconSize
+                    icon.height: mainButtonsLayout.iconSize
+                    display: AbstractButton.IconOnly
+        //            background: Rectangle {
+        //                color: "transparent"
+        //            }
+
+                    onClicked: {
+                        if (root.visibility == Window.FullScreen) {
+                            root.showNormal();
+                        }
+                        else {
+                            root.showFullScreen();
+                        }
+                    }
+
+                    Behavior on icon.source {
+                        ParallelAnimation {
+                            NumberAnimation {
+                                target: fullScreenButton
+                                property: "opacity";
+                                from: 0.5;
+                                to: 1;
+                                duration: 800;
+                                easing.type: Easing.InOutQuad;
+                            }
+
+                            NumberAnimation {
+                                target: fullScreenButton
+                                property: "scale";
+                                from: 0.5;
+                                to: 1;
+                                duration: 600;
+                                easing.type: Easing.InOutQuad;
+                            }
+
+                        }
+
+                    }
+                }
+
+                Button {
+                    text: "Exit"
+                    flat: false
+                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
+                    icon.source: "qrc:/Images/cancel_white_48dp.png"
+                    icon.width: mainButtonsLayout.iconSize
+                    icon.height: mainButtonsLayout.iconSize
+                    display: AbstractButton.IconOnly
+        //            background: Rectangle {
+        //                color: "transparent"
+        //            }
+                    onClicked: {
+                        root.close()
+                    }
+                }
+
+
+
+
+
+                ColumnLayout { }
+
+            }
+
             // live view from camera
             SonyLiveview {
                 id: liveView
                 opacity: 0.6
-
-
 
                 flipHorizontally: settingGeneral.mirrorLiveVideoSwitch
                 height: parent.height
@@ -917,7 +920,7 @@ Window {
 //                height: width * 0.75
 //                y: pixel(20)
 //                x: (root.width - width)/2
-                z: 2
+
 
             }
 
@@ -934,7 +937,7 @@ Window {
                 anchors.fill: liveView
                 textColor: root.countDownColor
                 opacity: 0
-                z: 5
+                z: 4
             }
 
 
@@ -961,7 +964,7 @@ Window {
                 id: endSession
                 anchors.fill: parent
                 opacity: 0
-                z: 20
+
 
                 Gallery {
                     anchors.fill: parent
@@ -1062,6 +1065,7 @@ Window {
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly
+
         }
 
         TabButton {
