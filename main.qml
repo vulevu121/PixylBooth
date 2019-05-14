@@ -468,50 +468,50 @@ Window {
 
 
 
-    Item {
-        id: playPauseItem
-        anchors.fill: parent
-        z: 10
+//    Item {
+//        id: playPauseItem
+//        anchors.fill: parent
+//        z: 10
 
-        Image {
-            id: playImage
-            source: playPauseButton.checked ? "qrc:/Images/pause_white_48dp.png" : "qrc:/Images/play_arrow_white_48dp.png"
-            width: pixel(60)
-            height: pixel(60)
-            anchors.centerIn: parent
-            opacity: 0
+//        Image {
+//            id: playImage
+//            source: playPauseButton.checked ? "qrc:/Images/pause_white_48dp.png" : "qrc:/Images/play_arrow_white_48dp.png"
+//            width: pixel(60)
+//            height: pixel(60)
+//            anchors.centerIn: parent
+//            opacity: 0
 
-            property bool running: playPauseButton.checked
-            onRunningChanged: {
-                playPauseParallelAnimation.start()
-            }
+//            property bool running: playPauseButton.checked
+//            onRunningChanged: {
+//                playPauseParallelAnimation.start()
+//            }
 
-            ParallelAnimation {
-                id: playPauseParallelAnimation
+//            ParallelAnimation {
+//                id: playPauseParallelAnimation
 
-                NumberAnimation {
-                    target: playImage
-                    property: "opacity";
-                    from: 1;
-                    to: 0;
-                    duration: 800;
-                    easing.type: Easing.InOutQuad;
-                }
+//                NumberAnimation {
+//                    target: playImage
+//                    property: "opacity";
+//                    from: 1;
+//                    to: 0;
+//                    duration: 800;
+//                    easing.type: Easing.InOutQuad;
+//                }
 
-                NumberAnimation {
-                    target: playImage
-                    property: "scale";
-                    from: 0;
-                    to: 1;
-                    duration: 600;
-                    easing.type: Easing.InOutQuad;
-                }
+//                NumberAnimation {
+//                    target: playImage
+//                    property: "scale";
+//                    from: 0;
+//                    to: 1;
+//                    duration: 600;
+//                    easing.type: Easing.InOutQuad;
+//                }
 
-            }
+//            }
 
-        }
+//        }
 
-    }
+//    }
 
     // ==== SWIPEVIEW ====
     SwipeView {
@@ -665,27 +665,93 @@ Window {
                 }
             }
 
-            // touch to start area
-            Rectangle {
-                id: touchStartArea
-                width: root.width
-                height: width
-                color: "transparent"
-                border.color: "#ffffff"
-                border.width: 0
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-                z: 4
-                visible: captureView.state == 'start'
+            Button {
+                id: playPauseButton
+                text: "Play/Pause"
+                Layout.alignment: Qt.AlignRight | Qt.AlignTop
+                icon.source: checked ? "qrc:/Images/pause_white_48dp.png" : "qrc:/Images/play_arrow_white_48dp.png"
+                icon.width: pixel(100)
+                icon.height: pixel(100)
+                anchors.centerIn: parent
+                display: AbstractButton.IconOnly
+                highlighted: false
+                flat: false
+                opacity: 0.5
+                background: Rectangle {
+                    color: "transparent"
+                }
 
-                MouseArea {
-                    anchors.fill: parent
+                Material.accent: Material.color(Material.Green, Material.Shade700)
+                checkable: true
+                z: 10
+                scale: 3
+                smooth: true
 
-                    onClicked: {
-                        beforeCaptureState()
+                Behavior on icon.source {
+                    ParallelAnimation {
+                        id: playPauseButtonParallelAnimation
+
+                        NumberAnimation {
+                            target: playPauseButton
+                            property: "opacity";
+                            from: 0.1;
+                            to: 0.5;
+                            duration: 800;
+                            easing.type: Easing.InOutQuad;
+                        }
+
+                        NumberAnimation {
+                            target: playPauseButton
+                            property: "scale";
+                            from: 2;
+                            to: 3;
+                            duration: 600;
+                            easing.type: Easing.InOutQuad;
+                        }
+
                     }
+
+                }
+
+                // checked means pause
+                onClicked: {
+                    if (captureView.state == "start")
+                        beforeCaptureState()
+
+                    if (captureView.state == "beforecapture")
+                        beforeCaptureTimer.running = playPauseButton.checked
+                    if (captureView.state == "liveview")
+                        countdownTimer.running = playPauseButton.checked
+                    if (captureView.state == "review")
+                        reviewTimer.running = playPauseButton.checked
+                    if (captureView.state == "endsession")
+                        endSessionTimer.running = playPauseButton.checked
+
+
                 }
             }
+
+            // touch to start area
+//            Rectangle {
+//                id: touchStartArea
+//                width: root.width
+//                height: width
+//                color: "transparent"
+//                border.color: "#ffffff"
+//                border.width: 0
+//                anchors.horizontalCenter: parent.horizontalCenter
+//                anchors.verticalCenter: parent.verticalCenter
+//                z: 4
+//                visible: captureView.state == 'start'
+
+//                MouseArea {
+//                    anchors.fill: parent
+
+//                    onClicked: {
+//                        beforeCaptureState()
+//                    }
+//                }
+//            }
 
             // ==== MAIN BUTTONS ====
             ColumnLayout {
@@ -697,56 +763,56 @@ Window {
                 opacity: 0.8
                 property real iconSize: pixel(10)
 
-                Button {
-                    id: playPauseButton
-                    text: "Play/Pause"
-                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
-                    icon.source: checked ? "qrc:/Images/play_circle_filled_white_white_48dp.png" : "qrc:/Images/pause_circle_outline_white_48dp.png"
-                    icon.width: mainButtonsLayout.iconSize
-                    icon.height: mainButtonsLayout.iconSize
-                    display: AbstractButton.IconOnly
-                    highlighted: true
-                    Material.accent: Material.color(Material.Green, Material.Shade700)
-                    checkable: true
+//                Button {
+//                    id: playPauseButton
+//                    text: "Play/Pause"
+//                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
+//                    icon.source: checked ? "qrc:/Images/play_circle_filled_white_white_48dp.png" : "qrc:/Images/pause_circle_outline_white_48dp.png"
+//                    icon.width: mainButtonsLayout.iconSize
+//                    icon.height: mainButtonsLayout.iconSize
+//                    display: AbstractButton.IconOnly
+//                    highlighted: true
+//                    Material.accent: Material.color(Material.Green, Material.Shade700)
+//                    checkable: true
 
-                    Behavior on icon.source {
-                        ParallelAnimation {
-                            id: playPauseButtonParallelAnimation
+//                    Behavior on icon.source {
+//                        ParallelAnimation {`
+//                            id: playPauseButtonParallelAnimation
 
-                            NumberAnimation {
-                                target: playPauseButton
-                                property: "opacity";
-                                from: 0.5;
-                                to: 1;
-                                duration: 800;
-                                easing.type: Easing.InOutQuad;
-                            }
+//                            NumberAnimation {
+//                                target: playPauseButton
+//                                property: "opacity";
+//                                from: 0.5;
+//                                to: 1;
+//                                duration: 800;
+//                                easing.type: Easing.InOutQuad;
+//                            }
 
-                            NumberAnimation {
-                                target: playPauseButton
-                                property: "scale";
-                                from: 0.8;
-                                to: 1;
-                                duration: 600;
-                                easing.type: Easing.InOutQuad;
-                            }
+//                            NumberAnimation {
+//                                target: playPauseButton
+//                                property: "scale";
+//                                from: 0.8;
+//                                to: 1;
+//                                duration: 600;
+//                                easing.type: Easing.InOutQuad;
+//                            }
 
-                        }
+//                        }
 
-                    }
+//                    }
 
-                    // checked means pause
-                    onClicked: {
-                        if (captureView.state == "beforecapture")
-                            beforeCaptureTimer.running = !playPauseButton.checked
-                        if (captureView.state == "liveview")
-                            countdownTimer.running = !playPauseButton.checked
-                        if (captureView.state == "review")
-                            reviewTimer.running = !playPauseButton.checked
-                        if (captureView.state == "endsession")
-                            endSessionTimer.running = !playPauseButton.checked
-                    }
-                }
+//                    // checked means pause
+//                    onClicked: {
+//                        if (captureView.state == "beforecapture")
+//                            beforeCaptureTimer.running = !playPauseButton.checked
+//                        if (captureView.state == "liveview")
+//                            countdownTimer.running = !playPauseButton.checked
+//                        if (captureView.state == "review")
+//                            reviewTimer.running = !playPauseButton.checked
+//                        if (captureView.state == "endsession")
+//                            endSessionTimer.running = !playPauseButton.checked
+//                    }
+//                }
 
                 Button {
                     id: undoLastButton
