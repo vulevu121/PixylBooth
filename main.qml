@@ -19,6 +19,7 @@ import QtWebView 1.1
 import CSVFile 1.0
 //import MoveMouse 1.0
 
+
 Window {
     id: root
     visible: true
@@ -43,6 +44,7 @@ Window {
     property string lastCombinedPhoto
     property bool liveviewStarted: false
     property string templatePath: settingGeneral.templateImagePath
+
 
 
     Settings {
@@ -250,25 +252,25 @@ Window {
 //        }
 //    }
 
-    Timer {
-        id: liveviewCheckTimer
-        running: true
-        interval: 5000
-        repeat: true
-        triggeredOnStart: true
+//    Timer {
+//        id: liveviewCheckTimer
+//        running: true
+//        interval: 5000
+//        repeat: true
+//        triggeredOnStart: true
 
-        onTriggered: {
-//            console.log(liveView.isHostConnected())
-            if (!liveView.isHostConnected()) {
-                if (settingGeneral.liveVideoCountdownSwitch || settingGeneral.liveVideoStartSwitch) {
-                    sonyAPI.startRecMode()
-                    sonyAPI.startLiveview()
-                    liveviewStarted = liveView.start()
-                    liveView.visible = settingGeneral.liveVideoStartSwitch
-                }
-            }
-        }
-    }
+//        onTriggered: {
+////            console.log(liveView.isHostConnected())
+//            if (!liveView.isHostConnected()) {
+//                if (settingGeneral.liveVideoCountdownSwitch || settingGeneral.liveVideoStartSwitch) {
+//                    sonyAPI.startRecMode()
+//                    sonyAPI.startLiveview()
+//                    liveviewStarted = liveView.start()
+//                    liveView.visible = settingGeneral.liveVideoStartSwitch
+//                }
+//            }
+//        }
+//    }
 
 //    Image {
 //        source: "file:///C:/Users/Vu/Pictures/dslrBooth/Templates/Jordan and Allan/blurBg.jpg"
@@ -692,7 +694,7 @@ Window {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.right: parent.right
                 z: 5
-                opacity: 0.5
+                opacity: 0.8
                 property real iconSize: pixel(10)
 
                 Button {
@@ -703,9 +705,8 @@ Window {
                     icon.width: mainButtonsLayout.iconSize
                     icon.height: mainButtonsLayout.iconSize
                     display: AbstractButton.IconOnly
-        //            background: Rectangle {
-        //                color: "transparent"
-        //            }
+                    highlighted: true
+                    Material.accent: Material.color(Material.Green, Material.Shade700)
                     checkable: true
 
                     Behavior on icon.source {
@@ -755,9 +756,8 @@ Window {
                     icon.width: mainButtonsLayout.iconSize
                     icon.height: mainButtonsLayout.iconSize
                     display: AbstractButton.IconOnly
-        //            background: Rectangle {
-        //                color: "transparent"
-        //            }
+                    highlighted: true
+                    Material.accent: Material.color(Material.Orange, Material.Shade700)
 
                     ParallelAnimation {
                         id: undoLastButtonAnimation
@@ -802,9 +802,8 @@ Window {
                     icon.width: mainButtonsLayout.iconSize
                     icon.height: mainButtonsLayout.iconSize
                     display: AbstractButton.IconOnly
-        //            background: Rectangle {
-        //                color: "transparent"
-        //            }
+                    highlighted: true
+                    Material.accent: Material.color(Material.Cyan, Material.Shade700)
 
                     ParallelAnimation {
                         id: undoAllButtonAnimation
@@ -842,9 +841,8 @@ Window {
                     icon.width: mainButtonsLayout.iconSize
                     icon.height: mainButtonsLayout.iconSize
                     display: AbstractButton.IconOnly
-        //            background: Rectangle {
-        //                color: "transparent"
-        //            }
+                    highlighted: true
+                    Material.accent: Material.color(Material.Yellow, Material.Shade700)
 
                     onClicked: {
                         if (root.visibility == Window.FullScreen) {
@@ -888,16 +886,12 @@ Window {
                     icon.width: mainButtonsLayout.iconSize
                     icon.height: mainButtonsLayout.iconSize
                     display: AbstractButton.IconOnly
-        //            background: Rectangle {
-        //                color: "transparent"
-        //            }
+                    highlighted: true
+                    Material.accent: Material.color(Material.Grey, Material.Shade700)
                     onClicked: {
                         root.close()
                     }
                 }
-
-
-
 
 
                 ColumnLayout { }

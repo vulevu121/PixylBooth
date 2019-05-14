@@ -15,13 +15,15 @@ import SonyLiveview 1.0
 import ProcessPhotos 1.0
 import PrintPhotos 1.0
 import Qt.labs.folderlistmodel 2.0
+import QtGraphicalEffects 1.0
 
 Rectangle {
     id: root
-    color: "transparent"
+    color: Material.background
     property alias folder: folderListModel.folder
     property alias model: gridView.model
     property alias cellWidth: gridView.cellWidth
+
 
 
     FolderListModel {
@@ -33,11 +35,45 @@ Rectangle {
         sortReversed: true
 
     }
+
+
+    Rectangle {
+        id: blurRect
+        color: "#000000"
+        opacity: 0
+        anchors.fill: parent
+        z: 4
+
+        Behavior on opacity {
+
+            NumberAnimation {
+                duration: 200
+            }
+        }
+    }
+
     ImagePopup {
         id: imagePopup
         anchors.centerIn: parent
         width: root.width * 0.9
         height: width * 0.75
+
+
+
+        onClosed: {
+            blurRect.opacity = 0
+        }
+
+        Overlay.modal: GaussianBlur {
+                        source: root
+                        radius: 8
+                        samples: 16
+                        deviation: 3
+        }
+
+
+
+
     }
 
     Component {
@@ -70,6 +106,7 @@ Rectangle {
                             gridView.currentIndex = index
                             imagePopup.source = addFilePrefix(filePath)
                             imagePopup.open()
+                            blurRect.opacity = 0.5
                         }
                     }
                 }

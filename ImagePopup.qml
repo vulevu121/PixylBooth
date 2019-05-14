@@ -6,19 +6,19 @@ import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.3
 //import QtQml.Models 2.12
+import QtGraphicalEffects 1.0
+
+
+
 
 Popup {
     id: root
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
     modal: true
-//    background: Rectangle {
-//        color: Material.background
-//        radius: pixel(2)
-//        Material.elevation: 4
-//    }
-
-    Overlay.modal: Rectangle {
-            color: "#E0101010"
+    background: Rectangle {
+        color: Material.foreground
+        opacity: 0.3
+        radius: pixel(2)
     }
 
     property alias source: imageView.source
@@ -133,15 +133,18 @@ Popup {
         Column {
             anchors.fill: parent
 
-            Row {
+            RowLayout {
                 spacing: pixel(5)
+                width: parent.width
 
                 TextField {
                     id: emailTextField
                     width: root.width * 0.8
                     placeholderText: "Enter your email..."
                     focus: true
-//                    font.capitalization: Font.Normal
+                    Layout.fillWidth: true
+                    font.pixelSize: pixel(10)
+                    font.capitalization: Font.AllLowercase
 
 
                     Keys.onReturnPressed: {
@@ -154,11 +157,12 @@ Popup {
                         if (emailTextField.text.length > 2) {
 
                             for (var i = 0 ; i < emailList.count ; i++) {
-                                var email = String(emailList.get(i).email)
-                                var input = String(emailTextField.text)
+                                var email = String(emailList.get(i).email.toLowerCase())
 
-                                if (email.toLowerCase().search(input.toLowerCase()) >= 0) {
-                                    autoCompleteListModel.append({"email" : email});
+                                var input = String(emailTextField.text.toLowerCase())
+
+                                if (email.search(input) >= 0) {
+                                    autoCompleteListModel.append({"email" : email.toLowerCase()});
                                 }
                             }
                         }
@@ -171,20 +175,36 @@ Popup {
                 Button {
                     id: emailSendButton
                     text: "Send"
+                    icon.source: "qrc:/Images/send_white_48dp.png"
+                    icon.width: iconSize
+                    icon.height: iconSize
+                    display: AbstractButton.TextBesideIcon
+                    Layout.alignment: Qt.AlignRight
                     Material.accent: Material.color(Material.Orange, Material.Shade700)
                     highlighted: true
                     onClicked: {
                         if (emailTextField.text.length > 0) {
-                            emailList.append({"filePath": String(getFileName(imageView.source)), "email": emailTextField.text})
+                            var found = false;
+                            var inputEmail = emailTextField.text.toLowerCase()
+
+                            for (var i = 0 ; i < emailList.count ; i++) {
+                                var email = emailList.get(i).email;
+                                if (email.search(inputEmail) >= 0) {
+                                    found = true;
+                                }
+                            }
+
+                            if (found === false) {
+                                emailList.append({"filePath": String(getFileName(imageView.source)), "email": inputEmail})
+                            }
 
                             var filePath = stripFilePrefix(String(imageView.source))
-                            var email = emailTextField.text
-                            var string = filePath.concat(",").concat(email)
+                            var string = filePath.concat(",").concat(inputEmail)
 
                             csvFile.exportCSV(string)
                             emailTextField.clear()
-
                             emailPopup.close()
+
                         }
 
 
@@ -202,6 +222,11 @@ Popup {
 
                 ListModel {
                     id: autoCompleteListModel
+
+                    ListElement {
+                        filePath: "filePath"
+                        email: "email"
+                    }
                 }
 
 

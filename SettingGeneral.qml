@@ -58,11 +58,15 @@ Item {
         property alias beforeCaptureTimer: beforeCaptureTimerButton.value
         property alias reviewTimer: reviewTimerButton.value
         property alias endSessionTimer: endSessionTimerButton.value
+        property alias displayScale: displayScalingButton.value
+    }
+
+    Settings {
+        category: "Profile"
         property alias saveFolder: saveFolderField.text
         property alias templateImagePath: templateImageField.text
         property alias printFolder: printFolderField.text
         property alias emailFolder: emailFolderField.text
-        property alias displayScale: displayScalingButton.value
     }
 
     Settings {
@@ -138,8 +142,13 @@ Item {
             icon: "qrc:/Images/settings_white_48dp.png"
         }
         ListElement {
+            name: "Profile"
+            icon: "qrc:/Images/folder_shared_white_48dp.png"
+        }
+        ListElement {
             name: "Camera"
             icon: "qrc:/Images/camera_alt_white_48dp.png"
+
         }
         ListElement {
             name: "Color"
@@ -188,16 +197,19 @@ Item {
                     if(index == 0 && stackView.currentItem != generalView) {
                         stackView.replace(generalView)
                     }
-                    else if(index == 1 && stackView.currentItem != cameraView) {
+                    else if(index == 1 && stackView.currentItem != profileView) {
+                        stackView.replace(profileView)
+                    }
+                    else if(index == 2 && stackView.currentItem != cameraView) {
                         stackView.replace(cameraView)
                     }
-                    else if(index == 2 && stackView.currentItem != colorView) {
+                    else if(index == 3 && stackView.currentItem != colorView) {
                         stackView.replace(colorView)
                     }
-                    else if(index == 3 && stackView.currentItem != printerView) {
+                    else if(index == 4 && stackView.currentItem != printerView) {
                         stackView.replace(printerView)
                     }
-                    else if(index == 4 && stackView.currentItem != videoView) {
+                    else if(index == 5 && stackView.currentItem != videoView) {
                         stackView.replace(videoView)
                     }
                 }
@@ -205,8 +217,6 @@ Item {
 
         }
     }
-
-
 
     ColumnLayout {
         anchors.fill: parent
@@ -402,6 +412,36 @@ Item {
                         width: height * 3
                     }
 
+
+
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: qsTr("Display Scaling")
+                        subtitle: qsTr("Scaling factor for display buttons and text")
+                    }
+
+                    UpDownButton {
+                        id: displayScalingButton
+                        height: pixel(10)
+                        width: height * 3
+                    }
+
+
+
+                    RowLayout {}
+                }
+            }
+
+            Item {
+                id: profileView
+                visible: false
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    spacing: root.spacing
+                    anchors.margins: root.columnMargins
+
                     CustomLabel {
                         height: root.rowHeight
                         Layout.fillWidth: true
@@ -519,26 +559,10 @@ Item {
                         }
                     }
 
-                    CustomLabel {
-                        height: root.rowHeight
-                        Layout.fillWidth: true
-                        text: qsTr("Display Scaling")
-                        subtitle: qsTr("Scaling factor for display buttons and text")
-                    }
+                    RowLayout {}
 
-                    UpDownButton {
-                        id: displayScalingButton
-                        height: pixel(10)
-                        width: height * 3
-                    }
-
-
-
-                    RowLayout {
-                    }
                 }
             }
-
             Item {
                 id: cameraView
                 visible: false

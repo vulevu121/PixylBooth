@@ -48,5 +48,9 @@
         <file>Images/play_arrow_white_48dp.png</file>
         <file>Images/pause_circle_outline_white_48dp.png</file>
         <file>Images/close_white_48dp.png</file>
+        <file>Images/folder_special_white_48dp.png</file>
+        <file>Images/folder_shared_white_48dp.png</file>
+        <file>Images/camera_white_48dp_color.png</file>
+        <file>Images/send_white_48dp.png</file>
     </qresource>
 </RCC>

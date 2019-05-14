@@ -1,7 +1,7 @@
 QT += gui quick widgets multimedia network printsupport webview
 CONFIG += c++11
 
-RC_ICONS = camera_white_48dp.ico
+RC_ICONS = 1718703_0d0_icon.ico
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
