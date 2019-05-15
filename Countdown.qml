@@ -8,27 +8,20 @@ Rectangle {
     property alias countLabelShow: countLabel.visible
     color: "transparent"
 
-//    function start(time) {
-//        timer = time
-//        count = time
-//        countLabel.visible = true
-//        captureTimer.start()
-//    }
 
     Text {
         id: countLabel
         color: root.textColor
         text: root.count
-        font.family: "Arial"
+//        font.family: "Arial"
+        horizontalAlignment: Text.AlignHCenter
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
+//        anchors.horizontalCenterOffset: pixel(8)
         verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignHCenter
         visible: true
         opacity: 0.0
         font.pixelSize: root.height * 0.8
-
-
 
         Behavior on text {
             ParallelAnimation {
@@ -36,9 +29,6 @@ Rectangle {
                 NumberAnimation { target: countLabel; property: "scale"; from: 0; to: 1; duration: 200 }
             }
         }
-
-
-
 
 
     }

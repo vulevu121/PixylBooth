@@ -19,7 +19,7 @@ import QtGraphicalEffects 1.0
 
 Rectangle {
     id: root
-    color: Material.background
+    color: "transparent"
     property alias folder: folderListModel.folder
     property alias model: gridView.model
     property alias cellWidth: gridView.cellWidth

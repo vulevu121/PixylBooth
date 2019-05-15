@@ -37,7 +37,7 @@ public slots:
 
 
 private:
-    QTcpSocket *socket;
+    QTcpSocket *socket = nullptr;
     QByteArray array;
     QImage current_image;
     bool m_hostConnected = false;

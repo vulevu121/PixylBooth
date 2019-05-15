@@ -30,14 +30,18 @@ void SonyLiveview::setImage(const QImage &image)
 }
 
 void SonyLiveview::stop() {
-//    disconnect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+    socket->disconnectFromHost();
     socket->disconnect();
+    qDebug() << "Liveview Disconnected.";
 }
 
 bool SonyLiveview::start() {
     qDebug() << "Connecting to liveview...";
     m_hostConnected = false;
-    socket = new QTcpSocket(this);
+    if (socket == nullptr) {
+        socket = new QTcpSocket(this);
+    }
+
     connect(socket, SIGNAL(connected()), this, SLOT(connected()));
     connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
     connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));

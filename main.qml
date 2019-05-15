@@ -112,12 +112,12 @@ Window {
             }
 
             lastCombinedPhoto = processPhotos.combine(photos)
-            console.log(lastCombinedPhoto)
+//            console.log(lastCombinedPhoto)
         }
     }
 
     function printLastCombinedPhoto() {
-        console.log("Printing last combined photo!")
+//        console.log("Printing last combined photo!")
 //        imagePrint.printPhoto(lastCombinedPhoto, printCopyCount)
     }
 
@@ -150,11 +150,17 @@ Window {
         stopAllTimers()
         resetCountdownTimer()
 
+        sonyAPI.start()
+
+        playPauseButton.checked = false
+
         if (settingGeneral.liveVideoCountdownSwitch) {
             liveView.visible = true
         }
 
         captureView.state = "start"
+
+//        beforeCaptureState()
     }
 
     function beforeCaptureState() {
@@ -164,6 +170,7 @@ Window {
         playVideo(randomItem.filePath)
         beforeCaptureTimer.start()
         captureView.state = "beforecapture"
+
     }
 
     function liveviewState() {
@@ -184,6 +191,7 @@ Window {
         endSessionImage.open()
         endSessionTimer.start()
         captureView.state = "endsession"
+        liveView.stop()
     }
 
     CSVFile {
@@ -202,6 +210,7 @@ Window {
         id: sonyAPI
         saveFolder: settingGeneral.saveFolder
         onActTakePictureCompleted: {
+            actTakePictureTimer.stop()
             reviewImage.source = addFilePrefix(actTakePictureFilePath)
             photoList.append({"fileName": getFileName(actTakePictureFilePath), "filePath": actTakePictureFilePath})
             reviewState()
@@ -272,14 +281,6 @@ Window {
 //        }
 //    }
 
-//    Image {
-//        source: "file:///C:/Users/Vu/Pictures/dslrBooth/Templates/Jordan and Allan/blurBg.jpg"
-//        height: parent.height
-////        width: parent.width * 2
-//        anchors.centerIn: parent
-//        fillMode: Image.PreserveAspectCrop
-//    }
-
 
 
     // timer to initialize to a default state
@@ -301,7 +302,7 @@ Window {
         repeat: false
 
         onTriggered: {
-            liveView.start()
+//            liveView.start()
             liveView.visible = settingGeneral.liveVideoStartSwitch
         }
     }
@@ -317,18 +318,6 @@ Window {
         }
     }
 
-//    // timer for half press shutter
-//    Timer {
-//        id: halfPressTimer
-//        running: false
-//        repeat: false
-//        interval: (settingGeneral.countdownTimer - 1) * 1000
-
-//        onTriggered: {
-//            sonyAPI.actHalfPressShutter()
-//            sonyAPI.cancelHallfPressShutter()
-//        }
-//    }
 
     // timer for countdown
     Timer {
@@ -352,11 +341,25 @@ Window {
                 resetCountdownTimer()
                 // take a picture at end of countdown
                 sonyAPI.actTakePicture()
+                actTakePictureTimer.restart()
+
             }
             else {
                 countdown.count--
             }
         }
+    }
+
+    Timer {
+        id: actTakePictureTimer
+        interval: 5000
+        repeat: false
+
+        onTriggered: {
+            sonyAPI.actTakePicture()
+        }
+
+
     }
 
     // timer to review photo after each capture
@@ -385,7 +388,30 @@ Window {
         repeat: false
 
         onTriggered: {
+            endSessionImage.close()
             startState()
+            repeatTimer.start()
+        }
+    }
+
+    Timer {
+        id: repeatTimer
+        interval: 2000
+        repeat: false
+        onTriggered: {
+            playPauseButton.toggle()
+            if (captureView.state == "start")
+                liveView.start()
+                beforeCaptureState()
+
+            if (captureView.state == "beforecapture")
+                beforeCaptureTimer.running = playPauseButton.checked
+            if (captureView.state == "liveview")
+                countdownTimer.running = playPauseButton.checked
+            if (captureView.state == "review")
+                reviewTimer.running = playPauseButton.checked
+            if (captureView.state == "endsession")
+                endSessionTimer.running = playPauseButton.checked
         }
     }
 
@@ -426,12 +452,54 @@ Window {
 
 
     // ==== PUT DEBUG BUTTONS HERE!!! ====
-//    ColumnLayout {
-//        id: debugLayout
-//        z: 5
-//        opacity: 0.5
-//        visible: true
-//        enabled: visible
+    ColumnLayout {
+        id: debugLayout
+        z: 5
+        opacity: 0.5
+        visible: true
+        enabled: visible
+
+        Button {
+            text: "startRecMode"
+            onClicked: {
+                sonyAPI.startRecMode()
+            }
+        }
+
+        Button {
+            text: "startLiveview"
+            onClicked: {
+                sonyAPI.startLiveview()
+            }
+        }
+
+        Button {
+            text: "actTakePicture"
+            onClicked: {
+                sonyAPI.actTakePicture()
+            }
+        }
+
+        Button {
+            text: "actHalfPressShutter"
+            onClicked: {
+                sonyAPI.actHalfPressShutter()
+            }
+        }
+
+        Button {
+            text: "cancelHalfPressShutter"
+            onClicked: {
+                sonyAPI.cancelHalfPressShutter()
+            }
+        }
+
+        Button {
+            text: "start"
+            onClicked: {
+                sonyAPI.start()
+            }
+        }
 
 //        Button {
 //            text: "Start"
@@ -464,7 +532,7 @@ Window {
 //            }
 //        }
 
-//    }
+    }
 
 
 
@@ -676,7 +744,7 @@ Window {
                 display: AbstractButton.IconOnly
                 highlighted: false
                 flat: false
-                opacity: 0.5
+                opacity: 0.3
                 background: Rectangle {
                     color: "transparent"
                 }
@@ -695,7 +763,7 @@ Window {
                             target: playPauseButton
                             property: "opacity";
                             from: 0.1;
-                            to: 0.5;
+                            to: 0.3;
                             duration: 800;
                             easing.type: Easing.InOutQuad;
                         }
@@ -716,6 +784,7 @@ Window {
                 // checked means pause
                 onClicked: {
                     if (captureView.state == "start")
+                        liveView.start()
                         beforeCaptureState()
 
                     if (captureView.state == "beforecapture")
@@ -970,16 +1039,13 @@ Window {
                 opacity: 0.6
 
                 flipHorizontally: settingGeneral.mirrorLiveVideoSwitch
-                height: parent.height
-                width: root.width * 1.5
+//                height: parent.height
+//                width: root.width * 1.5
 
-//                anchors.horizontalCenter: parent.horizontalCenter
-//                anchors.verticalCenter: parent.verticalCenter
+                width: root.width * 0.9
+                height: width * 0.67
+                anchors.horizontalCenter: parent.horizontalCenter
 
-//                width: root.width - pixel(10)
-//                height: width * 0.75
-//                y: pixel(20)
-//                x: (root.width - width)/2
 
 
             }
@@ -990,6 +1056,8 @@ Window {
                 anchors.fill: parent
                 opacity: 1
             }
+
+
 
             // countdown display
             Countdown {

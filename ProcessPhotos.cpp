@@ -8,7 +8,7 @@ ProcessPhotos::ProcessPhotos(QObject *parent) : QObject(parent)
 
 QString ProcessPhotos::combine(const QString &photoPaths) {
     QStringList photoPathsList = photoPaths.split(";");
-    qDebug() << photoPathsList;
+//    qDebug() << photoPathsList;
 
     QDir templateDir(photoPathsList[0]);
     QDir image1Dir(photoPathsList[1]);
