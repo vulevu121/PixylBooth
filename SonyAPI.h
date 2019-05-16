@@ -25,10 +25,10 @@ public:
     void setSaveFolder(const QString &saveFolder);
     QString actTakePictureFilePath();
 
-
 signals:
     void actTakePictureCompleted();
     void liveViewReady();
+    void exposureSignal(int exposure);
 
 public slots:
     void start();
@@ -38,12 +38,22 @@ public slots:
     void startLiveview();
     void startLiveviewReply(QNetworkReply *reply);
     void actTakePicture();
+    void actTakePictureReply(QNetworkReply *reply);
+    void downloadPicture(QNetworkReply *reply);
     void actHalfPressShutter();
     void actHalfPressShutterReply(QNetworkReply *reply);
     void cancelHalfPressShutter();
     void cancelHalfPressShutterReply(QNetworkReply *reply);
-    void actTakePictureReply(QNetworkReply *reply);
-    void downloadPicture(QNetworkReply *reply);
+    void setExposureCompensation(int exposure);
+    void setExposureCompensationReply(QNetworkReply *reply);
+    void getExposureCompensation();
+    void getExposureCompensationReply(QNetworkReply *reply);
+
+//    void setCommand(const QString &command, int param);
+//    void setCommandReply(QNetworkReply *reply);
+//    void getCommand(const QString &command);
+//    void getCommandReply(QNetworkReply *reply);
+
 
 private:
     QString m_actTakePictureFilePath;

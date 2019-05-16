@@ -215,6 +215,10 @@ Window {
             photoList.append({"fileName": getFileName(actTakePictureFilePath), "filePath": actTakePictureFilePath})
             reviewState()
         }
+
+//        onGetCompleted: {
+//            console.log(sonyAPI.returnValueInt)
+//        }
     }
 
     // email list
@@ -500,6 +504,9 @@ Window {
                 sonyAPI.start()
             }
         }
+
+
+
 
 //        Button {
 //            text: "Start"
@@ -883,6 +890,41 @@ Window {
 //                    }
 //                }
 
+
+                UpDownButton {
+                    id: exposureButton
+                    min: -15
+                    max: 15
+                    value: 0
+
+                    onValueChanged: {
+                        sonyAPI.setExposureCompensation(exposureButton.value)
+                    }
+
+                    Connections {
+                        target: sonyAPI
+                        onExposureSignal: {
+                            exposureButton.value = exposure
+                        }
+                    }
+
+                    Timer {
+                        id: getExposureTimer
+                        interval: 3000
+                        repeat: false
+                        running: true
+
+                        onTriggered: {
+                            sonyAPI.getExposureCompensation()
+
+                        }
+
+
+
+                    }
+
+                }
+
                 Button {
                     id: undoLastButton
                     text: "Undo Last"
@@ -933,7 +975,7 @@ Window {
                     id: undoAllButton
                     text: "Undo All"
                     Layout.alignment: Qt.AlignRight | Qt.AlignTop
-                    icon.source: "qrc:/Images/settings_backup_restore_white_48dp_all.png"
+                    icon.source: "qrc:/Images/cached_white_48dp.png"
                     icon.width: mainButtonsLayout.iconSize
                     icon.height: mainButtonsLayout.iconSize
                     display: AbstractButton.IconOnly

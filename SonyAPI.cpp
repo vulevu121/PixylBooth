@@ -20,6 +20,10 @@ void SonyAPI::setSaveFolder(const QString &saveFolder) {
     m_saveFolder = saveFolder;
 }
 
+//int SonyAPI::returnValueInt() {
+//    return m_returnValueInt;
+//}
+
 void SonyAPI::start() {
     if (manager == nullptr) {
         manager = new QNetworkAccessManager(this);
@@ -267,7 +271,7 @@ void SonyAPI::actHalfPressShutterReply(QNetworkReply *reply)
     } else {
         QByteArray response = reply->readAll();
 
-        QString responseString(response); // grab picture url from result
+//        QString responseString(response); // grab picture url from result
 
 //        qDebug() << responseString;
         QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
@@ -310,7 +314,7 @@ void SonyAPI::cancelHalfPressShutterReply(QNetworkReply *reply)
     } else {
         QByteArray response = reply->readAll();
 
-        QString responseString(response); // grab picture url from result
+//        QString responseString(response); // grab picture url from result
 
 //        qDebug() << responseString;
         QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
@@ -324,4 +328,250 @@ void SonyAPI::cancelHalfPressShutterReply(QNetworkReply *reply)
     }
     this->manager->disconnect();
 }
+
+
+void SonyAPI::setExposureCompensation(int exposure) {
+    if (manager == nullptr) {
+        manager = new QNetworkAccessManager(this);
+    }
+    QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
+    QNetworkRequest req(serviceURL);
+    req.setRawHeader("Content-Type","application/json");
+
+    QJsonArray param = {exposure};
+
+    QJsonObject jsonObject {
+        {"method", "setExposureCompensation"},
+        {"params", param},
+        {"id", 1},
+        {"version", "1.0"}
+    };
+
+//    qDebug() << exposure;
+
+    QJsonDocument jsonDoc(jsonObject);
+    QByteArray jsonRequest = jsonDoc.toJson();
+    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+
+    req.setRawHeader("Content-Length", postDataSize);
+    manager->post(req, jsonRequest);
+
+    connect(manager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(setExposureCompensationReply(QNetworkReply*)));
+
+    qDebug() << "setExposureCompensation Requested!";
+}
+
+void SonyAPI::setExposureCompensationReply(QNetworkReply *reply)
+{
+    if(reply->error()) {
+        qDebug() << "ERROR!";
+        qDebug() << reply->errorString();
+    } else {
+        QByteArray response = reply->readAll();
+
+//        QString responseString(response); // grab picture url from result
+//        qDebug() << responseString;
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+        QJsonObject jsonObject = jsonDoc.object();
+
+//        qDebug() << jsonObject;
+
+        if (jsonObject.contains("error")) {
+            qDebug() << jsonObject["error"];
+        }
+        else if (jsonObject.contains("result")) {
+            if (jsonObject["result"].toInt() == 0) {
+                qDebug() << "setExposureCompensation...OK!";
+
+            }
+
+        }
+
+
+
+    }
+    this->manager->disconnect();
+}
+
+
+
+void SonyAPI::getExposureCompensation() {
+    if (manager == nullptr) {
+        manager = new QNetworkAccessManager(this);
+    }
+    QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
+    QNetworkRequest req(serviceURL);
+    req.setRawHeader("Content-Type","application/json");
+
+    QJsonArray param = {};
+
+    QJsonObject jsonObject {
+        {"method", "getExposureCompensation"},
+        {"params", param},
+        {"id", 1},
+        {"version", "1.0"}
+    };
+
+    QJsonDocument jsonDoc(jsonObject);
+    QByteArray jsonRequest = jsonDoc.toJson();
+    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+
+    req.setRawHeader("Content-Length", postDataSize);
+    manager->post(req, jsonRequest);
+
+    connect(manager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(getExposureCompensationReply(QNetworkReply*)));
+
+
+    qDebug() << "getExposureCompensation Requested!";
+}
+
+void SonyAPI::getExposureCompensationReply(QNetworkReply *reply)
+{
+    if(reply->error()) {
+        qDebug() << "ERROR!";
+        qDebug() << reply->errorString();
+    } else {
+        QByteArray response = reply->readAll();
+
+//        QString responseString(response); // grab picture url from result
+//        qDebug() << responseString;
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+        QJsonObject jsonObject = jsonDoc.object();
+
+        if (jsonObject.contains("result")) {
+            int exposure = jsonObject["result"].toArray()[0].toInt();
+            emit exposureSignal(exposure);
+            qDebug() << exposure;
+        }
+
+
+    }
+    this->manager->disconnect();
+}
+
+
+
+
+//void SonyAPI::setCommand(const QString &command, int param) {
+//    if (manager == nullptr) {
+//        manager = new QNetworkAccessManager(this);
+//    }
+//    QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
+//    QNetworkRequest req(serviceURL);
+//    req.setRawHeader("Content-Type","application/json");
+
+//    QJsonArray paramArray = {param};
+
+//    QJsonObject jsonObject {
+//        {"method", command},
+//        {"params", paramArray},
+//        {"id", 1},
+//        {"version", "1.0"}
+//    };
+
+//    QJsonDocument jsonDoc(jsonObject);
+//    QByteArray jsonRequest = jsonDoc.toJson();
+//    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+
+//    req.setRawHeader("Content-Length", postDataSize);
+//    manager->post(req, jsonRequest);
+
+//    connect(manager, SIGNAL(finished(QNetworkReply*)),
+//            this, SLOT(setCommandReply(QNetworkReply*)));
+
+
+//    qDebug() << command + " Requested!";
+//}
+
+//void SonyAPI::setCommandReply(QNetworkReply *reply)
+//{
+//    if(reply->error()) {
+//        qDebug() << "ERROR!";
+//        qDebug() << reply->errorString();
+//    } else {
+//        QByteArray response = reply->readAll();
+
+////        QString responseString(response); // grab picture url from result
+////        qDebug() << responseString;
+//        QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+//        QJsonObject jsonObject = jsonDoc.object();
+
+//        if (jsonObject["result"].toInt() == 0) {
+//            qDebug() << "setCommand...OK!";
+//        }
+
+
+//    }
+//    this->manager->disconnect();
+//}
+
+//void SonyAPI::getCommand(const QString &command) {
+//    if (manager == nullptr) {
+//        manager = new QNetworkAccessManager(this);
+//    }
+//    QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
+//    QNetworkRequest req(serviceURL);
+//    req.setRawHeader("Content-Type","application/json");
+
+//    QJsonArray paramArray = {};
+
+//    QJsonObject jsonObject {
+//        {"method", command},
+//        {"params", paramArray},
+//        {"id", 1},
+//        {"version", "1.0"}
+//    };
+
+//    QJsonDocument jsonDoc(jsonObject);
+//    QByteArray jsonRequest = jsonDoc.toJson();
+//    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+
+//    req.setRawHeader("Content-Length", postDataSize);
+//    manager->post(req, jsonRequest);
+
+//    connect(manager, SIGNAL(finished(QNetworkReply*)),
+//            this, SLOT(getCommandReply(QNetworkReply*)));
+
+
+//    qDebug() << command + " Requested!";
+//}
+
+//void SonyAPI::getCommandReply(QNetworkReply *reply)
+//{
+//    if(reply->error()) {
+//        qDebug() << "ERROR!";
+//        qDebug() << reply->errorString();
+//    } else {
+//        QByteArray response = reply->readAll();
+
+////        QString responseString(response); // grab picture url from result
+
+////        qDebug() << responseString;
+//        QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+//        QJsonObject jsonObject = jsonDoc.object();
+
+//        qDebug() << jsonObject;
+
+//        m_returnValueInt = jsonObject["result"].toArray()[0].toInt();
+
+
+//        emit getCompleted();
+
+////        int reply = jsonObject["result"].toArray()[0].toInt();
+////        qDebug() << exposure;
+////        emit getExposureReply(exposure);
+
+
+
+////        if (jsonObject["result"].toInt() == 0) {
+////            qDebug() << "getCommand...OK!";
+////        }
+
+
+//    }
+//    this->manager->disconnect();
+//}
+
 

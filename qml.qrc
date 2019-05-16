@@ -37,7 +37,6 @@
         <file>Images/box-shadow.png</file>
         <file>Gallery.qml</file>
         <file>Images/settings_backup_restore_white_48dp.png</file>
-        <file>Images/settings_backup_restore_white_48dp_all.png</file>
         <file>Images/corner.png</file>
         <file>Images/add_white_48dp.png</file>
         <file>Images/remove_white_48dp.png</file>
@@ -50,8 +49,8 @@
         <file>Images/close_white_48dp.png</file>
         <file>Images/folder_special_white_48dp.png</file>
         <file>Images/folder_shared_white_48dp.png</file>
-        <file>Images/camera_white_48dp_color.png</file>
         <file>Images/send_white_48dp.png</file>
         <file>Images/transparent_48dp.png</file>
+        <file>Images/cached_white_48dp.png</file>
     </qresource>
 </RCC>
