@@ -17,6 +17,7 @@ import PrintPhotos 1.0
 import Qt.labs.folderlistmodel 2.0
 import QtWebView 1.1
 import CSVFile 1.0
+import Firebase 1.0
 //import MoveMouse 1.0
 
 
@@ -35,7 +36,7 @@ Window {
     maximumHeight: 1920/2
 
     color: settingGeneral.bgColor
-    title: qsTr("PixylBooth")
+    title: qsTr("ARIA")
 
     property real pixelDensity: Screen.pixelDensity
     property string bgColor: settingGeneral.bgColor
@@ -44,8 +45,6 @@ Window {
     property string lastCombinedPhoto
     property bool liveviewStarted: false
     property string templatePath: settingGeneral.templateImagePath
-
-
 
     Settings {
         property alias x: root.x
@@ -122,10 +121,10 @@ Window {
     }
 
     function stopAllTimers() {
-        beforeCaptureTimer.restart()
-        reviewTimer.restart()
-        endSessionTimer.restart()
-        countdownTimer.restart()
+//        beforeCaptureTimer.restart()
+//        reviewTimer.restart()
+//        endSessionTimer.restart()
+//        countdownTimer.restart()
 
         beforeCaptureTimer.stop()
         reviewTimer.stop()
@@ -150,7 +149,9 @@ Window {
         stopAllTimers()
         resetCountdownTimer()
 
+
         sonyAPI.start()
+        toast.show("Initializing Sony camera")
 
         playPauseButton.checked = false
 
@@ -168,7 +169,7 @@ Window {
         var randomIdx = Math.round(Math.random(1) * (model.count-1))
         var randomItem = model.get(randomIdx)
         playVideo(randomItem.filePath)
-        beforeCaptureTimer.start()
+        beforeCaptureTimer.restart()
         captureView.state = "beforecapture"
 
     }
@@ -176,22 +177,26 @@ Window {
     function liveviewState() {
         resetCountdownTimer()
         countdown.visible = true
-        countdownTimer.start()
+        countdownTimer.restart()
         reviewImage.source = ""
         captureView.state = "liveview"
     }
 
     function reviewState() {
-        reviewTimer.start()
+        reviewTimer.restart()
         captureView.state = "review"
     }
 
     function endSessionState() {
         endSessionImage.source = addFilePrefix(lastCombinedPhoto)
         endSessionImage.open()
-        endSessionTimer.start()
+        endSessionTimer.restart()
         captureView.state = "endsession"
         liveView.stop()
+    }
+
+    Firebase {
+        id: firebase
     }
 
     CSVFile {
@@ -331,12 +336,13 @@ Window {
         interval: 1000
 
         onTriggered: {
-            console.log(countdown.count)
+//            console.log(countdown.count)
+
             if (countdown.count == settingGeneral.countdownTimer - 1) {
                 sonyAPI.actHalfPressShutter()
             }
 
-            if (countdown.count == 1) {
+            if (countdown.count == 2) {
                 sonyAPI.cancelHalfPressShutter()
             }
 
@@ -345,15 +351,18 @@ Window {
                 resetCountdownTimer()
                 // take a picture at end of countdown
                 sonyAPI.actTakePicture()
+                toast.show("Capturing photo " + (photoList.count+1))
                 actTakePictureTimer.restart()
-
             }
             else {
                 countdown.count--
             }
+
+//            toast.show("Counting down..." + countdown.count)
         }
     }
 
+    // timeout after capture request is initiated, just in case
     Timer {
         id: actTakePictureTimer
         interval: 5000
@@ -361,9 +370,8 @@ Window {
 
         onTriggered: {
             sonyAPI.actTakePicture()
+            toast.show("Capturing photo " + (photoList.count+1))
         }
-
-
     }
 
     // timer to review photo after each capture
@@ -394,30 +402,20 @@ Window {
         onTriggered: {
             endSessionImage.close()
             startState()
-            repeatTimer.start()
+//            repeatTimer.start()
         }
     }
 
-    Timer {
-        id: repeatTimer
-        interval: 2000
-        repeat: false
-        onTriggered: {
-            playPauseButton.toggle()
-            if (captureView.state == "start")
-                liveView.start()
-                beforeCaptureState()
-
-            if (captureView.state == "beforecapture")
-                beforeCaptureTimer.running = playPauseButton.checked
-            if (captureView.state == "liveview")
-                countdownTimer.running = playPauseButton.checked
-            if (captureView.state == "review")
-                reviewTimer.running = playPauseButton.checked
-            if (captureView.state == "endsession")
-                endSessionTimer.running = playPauseButton.checked
-        }
-    }
+//    Timer {
+//        id: repeatTimer
+//        interval: 84000
+//        repeat: true
+//        running: true
+//        onTriggered: {
+//            playPauseButton.toggle()
+//            playPauseButton.clicked()
+//        }
+//    }
 
     Item {
         anchors.fill: parent
@@ -502,6 +500,20 @@ Window {
             text: "start"
             onClicked: {
                 sonyAPI.start()
+            }
+        }
+
+        Button {
+            text: "Auth"
+            onClicked: {
+                firebase.authenticate("vulevu121@gmail.com", "123456")
+            }
+        }
+
+        Button {
+            text: "getAccountInfo"
+            onClicked: {
+                firebase.getAccountInfo()
             }
         }
 
@@ -740,13 +752,14 @@ Window {
                 }
             }
 
+
             Button {
                 id: playPauseButton
                 text: "Play/Pause"
                 Layout.alignment: Qt.AlignRight | Qt.AlignTop
                 icon.source: checked ? "qrc:/Images/pause_white_48dp.png" : "qrc:/Images/play_arrow_white_48dp.png"
-                icon.width: pixel(100)
-                icon.height: pixel(100)
+                icon.width: pixel(10)
+                icon.height: pixel(10)
                 anchors.centerIn: parent
                 display: AbstractButton.IconOnly
                 highlighted: false
@@ -783,27 +796,37 @@ Window {
                             duration: 600;
                             easing.type: Easing.InOutQuad;
                         }
-
                     }
-
                 }
 
-                // checked means pause
                 onClicked: {
-                    if (captureView.state == "start")
+                    var playState = playPauseButton.checked
+
+                    if (captureView.state == "start") {
                         liveView.start()
                         beforeCaptureState()
+                    }
 
-                    if (captureView.state == "beforecapture")
-                        beforeCaptureTimer.running = playPauseButton.checked
-                    if (captureView.state == "liveview")
-                        countdownTimer.running = playPauseButton.checked
-                    if (captureView.state == "review")
-                        reviewTimer.running = playPauseButton.checked
-                    if (captureView.state == "endsession")
-                        endSessionTimer.running = playPauseButton.checked
+                    if (captureView.state == "beforecapture") {
+                        beforeCaptureTimer.running = playState
+                    }
 
+                    if (captureView.state == "liveview") {
+                        countdownTimer.running = playState
+                    }
 
+                    if (captureView.state == "review") {
+                        reviewTimer.running = playState
+                    }
+
+                    if (captureView.state == "endsession") {
+                        endSessionTimer.running = playState
+                    }
+
+//                    console.log("beforeCaptureTimer: " + String(beforeCaptureTimer.running))
+//                    console.log("countdownTimer: " + String(countdownTimer.running))
+//                    console.log("reviewTimer: " + String(reviewTimer.running))
+//                    console.log("endSessionTimer: " + String(endSessionTimer.running))
                 }
             }
 
@@ -837,6 +860,7 @@ Window {
                 anchors.right: parent.right
                 z: 5
                 opacity: 0.8
+                spacing: pixel(6)
                 property real iconSize: pixel(10)
 
 //                Button {
@@ -891,14 +915,18 @@ Window {
 //                }
 
 
-                UpDownButton {
+
+                UpDownButtonVertical {
                     id: exposureButton
                     min: -15
                     max: 15
                     value: 0
+                    scale: 1.2
+                    Layout.alignment: Qt.AlignHCenter
 
                     onValueChanged: {
                         sonyAPI.setExposureCompensation(exposureButton.value)
+                        toast.show("Camera exposure set to " + exposureButton.value)
                     }
 
                     Connections {
@@ -916,10 +944,7 @@ Window {
 
                         onTriggered: {
                             sonyAPI.getExposureCompensation()
-
                         }
-
-
 
                     }
 
@@ -935,6 +960,7 @@ Window {
                     display: AbstractButton.IconOnly
                     highlighted: true
                     Material.accent: Material.color(Material.Orange, Material.Shade700)
+
 
                     ParallelAnimation {
                         id: undoLastButtonAnimation
@@ -1014,7 +1040,7 @@ Window {
                     id: fullScreenButton
                     text: "Full Screen"
                     Layout.alignment: Qt.AlignRight | Qt.AlignTop
-                    icon.source: root.visibility == Window.FullScreen ? "qrc:/Images/fullscreen_exit_white_48dp.png" : "qrc:/Images/fullscreen_white_48dp.png"
+                    icon.source: root.visibility === Window.FullScreen ? "qrc:/Images/fullscreen_exit_white_48dp.png" : "qrc:/Images/fullscreen_white_48dp.png"
                     icon.width: mainButtonsLayout.iconSize
                     icon.height: mainButtonsLayout.iconSize
                     display: AbstractButton.IconOnly
@@ -1022,7 +1048,7 @@ Window {
                     Material.accent: Material.color(Material.Yellow, Material.Shade700)
 
                     onClicked: {
-                        if (root.visibility == Window.FullScreen) {
+                        if (root.visibility === Window.FullScreen) {
                             root.showNormal();
                         }
                         else {
@@ -1088,8 +1114,6 @@ Window {
                 height: width * 0.67
                 anchors.horizontalCenter: parent.horizontalCenter
 
-
-
             }
 
             // loader for all videos
@@ -1126,6 +1150,7 @@ Window {
                     id: reviewImage
                     anchors.fill: parent
                     fillMode: Image.PreserveAspectFit
+                    mirror: settingGeneral.mirrorLiveVideoSwitch
                 }
             }
 
@@ -1141,7 +1166,6 @@ Window {
                     anchors.leftMargin: pixel(20)
                     model: photoList
                     cellWidth: root.width - pixel(40)
-
                 }
 
                 ImagePopup {
@@ -1210,6 +1234,11 @@ Window {
 //            }
 //        }
 //    }
+
+    ToastManager {
+        id: toast
+    }
+
 
     // ==== TAB BAR STUFF ====
     TabBar {

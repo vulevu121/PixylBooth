@@ -16,8 +16,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     CSVFile.cpp \
-    MoveMouse.cpp \
-        main.cpp \
+    Firebase.cpp \
+    main.cpp \
     ProcessPhotos.cpp \
     PrintPhotos.cpp \
     SonyLiveview.cpp \
@@ -26,7 +26,7 @@ SOURCES += \
 RESOURCES += qml.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH =
+QML_IMPORT_PATH = "C:\Qt\5.12.2\msvc2017_64\qml"
 
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =
@@ -41,7 +41,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     CSVFile.h \
-    MoveMouse.h \
+    Firebase.h \
     process.h \
     ProcessPhotos.h \
     PrintPhotos.h \

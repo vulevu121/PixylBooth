@@ -18,12 +18,14 @@ class SonyAPI : public QObject
     Q_OBJECT
     Q_PROPERTY(QString actTakePictureFilePath READ actTakePictureFilePath)
     Q_PROPERTY(QString saveFolder READ saveFolder WRITE setSaveFolder)
+    Q_PROPERTY(QString readyFlag READ readyFlag)
 
 public:
     explicit SonyAPI(QObject *parent = nullptr);
     QString saveFolder();
     void setSaveFolder(const QString &saveFolder);
     QString actTakePictureFilePath();
+    bool readyFlag();
 
 signals:
     void actTakePictureCompleted();
@@ -59,6 +61,7 @@ private:
     QString m_actTakePictureFilePath;
     QString m_saveFolder;
     QString m_fileName;
+    bool m_readyFlag = true;
     QNetworkAccessManager *manager = nullptr;
     QNetworkAccessManager *downloadManager = nullptr;
 };

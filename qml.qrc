@@ -52,5 +52,8 @@
         <file>Images/send_white_48dp.png</file>
         <file>Images/transparent_48dp.png</file>
         <file>Images/cached_white_48dp.png</file>
+        <file>Toast.qml</file>
+        <file>ToastManager.qml</file>
+        <file>UpDownButtonVertical.qml</file>
     </qresource>
 </RCC>

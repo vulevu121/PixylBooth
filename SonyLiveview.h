@@ -29,7 +29,7 @@ public slots:
     void connected();
     void disconnected();
     void readyRead();
-    bool start();
+    void start();
     void stop();
     bool isHostConnected();
     bool flipHorizontally();
@@ -39,7 +39,7 @@ public slots:
 private:
     QTcpSocket *socket = nullptr;
     QByteArray array;
-    QImage current_image;
+    QImage currentImage;
     bool m_hostConnected = false;
     bool m_flipHorizontally = false;
 };

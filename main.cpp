@@ -8,7 +8,8 @@
 #include "ProcessPhotos.h"
 #include "PrintPhotos.h"
 #include "CSVFile.h"
-#include "MoveMouse.h"
+//#include "MoveMouse.h"
+#include "Firebase.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,7 +19,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<ProcessPhotos>("ProcessPhotos", 1, 0, "ProcessPhotos");
     qmlRegisterType<PrintPhotos>("PrintPhotos", 1, 0, "PrintPhotos");
     qmlRegisterType<CSVFile>("CSVFile", 1, 0, "CSVFile");
-    qmlRegisterType<MoveMouse>("MoveMouse", 1, 0, "MoveMouse");
+    qmlRegisterType<Firebase>("Firebase", 1, 0, "Firebase");
+
 
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
 

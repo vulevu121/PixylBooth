@@ -24,9 +24,9 @@ QString ProcessPhotos::combine(const QString &photoPaths) {
 //    QImage image4(image4Dir.absolutePath());
 
     // resize photos to fit template
-    QImage image1Scaled = image1.scaledToWidth(1570);
-    QImage image2Scaled = image2.scaledToWidth(1570);
-    QImage image3Scaled = image3.scaledToWidth(1570);
+    QImage image1Scaled = image1.scaledToWidth(855);
+    QImage image2Scaled = image2.scaledToWidth(1750);
+    QImage image3Scaled = image3.scaledToWidth(855);
 //    QImage image4Scaled = image4.scaledToWidth(780);
 
     // create an empty 3600x2400 canvas
@@ -36,9 +36,9 @@ QString ProcessPhotos::combine(const QString &photoPaths) {
     QPainter imagePainter(&output);
 
     // draw photos
-    imagePainter.drawImage(196, 124, image1Scaled);
-    imagePainter.drawImage(196, 1228, image2Scaled);
-    imagePainter.drawImage(1840, 1228, image3Scaled);
+    imagePainter.drawImage(150, 1640, image1Scaled);
+    imagePainter.drawImage(150, 200, image2Scaled);
+    imagePainter.drawImage(1050, 1640, image3Scaled);
 //    imagePainter.drawImage(2763, 1779, image4Scaled);
 
     // draw template on top

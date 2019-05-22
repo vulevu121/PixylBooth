@@ -24,24 +24,41 @@ void SonyAPI::setSaveFolder(const QString &saveFolder) {
 //    return m_returnValueInt;
 //}
 
+bool SonyAPI::readyFlag() {
+    return m_readyFlag;
+}
+
 void SonyAPI::start() {
-    if (manager == nullptr) {
-        manager = new QNetworkAccessManager(this);
+    if (m_readyFlag) {
+        if (manager == nullptr) {
+            manager = new QNetworkAccessManager(this);
+        }
+        m_readyFlag = false;
+        QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
+        QNetworkRequest req(serviceURL);
+        req.setRawHeader("Content-Type","application/json");
+
+        QJsonArray param = {};
+
+        QJsonObject jsonObject {
+            {"method", "startRecMode"},
+            {"params", param},
+            {"id", 1},
+            {"version", "1.0"}
+        };
+
+        QJsonDocument jsonDoc(jsonObject);
+        QByteArray jsonRequest = jsonDoc.toJson();
+        QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+
+        req.setRawHeader("Content-Length",postDataSize);
+        manager->post(req,jsonRequest);
+
+        connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(startReply(QNetworkReply*)));
+
+        qDebug() << "startRecMode Requested!";
     }
-
-    QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
-    QNetworkRequest req(serviceURL);
-    req.setRawHeader("Content-Type","application/json");
-
-    QByteArray jsonRequest ("{\"method\": \"startRecMode\", \"params\": [], \"id\": 1, \"version\": \"1.0\"}");
-    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
-    req.setRawHeader("Content-Length",postDataSize);
-    manager->post(req,jsonRequest);
-
-    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(startReply(QNetworkReply*)));
-
-    qDebug() << "startRecMode Requested!";
 }
 
 void SonyAPI::startReply(QNetworkReply *reply)
@@ -52,41 +69,79 @@ void SonyAPI::startReply(QNetworkReply *reply)
     } else {
         QByteArray response = reply->readAll();
 
-        QString responseString(response); // grab picture url from result
+//        QString responseString(response); // grab picture url from result
         QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
         QJsonObject jsonObject = jsonDoc.object();
 
-        int result = jsonObject["result"].toInt();
+        if (jsonObject.contains("result")) {
+            int result = jsonObject["result"].toInt();
+            if (result == 0) {
+                this->manager->disconnect();
+                qDebug() << "startRecMode...OK!";
 
-        if (result == 0) {
-            this->manager->disconnect();
-            qDebug() << "startRecMode...OK!";
-            startLiveview();
+
+                QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
+                QNetworkRequest req(serviceURL);
+                req.setRawHeader("Content-Type","application/json");
+
+                QJsonArray param = {};
+
+                QJsonObject jsonObject {
+                    {"method", "startLiveview"},
+                    {"params", param},
+                    {"id", 1},
+                    {"version", "1.0"}
+                };
+
+                QJsonDocument jsonDoc(jsonObject);
+                QByteArray jsonRequest = jsonDoc.toJson();
+                QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+
+                req.setRawHeader("Content-Length",postDataSize);
+                manager->post(req,jsonRequest);
+
+                connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+                        this, SLOT(startLiveviewReply(QNetworkReply*)));
+
+                qDebug() << "startLiveview Requested!";
+            }
         }
 
-
     }
-//    this->manager->disconnect();
+
 }
 
 void SonyAPI::startRecMode() {
-    if (manager == nullptr) {
-        manager = new QNetworkAccessManager(this);
+    if (m_readyFlag) {
+        if (manager == nullptr) {
+            manager = new QNetworkAccessManager(this);
+        }
+        m_readyFlag = false;
+        QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
+        QNetworkRequest req(serviceURL);
+        req.setRawHeader("Content-Type","application/json");
+
+        QJsonArray param = {};
+
+        QJsonObject jsonObject {
+            {"method", "startRecMode"},
+            {"params", param},
+            {"id", 1},
+            {"version", "1.0"}
+        };
+
+        QJsonDocument jsonDoc(jsonObject);
+        QByteArray jsonRequest = jsonDoc.toJson();
+        QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+
+        req.setRawHeader("Content-Length",postDataSize);
+        manager->post(req,jsonRequest);
+
+        connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(startRecModeReply(QNetworkReply*)));
+
+        qDebug() << "startRecMode Requested!";
     }
-
-    QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
-    QNetworkRequest req(serviceURL);
-    req.setRawHeader("Content-Type","application/json");
-
-    QByteArray jsonRequest ("{\"method\": \"startRecMode\", \"params\": [], \"id\": 1, \"version\": \"1.0\"}");
-    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
-    req.setRawHeader("Content-Length",postDataSize);
-    manager->post(req,jsonRequest);
-
-    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(startRecModeReply(QNetworkReply*)));
-
-    qDebug() << "startRecMode Requested!";
 }
 
 void SonyAPI::startRecModeReply(QNetworkReply *reply)
@@ -97,40 +152,57 @@ void SonyAPI::startRecModeReply(QNetworkReply *reply)
     } else {
         QByteArray response = reply->readAll();
 
-        QString responseString(response); // grab picture url from result
+//        QString responseString(response); // grab picture url from result
+//        qDebug() << responseString;
         QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
         QJsonObject jsonObject = jsonDoc.object();
 
-        int result = jsonObject["result"].toInt();
+        if (jsonObject.contains("result")) {
+            int result = jsonObject["result"].toInt();
 
-        if (result == 0) {
-            qDebug() << "startRecMode...OK!";
+            if (result == 0) {
+                qDebug() << "startRecMode...OK!";
+            }
         }
 
-
     }
+    m_readyFlag = true;
     this->manager->disconnect();
 }
 
 void SonyAPI::startLiveview() {
-    if (manager == nullptr) {
-        manager = new QNetworkAccessManager(this);
+    if (m_readyFlag) {
+        if (manager == nullptr) {
+            manager = new QNetworkAccessManager(this);
+        }
+        m_readyFlag = false;
+        QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
+        QNetworkRequest req(serviceURL);
+        req.setRawHeader("Content-Type","application/json");
+
+        QJsonArray param = {};
+
+        QJsonObject jsonObject {
+            {"method", "startLiveview"},
+            {"params", param},
+            {"id", 1},
+            {"version", "1.0"}
+        };
+
+        QJsonDocument jsonDoc(jsonObject);
+        QByteArray jsonRequest = jsonDoc.toJson();
+        QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+
+        req.setRawHeader("Content-Length",postDataSize);
+        manager->post(req,jsonRequest);
+
+        connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(startLiveviewReply(QNetworkReply*)));
+
+        qDebug() << "startLiveview Requested!";
+        emit liveViewReady();
+
     }
-
-    QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
-    QNetworkRequest req(serviceURL);
-    req.setRawHeader("Content-Type","application/json");
-
-    QByteArray jsonRequest ("{\"method\": \"startLiveview\", \"params\": [], \"id\": 1, \"version\": \"1.0\"}");
-    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
-    req.setRawHeader("Content-Length",postDataSize);
-    manager->post(req,jsonRequest);
-
-    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(startLiveviewReply(QNetworkReply*)));
-
-    qDebug() << "startLiveview Requested!";
-    emit liveViewReady();
 }
 
 void SonyAPI::startLiveviewReply(QNetworkReply *reply)
@@ -153,27 +225,32 @@ void SonyAPI::startLiveviewReply(QNetworkReply *reply)
 
 
     }
+    m_readyFlag = true;
     this->manager->disconnect();
 }
 
 void SonyAPI::actTakePicture()
 {
-    if (manager == nullptr) {
-        manager = new QNetworkAccessManager(this);
+    if (m_readyFlag) {
+        if (manager == nullptr) {
+            manager = new QNetworkAccessManager(this);
+        }
+        m_readyFlag = false;
+        QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
+        QNetworkRequest req(serviceURL);
+        req.setRawHeader("Content-Type","application/json");
+
+        QByteArray jsonRequest ("{\"method\": \"actTakePicture\", \"params\": [], \"id\": 1, \"version\": \"1.0\"}");
+        QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+        req.setRawHeader("Content-Length",postDataSize);
+        manager->post(req,jsonRequest);
+
+        connect(manager, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(actTakePictureReply(QNetworkReply*)));
+
+        qDebug() << "actTakePicture Requested!";
+
     }
-    QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
-    QNetworkRequest req(serviceURL);
-    req.setRawHeader("Content-Type","application/json");
-
-    QByteArray jsonRequest ("{\"method\": \"actTakePicture\", \"params\": [], \"id\": 1, \"version\": \"1.0\"}");
-    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
-    req.setRawHeader("Content-Length",postDataSize);
-    manager->post(req,jsonRequest);
-
-    connect(manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(actTakePictureReply(QNetworkReply*)));
-
-    qDebug() << "actTakePicture Requested!";
 
 }
 
@@ -202,7 +279,7 @@ void SonyAPI::actTakePictureReply (QNetworkReply *reply)
             QJsonObject jsonObject = jsonDoc.object();
             QString urlString = jsonObject["result"].toArray()[0].toArray()[0].toString();
 
-            qDebug() << urlString;
+//            qDebug() << urlString;
 
             QUrl picUrl(urlString);
 
@@ -220,7 +297,7 @@ void SonyAPI::actTakePictureReply (QNetworkReply *reply)
         }
 
     }
-
+//    m_readyFlag = true;
     this->manager->disconnect();
 }
 
@@ -241,26 +318,31 @@ void SonyAPI::downloadPicture(QNetworkReply *reply)
     qDebug() << m_actTakePictureFilePath;
     emit actTakePictureCompleted();
 
+    m_readyFlag = true;
     this->downloadManager->disconnect();
 }
 
 void SonyAPI::actHalfPressShutter() {
-    if (manager == nullptr) {
-        manager = new QNetworkAccessManager(this);
+    if (m_readyFlag) {
+        if (manager == nullptr) {
+            manager = new QNetworkAccessManager(this);
+        }
+        m_readyFlag = false;
+        QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
+        QNetworkRequest req(serviceURL);
+        req.setRawHeader("Content-Type","application/json");
+
+        QByteArray jsonRequest ("{\"method\": \"actHalfPressShutter\", \"params\": [], \"id\": 1, \"version\": \"1.0\"}");
+        QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+        req.setRawHeader("Content-Length",postDataSize);
+        manager->post(req,jsonRequest);
+
+        connect(manager, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(actHalfPressShutterReply(QNetworkReply*)));
+
+        qDebug() << "actHalfPressShutter Requested!";
+
     }
-    QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
-    QNetworkRequest req(serviceURL);
-    req.setRawHeader("Content-Type","application/json");
-
-    QByteArray jsonRequest ("{\"method\": \"actHalfPressShutter\", \"params\": [], \"id\": 1, \"version\": \"1.0\"}");
-    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
-    req.setRawHeader("Content-Length",postDataSize);
-    manager->post(req,jsonRequest);
-
-    connect(manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(actHalfPressShutterReply(QNetworkReply*)));
-
-    qDebug() << "actHalfPressShutter Requested!";
 }
 
 void SonyAPI::actHalfPressShutterReply(QNetworkReply *reply)
@@ -283,27 +365,31 @@ void SonyAPI::actHalfPressShutterReply(QNetworkReply *reply)
 
 
     }
-
+    m_readyFlag = true;
     this->manager->disconnect();
 }
 
 void SonyAPI::cancelHalfPressShutter() {
-    if (manager == nullptr) {
-        manager = new QNetworkAccessManager(this);
+    if (m_readyFlag) {
+        if (manager == nullptr) {
+            manager = new QNetworkAccessManager(this);
+        }
+        m_readyFlag = false;
+        QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
+        QNetworkRequest req(serviceURL);
+        req.setRawHeader("Content-Type","application/json");
+
+        QByteArray jsonRequest ("{\"method\": \"cancelHalfPressShutter\", \"params\": [], \"id\": 1, \"version\": \"1.0\"}");
+        QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+        req.setRawHeader("Content-Length",postDataSize);
+        manager->post(req,jsonRequest);
+
+        connect(manager, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(cancelHalfPressShutterReply(QNetworkReply*)));
+
+        qDebug() << "cancelHalfPressShutter Requested!";
+
     }
-    QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
-    QNetworkRequest req(serviceURL);
-    req.setRawHeader("Content-Type","application/json");
-
-    QByteArray jsonRequest ("{\"method\": \"cancelHalfPressShutter\", \"params\": [], \"id\": 1, \"version\": \"1.0\"}");
-    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
-    req.setRawHeader("Content-Length",postDataSize);
-    manager->post(req,jsonRequest);
-
-    connect(manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(cancelHalfPressShutterReply(QNetworkReply*)));
-
-    qDebug() << "cancelHalfPressShutter Requested!";
 }
 
 void SonyAPI::cancelHalfPressShutterReply(QNetworkReply *reply)
@@ -324,42 +410,44 @@ void SonyAPI::cancelHalfPressShutterReply(QNetworkReply *reply)
             qDebug() << "cancelHalfPressShutter...OK!";
         }
 
-
     }
+    m_readyFlag = true;
     this->manager->disconnect();
 }
 
 
 void SonyAPI::setExposureCompensation(int exposure) {
-    if (manager == nullptr) {
-        manager = new QNetworkAccessManager(this);
+    if (m_readyFlag) {
+        if (manager == nullptr) {
+            manager = new QNetworkAccessManager(this);
+        }
+        m_readyFlag = false;
+        QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
+        QNetworkRequest req(serviceURL);
+        req.setRawHeader("Content-Type","application/json");
+
+        QJsonArray param = {exposure};
+
+        QJsonObject jsonObject {
+            {"method", "setExposureCompensation"},
+            {"params", param},
+            {"id", 1},
+            {"version", "1.0"}
+        };
+
+        QJsonDocument jsonDoc(jsonObject);
+        QByteArray jsonRequest = jsonDoc.toJson();
+        QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+
+        req.setRawHeader("Content-Length", postDataSize);
+        manager->post(req, jsonRequest);
+
+        connect(manager, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(setExposureCompensationReply(QNetworkReply*)));
+
+        qDebug() << "setExposureCompensation Requested!";
+
     }
-    QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
-    QNetworkRequest req(serviceURL);
-    req.setRawHeader("Content-Type","application/json");
-
-    QJsonArray param = {exposure};
-
-    QJsonObject jsonObject {
-        {"method", "setExposureCompensation"},
-        {"params", param},
-        {"id", 1},
-        {"version", "1.0"}
-    };
-
-//    qDebug() << exposure;
-
-    QJsonDocument jsonDoc(jsonObject);
-    QByteArray jsonRequest = jsonDoc.toJson();
-    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
-
-    req.setRawHeader("Content-Length", postDataSize);
-    manager->post(req, jsonRequest);
-
-    connect(manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(setExposureCompensationReply(QNetworkReply*)));
-
-    qDebug() << "setExposureCompensation Requested!";
 }
 
 void SonyAPI::setExposureCompensationReply(QNetworkReply *reply)
@@ -378,7 +466,7 @@ void SonyAPI::setExposureCompensationReply(QNetworkReply *reply)
 //        qDebug() << jsonObject;
 
         if (jsonObject.contains("error")) {
-            qDebug() << jsonObject["error"];
+            qDebug() << jsonObject["error"].toArray()[1];
         }
         else if (jsonObject.contains("result")) {
             if (jsonObject["result"].toInt() == 0) {
@@ -388,43 +476,48 @@ void SonyAPI::setExposureCompensationReply(QNetworkReply *reply)
 
         }
 
-
-
     }
+    m_readyFlag = true;
     this->manager->disconnect();
 }
 
 
 
 void SonyAPI::getExposureCompensation() {
-    if (manager == nullptr) {
-        manager = new QNetworkAccessManager(this);
+    if (m_readyFlag) {
+        if (manager == nullptr) {
+            manager = new QNetworkAccessManager(this);
+        }
+
+        m_readyFlag = false;
+
+        QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
+        QNetworkRequest req(serviceURL);
+        req.setRawHeader("Content-Type","application/json");
+
+        QJsonArray param = {};
+
+        QJsonObject jsonObject {
+            {"method", "getExposureCompensation"},
+            {"params", param},
+            {"id", 1},
+            {"version", "1.0"}
+        };
+
+        QJsonDocument jsonDoc(jsonObject);
+        QByteArray jsonRequest = jsonDoc.toJson();
+        QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+
+        req.setRawHeader("Content-Length", postDataSize);
+        manager->post(req, jsonRequest);
+
+        connect(manager, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(getExposureCompensationReply(QNetworkReply*)));
+
+
+        qDebug() << "getExposureCompensation Requested!";
+
     }
-    QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
-    QNetworkRequest req(serviceURL);
-    req.setRawHeader("Content-Type","application/json");
-
-    QJsonArray param = {};
-
-    QJsonObject jsonObject {
-        {"method", "getExposureCompensation"},
-        {"params", param},
-        {"id", 1},
-        {"version", "1.0"}
-    };
-
-    QJsonDocument jsonDoc(jsonObject);
-    QByteArray jsonRequest = jsonDoc.toJson();
-    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
-
-    req.setRawHeader("Content-Length", postDataSize);
-    manager->post(req, jsonRequest);
-
-    connect(manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(getExposureCompensationReply(QNetworkReply*)));
-
-
-    qDebug() << "getExposureCompensation Requested!";
 }
 
 void SonyAPI::getExposureCompensationReply(QNetworkReply *reply)
@@ -448,6 +541,7 @@ void SonyAPI::getExposureCompensationReply(QNetworkReply *reply)
 
 
     }
+    m_readyFlag = true;
     this->manager->disconnect();
 }
 

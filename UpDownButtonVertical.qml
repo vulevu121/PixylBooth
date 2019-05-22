@@ -13,8 +13,8 @@ import QtGraphicalEffects 1.12
 
 Rectangle {
     id: root
-    height: pixel(10)
-    width: height * 3
+    height: width * 3
+    width: pixel(10)
     color: Material.background
     radius: height / 2
     
@@ -22,26 +22,26 @@ Rectangle {
     property real value: min
     property real max: 99
 
-    
     RoundButton {
-        height: parent.height
-        width: height
-        icon.source: "qrc:/Images/remove_white_48dp.png"
+        height: width
+        width: parent.width
+        icon.source: "qrc:/Images/add_white_48dp.png"
         icon.width: root.height
         icon.height: root.height
-        anchors.left: parent.left
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
 
         onClicked: {
-            root.value = root.value > min ? (root.value - 1) : min
+            root.value = root.value < max ? (root.value + 1) : max
         }
     }
-    
+
+
     Text {
         id: valueText
         text: parent.value
-        height: parent.height
-        width: height
+        height: width
+        width: parent.width
         color: Material.foreground
         font.pixelSize: height - pixel(6)
         horizontalAlignment: Text.AlignHCenter
@@ -50,20 +50,24 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
 
     }
-    
+
     RoundButton {
-        height: parent.height
-        width: height
-        icon.source: "qrc:/Images/add_white_48dp.png"
+        height: width
+        width: parent.width
+        icon.source: "qrc:/Images/remove_white_48dp.png"
         icon.width: root.height
         icon.height: root.height
-        anchors.right: parent.right
-        anchors.verticalCenter: parent.verticalCenter
+
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+
 
         onClicked: {
-            root.value = root.value < max ? (root.value + 1) : max
+            root.value = root.value > min ? (root.value - 1) : min
         }
     }
+    
+
     
     
 }

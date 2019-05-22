@@ -6,13 +6,13 @@ SonyLiveview::SonyLiveview(QQuickItem *parent) : QQuickPaintedItem(parent)
 
 void SonyLiveview::paint(QPainter *painter)
 {
-    if (this->current_image.isNull()) {
+    if (this->currentImage.isNull()) {
         return;
     }
 
     QRectF bounding_rect = boundingRect();
 
-    QImage scaled = this->current_image.scaledToHeight(int(bounding_rect.height())).mirrored(m_flipHorizontally, false);
+    QImage scaled = this->currentImage.scaledToHeight(int(bounding_rect.height())).mirrored(m_flipHorizontally, false);
 
     QPointF center = bounding_rect.center() - scaled.rect().center();
 
@@ -20,48 +20,49 @@ void SonyLiveview::paint(QPainter *painter)
         center.setX(0);
     if(center.y() < 0)
         center.setY(0);
-   painter->drawImage(center, scaled);
+    painter->drawImage(center, scaled);
 }
 
 void SonyLiveview::setImage(const QImage &image)
 {
-    this->current_image = image;
+    this->currentImage = image;
     update();
 }
 
 void SonyLiveview::stop() {
     socket->disconnectFromHost();
     socket->disconnect();
-    qDebug() << "Liveview Disconnected.";
+    m_hostConnected = false;
+//    qDebug() << "Liveview disconnected!";
 }
 
-bool SonyLiveview::start() {
-    qDebug() << "Connecting to liveview...";
-    m_hostConnected = false;
-    if (socket == nullptr) {
-        socket = new QTcpSocket(this);
+void SonyLiveview::start() {
+    if (!m_hostConnected) {
+        qDebug() << "Connecting to liveview...";
+
+        if (socket == nullptr) {
+            socket = new QTcpSocket(this);
+        }
+
+
+        QString url("http://192.168.122.1:8080/liveview/liveviewstream");
+        QUrl qurl(url);
+    //    qDebug() << qurl.host();
+    //    qDebug() << qurl.port();
+    //    qDebug() << qurl.path();
+
+        socket->connectToHost(qurl.host(), quint16(qurl.port()));
+
+        connect(socket, SIGNAL(connected()), this, SLOT(connected()));
+        connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+        connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+    //    connect(this->socket, SIGNAL(error()), this, SLOT(liveviewError()));
+
+    //    if(!socket->waitForConnected(100)) {
+    //        qDebug() << "Error:" << socket->errorString();
+    //        return false;
+    //    }
     }
-
-    connect(socket, SIGNAL(connected()), this, SLOT(connected()));
-    connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-    connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
-
-    QString url("http://192.168.122.1:8080/liveview/liveviewstream");
-    QUrl qurl(url);
-//    qDebug() << qurl.host();
-//    qDebug() << qurl.port();
-//    qDebug() << qurl.path();
-
-    socket->connectToHost(qurl.host(), quint16(qurl.port()));
-
-
-    if(!socket->waitForConnected(100)) {
-        qDebug() << "Error:" << socket->errorString();
-        return false;
-    }
-
-
-    return true;
 
 
 }
@@ -70,19 +71,21 @@ bool SonyLiveview::isHostConnected() {
     return m_hostConnected;
 }
 
-void SonyLiveview::connected() {
-    qDebug() << "Liveview Connected!";
 
+void SonyLiveview::connected() {
+    qDebug() << "Liveview connection OK!";
     socket->write("GET /liveview/liveviewstream HTTP/1.1\r\n");
     socket->write("Host: 192.168.122.1:8080\r\n");
     socket->write("User-Agent: curl/7.64.1\r\n");
     socket->write("Accept: */*\r\n\r\n");
+    qDebug() << "Liveview request sent!";
 
     m_hostConnected = true;
+
 }
 
 void SonyLiveview::disconnected() {
-    qDebug() << "Disconnected...";
+    qDebug() << "Liveview disconnected!";
     m_hostConnected = false;
 }
 

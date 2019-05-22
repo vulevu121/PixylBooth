@@ -25,6 +25,7 @@ Popup {
     property real iconSize: pixel(14)
     property real buttonWidth: pixel(20)
     property real buttonHeight: pixel(10)
+    property alias mirror: imageView.mirror
 
     Image {
         id: imageView
@@ -32,6 +33,8 @@ Popup {
         anchors.fill: parent
         anchors.margins: pixel(1)
         fillMode: Image.PreserveAspectFit
+        mirror: false
+
     }
 
     RowLayout {
@@ -337,6 +340,7 @@ Popup {
 //                    console.log(root.source)
 
                     imagePrint.printPhoto(stripFilePrefix(imageView.source), printCopyCountButton.value)
+                    toast.show("Printing " + printCopyCountButton.value + " copies")
                     printPopup.close()
                 }
             }
