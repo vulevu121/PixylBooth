@@ -20,9 +20,6 @@ void SonyAPI::setSaveFolder(const QString &saveFolder) {
     m_saveFolder = saveFolder;
 }
 
-//int SonyAPI::returnValueInt() {
-//    return m_returnValueInt;
-//}
 
 bool SonyAPI::readyFlag() {
     return m_readyFlag;
@@ -64,7 +61,7 @@ void SonyAPI::start() {
 void SonyAPI::startReply(QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "ERROR!";
+        qDebug() << "start error";
         qDebug() << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
@@ -147,7 +144,7 @@ void SonyAPI::startRecMode() {
 void SonyAPI::startRecModeReply(QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "ERROR!";
+        qDebug() << "startRecMode Error";
         qDebug() << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
@@ -208,7 +205,7 @@ void SonyAPI::startLiveview() {
 void SonyAPI::startLiveviewReply(QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "ERROR!";
+        qDebug() << "startLiveview Error";
         qDebug() << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
@@ -257,7 +254,7 @@ void SonyAPI::actTakePicture()
 void SonyAPI::actTakePictureReply (QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "ERROR!";
+        qDebug() << "actTakePicture Error";
         qDebug() << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
@@ -348,7 +345,7 @@ void SonyAPI::actHalfPressShutter() {
 void SonyAPI::actHalfPressShutterReply(QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "ERROR!";
+        qDebug() << "actHalfPressShutter error";
         qDebug() << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
@@ -395,7 +392,7 @@ void SonyAPI::cancelHalfPressShutter() {
 void SonyAPI::cancelHalfPressShutterReply(QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "ERROR!";
+        qDebug() << "cancelHalfPressShutter error";
         qDebug() << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
@@ -453,7 +450,7 @@ void SonyAPI::setExposureCompensation(int exposure) {
 void SonyAPI::setExposureCompensationReply(QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "ERROR!";
+        qDebug() << "setExposureCompensation error";
         qDebug() << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
@@ -523,7 +520,7 @@ void SonyAPI::getExposureCompensation() {
 void SonyAPI::getExposureCompensationReply(QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "ERROR!";
+        qDebug() << "getExposureCompensation error";
         qDebug() << reply->errorString();
     } else {
         QByteArray response = reply->readAll();

@@ -55,5 +55,6 @@
         <file>Toast.qml</file>
         <file>ToastManager.qml</file>
         <file>UpDownButtonVertical.qml</file>
+        <file>LoginScreen.qml</file>
     </qresource>
 </RCC>

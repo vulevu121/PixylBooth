@@ -9,6 +9,7 @@ import Qt.labs.platform 1.1
 import QtQuick.Dialogs 1.3
 import Qt.labs.settings 1.1
 import QtMultimedia 5.4
+import QtGraphicalEffects 1.0
 import Process 1.0
 import SonyAPI 1.0
 import SonyLiveview 1.0
@@ -36,7 +37,7 @@ Window {
     maximumHeight: 1920/2
 
     color: settingGeneral.bgColor
-    title: qsTr("ARIA")
+    title: qsTr("PixylBooth")
 
     property real pixelDensity: Screen.pixelDensity
     property string bgColor: settingGeneral.bgColor
@@ -45,6 +46,10 @@ Window {
     property string lastCombinedPhoto
     property bool liveviewStarted: false
     property string templatePath: settingGeneral.templateImagePath
+    property string username: usernameField.text
+    property string password: passwordField.text
+    property string idToken
+    property string refreshToken
 
     Settings {
         property alias x: root.x
@@ -53,6 +58,13 @@ Window {
         //        property alias width: root.width
         //        property alias height: root.height
         //        property alias visibility: root.visibility
+//        property alias username: usernameF
+//        property alias password: login.password
+        property alias username: root.username
+        property alias password: root.password
+        property alias rememberMe: rememberMeCheckBox.checked
+        property alias idToken: root.idToken
+        property alias refreshToken: root.refreshToken
     }
 
     // function to assist in scaling with different resolutions and dpi
@@ -197,7 +209,27 @@ Window {
 
     Firebase {
         id: firebase
+
+        idToken: root.idToken
+        refreshToken: root.refreshToken
+
+        onUserAuthenticated: {
+            root.idToken = idToken
+            root.refreshToken = refreshToken
+        }
+
+        onUserNotAuthenticated: {
+            toast.show(msg)
+        }
+
+        onUserInfoReceived: {
+            toast.show("Login successful")
+            loadingBar.running = false
+            loginPopup.close()
+        }
+
     }
+
 
     CSVFile {
         id: csvFile
@@ -221,9 +253,10 @@ Window {
             reviewState()
         }
 
-//        onGetCompleted: {
-//            console.log(sonyAPI.returnValueInt)
-//        }
+        onExposureSignal: {
+            exposureButton.value = exposure
+        }
+
     }
 
     // email list
@@ -417,10 +450,10 @@ Window {
 //        }
 //    }
 
-    Item {
-        anchors.fill: parent
-        z: 10
-        opacity: 0.8
+//    Item {
+//        anchors.fill: parent
+//        z: 10
+//        opacity: 0.8
 //        Image {
 //            anchors.top: parent.top
 //            anchors.topMargin: pixel(40)
@@ -448,8 +481,146 @@ Window {
 //                anchors.verticalCenterOffset: -pixel(5)
 //            }
 //        }
-    }
+//    }
 
+
+//    LoginScreen {
+//        id: login
+//        anchors.fill: parent
+//        z: 20
+//    }
+
+//    ImagePopup {
+//        id: imagePopup
+//        anchors.centerIn: root
+//        width: root.width * 0.9
+//        height: width * 0.67
+
+//        Overlay.modal: GaussianBlur {
+//            source: galleryView
+//            radius: 8
+//            samples: 16
+//            deviation: 3
+//        }
+//    }
+
+    Popup {
+        id: loginPopup
+        modal: true
+        closePolicy: Popup.NoAutoClose
+        anchors.centerIn: parent
+
+        background: Rectangle {
+            color: Material.background
+            opacity: 0.7
+            radius: pixel(3)
+            clip: true
+
+            Rectangle {
+                width: parent.width
+                height: 3
+                id: barRect
+                color: Material.background
+
+                Rectangle {
+                    id: movingRect
+                    width: 40
+                    x: -width
+                    height: parent.height
+                    color: Material.accent
+                }
+
+                PropertyAnimation {
+                    id: loadingBar
+                    target: movingRect
+                    property: "x"
+                    from: -movingRect.width
+                    to: barRect.width
+                    duration: 1000
+                    easing.type: Easing.InOutQuad
+                    running: false
+                    loops: Animation.Infinite
+                }
+            }
+        }
+
+
+        Overlay.modal: GaussianBlur {
+            source: captureView
+            radius: 8
+            samples: 16
+            deviation: 3
+        }
+
+        Component.onCompleted: {
+            if (refreshToken.search("eyJhbGciOiJSUzI1NiIsImtpZCI6IjY2NDNkZDM5") < 0) {
+                loginPopup.open()
+                if (rememberMeCheckBox.checked) {
+                    usernameField.text = username
+                    passwordField.text = password
+                }
+            }
+        }
+
+        GridLayout {
+            id: gridLayout
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            columns: 2
+
+            Label {
+                text: qsTr("Username")
+                font.pixelSize: usernameField.font.pixelSize
+                color: Material.foreground
+            }
+
+            TextField {
+                id: usernameField
+                text: ""
+                Layout.minimumWidth: 200
+                selectByMouse: true
+//                placeholderText: "Enter your email"
+                Keys.onReturnPressed: {
+                    loginButton.clicked()
+                }
+
+            }
+
+            Label {
+                text: qsTr("Password")
+                font.pixelSize: passwordField.font.pixelSize
+                color: Material.foreground
+            }
+
+            TextField {
+                id: passwordField
+                Layout.minimumWidth: 200
+                selectByMouse: true
+//                placeholderText: "Enter your password"
+                echoMode: TextInput.Password
+                Keys.onReturnPressed: {
+                    loginButton.clicked()
+                }
+
+            }
+
+            CheckBox {
+                id: rememberMeCheckBox
+                text: qsTr("Remember")
+            }
+
+            Button {
+                id: loginButton
+                text: qsTr("Login")
+                onClicked: {
+                    loadingBar.running = true
+                    firebase.authenticate(usernameField.text.toString(), passwordField.text.toString())
+                }
+            }
+
+        }
+
+    }
 
 
 
@@ -458,7 +629,7 @@ Window {
         id: debugLayout
         z: 5
         opacity: 0.5
-        visible: true
+        visible: false
         enabled: visible
 
         Button {
@@ -514,6 +685,13 @@ Window {
             text: "getAccountInfo"
             onClicked: {
                 firebase.getAccountInfo()
+            }
+        }
+
+        Button {
+            text: "getUserData"
+            onClicked: {
+                firebase.getUserData()
             }
         }
 
@@ -929,13 +1107,6 @@ Window {
                         toast.show("Camera exposure set to " + exposureButton.value)
                     }
 
-                    Connections {
-                        target: sonyAPI
-                        onExposureSignal: {
-                            exposureButton.value = exposure
-                        }
-                    }
-
                     Timer {
                         id: getExposureTimer
                         interval: 3000
@@ -1168,18 +1339,14 @@ Window {
                     cellWidth: root.width - pixel(40)
                 }
 
-                ImagePopup {
-                    id: endSessionImage
-                    anchors.centerIn: endSession
-                    width: root.width * 0.9
-                    height: width * 0.67
-                }
+
 
             }
 
         // ==== PAGES ====
         }
         Item {
+            id: galleryView
             Gallery {
                 id: gallery
                 anchors.fill: parent

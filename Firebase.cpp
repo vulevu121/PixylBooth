@@ -5,6 +5,27 @@ Firebase::Firebase(QObject *parent) : QObject(parent)
 
 }
 
+QString Firebase::idToken() {
+    return m_idToken;
+}
+
+void Firebase::setIdToken(const QString &idToken) {
+    if (idToken == m_idToken)
+        return;
+    m_idToken = idToken;
+}
+
+QString Firebase::refreshToken() {
+    return m_idToken;
+}
+
+void Firebase::setRefreshToken(const QString &refreshToken) {
+    if (refreshToken == m_refreshToken)
+        return;
+    m_idToken = refreshToken;
+}
+
+
 
 void Firebase::authenticate(const QString &user, const QString &password) {
     if (manager == nullptr) {
@@ -41,8 +62,12 @@ void Firebase::authenticateReply(QNetworkReply *reply) {
         QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
         QJsonObject jsonObject = jsonDoc.object();
 
-        qDebug() << jsonObject["error"].toObject()["message"].toString();
+        QString msg(jsonObject["error"].toObject()["message"].toString());
+        msg = msg.replace("_", " ").toLower();
+        msg[0] = msg[0].toUpper();
 
+        qDebug() << msg;
+        emit userNotAuthenticated(msg);
 
     } else {
         QByteArray response = reply->readAll();
@@ -53,15 +78,23 @@ void Firebase::authenticateReply(QNetworkReply *reply) {
 
         if (jsonObject.contains("idToken")) {
             QString idToken(jsonObject["idToken"].toString());
+            QString refreshToken(jsonObject["refreshToken"].toString());
 
-            if (idToken.length() > 0) {
+            if (idToken.length() > 100) {
                 userJsonObject = jsonObject;
-                qDebug() << userJsonObject["idToken"];
+                manager->disconnect();
+                m_idToken = idToken;
+                m_refreshToken = refreshToken;
+                getAccountInfo();
+                emit userAuthenticated();
+//                emit userAuthenticated(userJsonObject);
+
+//                qDebug() << userJsonObject["idToken"].toString();
             }
         }
 
     }
-    manager->disconnect();
+
 
 }
 
@@ -70,31 +103,42 @@ void Firebase::getUserData() {
         manager = new QNetworkAccessManager(this);
     }
 
-    QUrl endpoint("https://firestore.googleapis.com/v1/projects/pixylbooth/databases/(default)/documents/users/vulevu121");
+    QString userEmail(userJsonObject["email"].toString());
+
+    QUrl endpoint("https://firestore.googleapis.com/v1beta1/projects/pixylbooth/databases/(default)/documents/users/" + userEmail);
     QNetworkRequest req(endpoint);
 
-    QString authHeader("Bearer {" + userJsonObject["idToken"].toString() + "}");
 
-    req.setRawHeader("Content-Type","application/json");
+    QString authHeader("Bearer " + userJsonObject["idToken"].toString());
+
     req.setRawHeader("Authorization", authHeader.toUtf8());
 
-    qDebug() << authHeader;
+    manager->get(req);
 
-//    QJsonObject jsonObject {
-//        {"email", "user"},
-//        {"password", "password"},
-//        {"returnSecureToken", true}
-//    };
+    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(getUserDataReply(QNetworkReply*)));
+}
 
-//    QJsonDocument jsonDoc(jsonObject);
-//    QByteArray jsonRequest = jsonDoc.toJson();
-//    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+void Firebase::getUserDataReply(QNetworkReply *reply) {
+    if(reply->error()) {
+        QByteArray response = reply->readAll();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+        QJsonObject jsonObject = jsonDoc.object();
 
-//    req.setRawHeader("Content-Length",postDataSize);
-//    manager->post(req,jsonRequest);
+        qDebug() << jsonObject["error"].toObject()["message"].toString();
+    } else {
+        QByteArray response = reply->readAll();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+        QJsonObject jsonObject = jsonDoc.object();
 
-//    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-//            this, SLOT(authenticateReply(QNetworkReply*)));
+        userInfoJsonObject = jsonObject;
+
+        qDebug() << jsonObject["fields"];
+
+//        qDebug() << jsonObject["fields"].toObject()["registration"].toObject()["stringValue"].toString();
+
+    }
+    manager->disconnect();
 }
 
 void Firebase::getAccountInfo() {
@@ -107,21 +151,25 @@ void Firebase::getAccountInfo() {
 
     req.setRawHeader("Content-Type","application/json");
 
-    QString idToken(userJsonObject["idToken"].toString());
+//    QString idToken(userJsonObject["idToken"].toString());
 
-    QJsonObject jsonObject {
-        {"idToken", idToken}
-    };
+    if (m_idToken.length() > 0) {
+        QJsonObject jsonObject {
+            {"idToken", m_idToken}
+        };
 
-    QJsonDocument jsonDoc(jsonObject);
-    QByteArray jsonRequest = jsonDoc.toJson();
-    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+        QJsonDocument jsonDoc(jsonObject);
+        QByteArray jsonRequest = jsonDoc.toJson();
+        QByteArray postDataSize = QByteArray::number(jsonRequest.size());
 
-    req.setRawHeader("Content-Length", postDataSize);
-    manager->post(req,jsonRequest);
+        req.setRawHeader("Content-Length", postDataSize);
+        manager->post(req,jsonRequest);
 
-    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(getAccountInfoReply(QNetworkReply*)));
+        connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(getAccountInfoReply(QNetworkReply*)));
+    }
+
+
 
 }
 
@@ -138,8 +186,10 @@ void Firebase::getAccountInfoReply(QNetworkReply *reply) {
         QJsonObject jsonObject = jsonDoc.object();
 
         userInfoJsonObject = jsonObject;
+        emit userInfoReceived();
+//        emit userInfoReceived(userInfoJsonObject);
 
-        qDebug() << jsonObject;
+//        qDebug() << jsonObject;
 
     }
     manager->disconnect();

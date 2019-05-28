@@ -108,9 +108,6 @@ Popup {
 //            }
     }
 
-
-
-
     BusyIndicator {
         anchors.centerIn: parent
         running: imageView.status == Image.Loading

@@ -65,14 +65,11 @@ Rectangle {
         }
 
         Overlay.modal: GaussianBlur {
-                        source: root
-                        radius: 8
-                        samples: 16
-                        deviation: 3
+            source: root
+            radius: 8
+            samples: 16
+            deviation: 3
         }
-
-
-
 
     }
 
