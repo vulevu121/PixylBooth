@@ -1,6 +1,10 @@
 QT += gui quick widgets multimedia network printsupport webview
 CONFIG += c++11
 
+TEMPLATE = app
+win32:VERSION = 0.92
+else:VERSION = 0.92
+
 RC_ICONS = 1718703_0d0_icon.ico
 
 # The following define makes your compiler emit warnings if you use
@@ -32,8 +36,6 @@ QML_IMPORT_PATH = "C:\Qt\5.12.2\msvc2017_64\qml"
 QML_DESIGNER_IMPORT_PATH =
 
 
-
-
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
@@ -47,3 +49,5 @@ HEADERS += \
     PrintPhotos.h \
     SonyLiveview.h \
     SonyAPI.h
+
+DISTFILES +=

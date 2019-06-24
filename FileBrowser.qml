@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import Qt.labs.folderlistmodel 2.0
 import QtGraphicalEffects 1.12
+import QtMultimedia 5.12
 
 Rectangle {
     id: fileBrowser
@@ -10,17 +11,19 @@ Rectangle {
 
     property int itemHeight: Math.min(parent.width, parent.height) / 15
     property int buttonHeight: Math.min(parent.width, parent.height) / 12
+    property Playlist playlist
 
     signal fileSelected(string file)
-    signal browserClosed(string file)
+    signal browserClosed()
 
     function selectFile(file) {
         if (file !== "") {
             folder = loader.item.folders.folder
             fileBrowser.fileSelected(file)
+            playlist.addItem(file)
         }
         loader.sourceComponent = undefined
-        browserClosed("")
+        browserClosed()
     }
 
     Loader {

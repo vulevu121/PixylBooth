@@ -17,8 +17,8 @@ Rectangle {
     property real rowHeight: pixel(4)
 
     Layout.minimumHeight: pixel(70)
-    
-   
+
+
     Rectangle {
         id: topBar
         height: pixel(8)
@@ -79,11 +79,22 @@ Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                 }
 
+
                 Text {
-                    text: fileName
+                    text: getFileName()
                     font.bold: true
                     color: Material.foreground
                     anchors.verticalCenter: parent.verticalCenter
+
+                    function getFileName() {
+
+                        var path = source.toString()
+                        var pathSplit = ""
+                        pathSplit = path.split("/")
+                        var fileName = pathSplit[pathSplit.length - 1]
+
+                        return fileName
+                    }
                 }
 
             }
@@ -112,12 +123,15 @@ Rectangle {
             boundsBehavior: Flickable.StopAtBounds
             spacing: pixel(2)
             delegate: fileDelegate
-            focus: true
-
 
             highlight: Rectangle {
                 color: Material.accent
             }
+
+            highlightMoveVelocity: 3000
+            pressDelay: 100
+            focus: true
+
         }
     }
 
@@ -178,7 +192,7 @@ Rectangle {
                 id: deleteButton
                 text: "-"
                 onClicked: {
-                    model.remove(listView.currentIndex)
+                    model.removeItem(listView.currentIndex)
                 }
             }
             

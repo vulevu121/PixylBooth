@@ -8,22 +8,22 @@ import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1
 import QtQuick.Dialogs 1.3
 import Qt.labs.settings 1.1
-import QtMultimedia 5.4
+import QtMultimedia 5.9
 import QtGraphicalEffects 1.0
+import Qt.labs.folderlistmodel 2.0
+import QtWebView 1.1
 import Process 1.0
 import SonyAPI 1.0
 import SonyLiveview 1.0
 import ProcessPhotos 1.0
 import PrintPhotos 1.0
-import Qt.labs.folderlistmodel 2.0
-import QtWebView 1.1
 import CSVFile 1.0
 import Firebase 1.0
 //import MoveMouse 1.0
 
 
 Window {
-    id: root
+    id: mainWindow
     visible: true
     //    x: Screen.width / 2
     //    y: 0
@@ -36,51 +36,51 @@ Window {
     maximumWidth: 1080/2
     maximumHeight: 1920/2
 
-    color: settingGeneral.bgColor
+    color: settings.bgColor
     title: qsTr("PixylBooth")
 
     property real pixelDensity: Screen.pixelDensity
-    property string bgColor: settingGeneral.bgColor
-    property string countDownColor: settingGeneral.countDownColor
+    property string bgColor: settings.bgColor
+    property string countDownColor: settings.countDownColor
     property real numberPhotos: 3
     property string lastCombinedPhoto
     property bool liveviewStarted: false
-    property string templatePath: settingGeneral.templateImagePath
+    property string templatePath: settings.templateImagePath
     property string username: usernameField.text
     property string password: passwordField.text
     property string idToken
     property string refreshToken
+    property real photoAspectRatio: 3/2
 
     Settings {
-        property alias x: root.x
-        property alias y: root.y
-        property alias lastCombinedPhoto: root.lastCombinedPhoto
-        //        property alias width: root.width
-        //        property alias height: root.height
-        //        property alias visibility: root.visibility
-//        property alias username: usernameF
-//        property alias password: login.password
-        property alias username: root.username
-        property alias password: root.password
+        id: mainSettings
+        property alias x: mainWindow.x
+        property alias y: mainWindow.y
+        property alias lastCombinedPhoto: mainWindow.lastCombinedPhoto
+        property alias username: mainWindow.username
+        property alias password: mainWindow.password
         property alias rememberMe: rememberMeCheckBox.checked
-        property alias idToken: root.idToken
-        property alias refreshToken: root.refreshToken
+        property alias idToken: mainWindow.idToken
+        property alias refreshToken: mainWindow.refreshToken
+        property alias cameraDeviceId: camera.deviceId
     }
+
+    Settings {
+        id: templateSettings
+        category: "Template"
+        property string jsonString
+    }
+
 
     // function to assist in scaling with different resolutions and dpi
     function toPixels(percentage) {
-        return percentage * Math.min(root.width, root.height);
+        return percentage * Math.min(mainWindow.width, mainWindow.height);
     }
 
     function pixel(pixel) {
         return pixel * 4
     }
 
-    function playVideo(path) {
-        videoLoader.source = "ContentVideo.qml"
-        videoLoader.item.mediaSource = path
-        videoLoader.item.play()
-    }
 
     function getFileName(path) {
         var pathstring = String(path)
@@ -127,17 +127,8 @@ Window {
         }
     }
 
-    function printLastCombinedPhoto() {
-//        console.log("Printing last combined photo!")
-//        imagePrint.printPhoto(lastCombinedPhoto, printCopyCount)
-    }
 
     function stopAllTimers() {
-//        beforeCaptureTimer.restart()
-//        reviewTimer.restart()
-//        endSessionTimer.restart()
-//        countdownTimer.restart()
-
         beforeCaptureTimer.stop()
         reviewTimer.stop()
         endSessionTimer.stop()
@@ -147,14 +138,33 @@ Window {
     function resetCountdownTimer() {
         countdown.visible = false
         countdownTimer.stop()
-        countdown.count = settingGeneral.countdownTimer
+        countdown.count = settings.countdownTimer
+    }
+
+    function playStartVideos() {
+        mediaPlayer.stop()
+        mediaPlayer.playlist = settings.startVideoPlaylist
+        settings.startVideoPlaylist.next()
+        mediaPlayer.play()
+    }
+
+    function playBeforeCaptureVideos() {
+        mediaPlayer.stop()
+        mediaPlayer.playlist = settings.beforeCaptureVideoPlaylist
+        settings.beforeCaptureVideoPlaylist.next()
+        mediaPlayer.play()
+
+    }
+
+    function playAfterCaptureVideos() {
+        mediaPlayer.stop()
+        mediaPlayer.playlist = settings.afterCaptureVideoPlaylist
+        settings.afterCaptureVideoPlaylist.next()
+        mediaPlayer.play()
     }
 
     function startState() {
-        var model = settingGeneral.startVideoListModel
-        var randomIdx = Math.round(Math.random(1) * (model.count-1))
-        var randomItem = model.get(randomIdx)
-        playVideo(randomItem.filePath)
+        playStartVideos()
 
         // clear photo list and timers before capture
         photoList.clear()
@@ -166,21 +176,12 @@ Window {
         toast.show("Initializing Sony camera")
 
         playPauseButton.checked = false
-
-        if (settingGeneral.liveVideoCountdownSwitch) {
-            liveView.visible = true
-        }
-
+        liveView.visible = settings.showLiveVideoOnStartSwitch
         captureView.state = "start"
-
-//        beforeCaptureState()
     }
 
     function beforeCaptureState() {
-        var model = settingGeneral.beforeCaptureVideoListModel
-        var randomIdx = Math.round(Math.random(1) * (model.count-1))
-        var randomItem = model.get(randomIdx)
-        playVideo(randomItem.filePath)
+        playBeforeCaptureVideos()
         beforeCaptureTimer.restart()
         captureView.state = "beforecapture"
 
@@ -192,6 +193,7 @@ Window {
         countdownTimer.restart()
         reviewImage.source = ""
         captureView.state = "liveview"
+        liveView.visible = settings.showLiveVideoOnCountdownSwitch
     }
 
     function reviewState() {
@@ -200,22 +202,22 @@ Window {
     }
 
     function endSessionState() {
-        endSessionImage.source = addFilePrefix(lastCombinedPhoto)
-        endSessionImage.open()
+        endSessionPopup.source = addFilePrefix(lastCombinedPhoto)
+        endSessionPopup.open()
         endSessionTimer.restart()
         captureView.state = "endsession"
-        liveView.stop()
+//        liveView.stop()
     }
 
     Firebase {
         id: firebase
 
-        idToken: root.idToken
-        refreshToken: root.refreshToken
+        idToken: mainWindow.idToken
+        refreshToken: mainWindow.refreshToken
 
         onUserAuthenticated: {
-            root.idToken = idToken
-            root.refreshToken = refreshToken
+            mainWindow.idToken = idToken
+            mainWindow.refreshToken = refreshToken
         }
 
         onUserNotAuthenticated: {
@@ -233,7 +235,7 @@ Window {
 
     CSVFile {
         id: csvFile
-        saveFolder: settingGeneral.emailFolder
+        saveFolder: settings.emailFolder
     }
 
 
@@ -245,7 +247,7 @@ Window {
     // Sony API to initialize camera, take picture, etc.
     SonyAPI {
         id: sonyAPI
-        saveFolder: settingGeneral.saveFolder
+        saveFolder: settings.saveFolder
         onActTakePictureCompleted: {
             actTakePictureTimer.stop()
             reviewImage.source = addFilePrefix(actTakePictureFilePath)
@@ -268,60 +270,22 @@ Window {
     // a list model for storing photo paths
     ListModel {
         id: photoList
+
     }
+
 
     // process the photos into tempalte
     ProcessPhotos {
         id: processPhotos
-        saveFolder: settingGeneral.printFolder
+        saveFolder: settings.printFolder
+
     }
 
     // print class to print photos
     PrintPhotos {
         id: imagePrint
-        printerName: settingGeneral.printerName
+        printerName: settings.printerName
     }
-
-//    MoveMouse {
-//        id: moveMouse
-//    }
-
-//    // moves the mouse to keep screen active
-//    Timer {
-//        id: moveMouseTimer
-//        interval: 15000
-//        repeat: true
-//        running: true
-
-//        onTriggered: {
-//            var min = Screen.height - 10;
-//            var max = Screen.height;
-//            var x = Screen.width;
-//            var y = (Math.random() * (max - min + 1) + min).toFixed();
-//            moveMouse.move(x, y);
-////            console.log(x,y);
-//        }
-//    }
-
-//    Timer {
-//        id: liveviewCheckTimer
-//        running: true
-//        interval: 5000
-//        repeat: true
-//        triggeredOnStart: true
-
-//        onTriggered: {
-////            console.log(liveView.isHostConnected())
-//            if (!liveView.isHostConnected()) {
-//                if (settingGeneral.liveVideoCountdownSwitch || settingGeneral.liveVideoStartSwitch) {
-//                    sonyAPI.startRecMode()
-//                    sonyAPI.startLiveview()
-//                    liveviewStarted = liveView.start()
-//                    liveView.visible = settingGeneral.liveVideoStartSwitch
-//                }
-//            }
-//        }
-//    }
 
 
 
@@ -334,25 +298,26 @@ Window {
 
         onTriggered: {
             startState()
+//            liveView.enabled = true
         }
     }
 
-    Timer {
-        id: initialTimer2
-        interval: 1000
-        running: false
-        repeat: false
+//    Timer {
+//        id: initialTimer2
+//        interval: 1000
+//        running: false
+//        repeat: false
 
-        onTriggered: {
-//            liveView.start()
-            liveView.visible = settingGeneral.liveVideoStartSwitch
-        }
-    }
+//        onTriggered: {
+////            liveView.start()
+//            liveView.visible = settings.showLiveVideoOnCountdownSwitch
+//        }
+//    }
 
     // timer for before capture video
     Timer {
         id: beforeCaptureTimer
-        interval: settingGeneral.beforeCaptureTimer * 1000
+        interval: settings.beforeCaptureTimer * 1000
         repeat: false
 
         onTriggered: {
@@ -371,7 +336,7 @@ Window {
         onTriggered: {
 //            console.log(countdown.count)
 
-            if (countdown.count == settingGeneral.countdownTimer - 1) {
+            if (countdown.count == settings.countdownTimer - 1) {
                 sonyAPI.actHalfPressShutter()
             }
 
@@ -410,11 +375,11 @@ Window {
     // timer to review photo after each capture
     Timer {
         id: reviewTimer
-        interval: settingGeneral.reviewTimer * 1000
+        interval: settings.reviewTimer * 1000
         repeat: false
 
         onTriggered: {
-            if (photoList.count < root.numberPhotos) {
+            if (photoList.count < mainWindow.numberPhotos) {
                 beforeCaptureState()
             } else {
                 combinePhotos()
@@ -429,19 +394,19 @@ Window {
     // timer for end of session to print and share photos
     Timer {
         id: endSessionTimer
-        interval: settingGeneral.endSessionTimer * 1000
+        interval: settings.endSessionTimer * 1000
         repeat: false
 
         onTriggered: {
-            endSessionImage.close()
+            endSessionPopup.close()
             startState()
-//            repeatTimer.start()
+
         }
     }
 
 //    Timer {
 //        id: repeatTimer
-//        interval: 84000
+//        interval: 86000
 //        repeat: true
 //        running: true
 //        onTriggered: {
@@ -494,7 +459,7 @@ Window {
 //        id: imagePopup
 //        anchors.centerIn: root
 //        width: root.width * 0.9
-//        height: width * 0.67
+//        height: width / photoAspectRatio
 
 //        Overlay.modal: GaussianBlur {
 //            source: galleryView
@@ -503,6 +468,20 @@ Window {
 //            deviation: 3
 //        }
 //    }
+
+    ImagePopup {
+        id: endSessionPopup
+        anchors.centerIn: parent
+        width: mainWindow.width * 0.9
+        height: width / photoAspectRatio
+
+        Overlay.modal: GaussianBlur {
+            source: captureView
+            radius: 8
+            samples: 16
+            deviation: 3
+        }
+    }
 
     Popup {
         id: loginPopup
@@ -552,15 +531,15 @@ Window {
             deviation: 3
         }
 
-        Component.onCompleted: {
-            if (refreshToken.search("eyJhbGciOiJSUzI1NiIsImtpZCI6IjY2NDNkZDM5") < 0) {
-                loginPopup.open()
-                if (rememberMeCheckBox.checked) {
-                    usernameField.text = username
-                    passwordField.text = password
-                }
-            }
-        }
+//        Component.onCompleted: {
+//            if (refreshToken.search("eyJhbGciOiJSUzI1NiIsImtpZCI6IjY2NDNkZDM5") < 0) {
+//                loginPopup.open()
+//                if (rememberMeCheckBox.checked) {
+//                    usernameField.text = username
+//                    passwordField.text = password
+//                }
+//            }
+//        }
 
         GridLayout {
             id: gridLayout
@@ -625,158 +604,8 @@ Window {
 
 
     // ==== PUT DEBUG BUTTONS HERE!!! ====
-    ColumnLayout {
-        id: debugLayout
-        z: 5
-        opacity: 0.5
-        visible: false
-        enabled: visible
+    DebugButtons {}
 
-        Button {
-            text: "startRecMode"
-            onClicked: {
-                sonyAPI.startRecMode()
-            }
-        }
-
-        Button {
-            text: "startLiveview"
-            onClicked: {
-                sonyAPI.startLiveview()
-            }
-        }
-
-        Button {
-            text: "actTakePicture"
-            onClicked: {
-                sonyAPI.actTakePicture()
-            }
-        }
-
-        Button {
-            text: "actHalfPressShutter"
-            onClicked: {
-                sonyAPI.actHalfPressShutter()
-            }
-        }
-
-        Button {
-            text: "cancelHalfPressShutter"
-            onClicked: {
-                sonyAPI.cancelHalfPressShutter()
-            }
-        }
-
-        Button {
-            text: "start"
-            onClicked: {
-                sonyAPI.start()
-            }
-        }
-
-        Button {
-            text: "Auth"
-            onClicked: {
-                firebase.authenticate("vulevu121@gmail.com", "123456")
-            }
-        }
-
-        Button {
-            text: "getAccountInfo"
-            onClicked: {
-                firebase.getAccountInfo()
-            }
-        }
-
-        Button {
-            text: "getUserData"
-            onClicked: {
-                firebase.getUserData()
-            }
-        }
-
-
-
-
-//        Button {
-//            text: "Start"
-//            onClicked: {
-//                startState()
-//            }
-//        }
-
-//        Button {
-//            text: "BeforeCapture"
-//            onClicked: {
-//                beforeCaptureState()
-//            }
-//        }
-
-//        Button {
-//            text: "Review"
-//            onClicked: {
-//                reviewState()
-//            }
-//        }
-
-//        Button {
-//            text: "EndSession"
-//            onClicked: {
-//                endSessionState()
-////                photoList.append({"fileName": "DSC05695.JPG", "filePath": "C:/Users/Vu/Pictures/PixylBooth/DSC05695.JPG"})
-////                photoList.append({"fileName": "DSC05695.JPG", "filePath": "C:/Users/Vu/Pictures/PixylBooth/DSC05695.JPG"})
-////                photoList.append({"fileName": "DSC05695.JPG", "filePath": "C:/Users/Vu/Pictures/PixylBooth/DSC05695.JPG"})
-//            }
-//        }
-
-    }
-
-
-
-//    Item {
-//        id: playPauseItem
-//        anchors.fill: parent
-//        z: 10
-
-//        Image {
-//            id: playImage
-//            source: playPauseButton.checked ? "qrc:/Images/pause_white_48dp.png" : "qrc:/Images/play_arrow_white_48dp.png"
-//            width: pixel(60)
-//            height: pixel(60)
-//            anchors.centerIn: parent
-//            opacity: 0
-
-//            property bool running: playPauseButton.checked
-//            onRunningChanged: {
-//                playPauseParallelAnimation.start()
-//            }
-
-//            ParallelAnimation {
-//                id: playPauseParallelAnimation
-
-//                NumberAnimation {
-//                    target: playImage
-//                    property: "opacity";
-//                    from: 1;
-//                    to: 0;
-//                    duration: 800;
-//                    easing.type: Easing.InOutQuad;
-//                }
-
-//                NumberAnimation {
-//                    target: playImage
-//                    property: "scale";
-//                    from: 0;
-//                    to: 1;
-//                    duration: 600;
-//                    easing.type: Easing.InOutQuad;
-//                }
-
-//            }
-
-//        }
-
-//    }
 
     // ==== SWIPEVIEW ====
     SwipeView {
@@ -794,7 +623,7 @@ Window {
                     name: "start"
                     PropertyChanges {
                         target: liveView
-                        opacity: settingGeneral.liveVideoStartSwitch ? 1 : 0
+                        opacity: settings.showLiveVideoOnStartSwitch ? 1 : 0
                         scale: 1
                     }
                     PropertyChanges {
@@ -840,8 +669,8 @@ Window {
                     PropertyChanges {
                         target: liveView
                         opacity: 1
-                        width: root.width * 0.9
-                        height: width * 0.67
+                        width: mainWindow.width * 0.9
+                        height: width / photoAspectRatio
                         x: 0
                         y: pixel(30)
                     }
@@ -981,7 +810,7 @@ Window {
                     var playState = playPauseButton.checked
 
                     if (captureView.state == "start") {
-                        liveView.start()
+//                        liveView.start()
                         beforeCaptureState()
                     }
 
@@ -1001,306 +830,101 @@ Window {
                         endSessionTimer.running = playState
                     }
 
-//                    console.log("beforeCaptureTimer: " + String(beforeCaptureTimer.running))
-//                    console.log("countdownTimer: " + String(countdownTimer.running))
-//                    console.log("reviewTimer: " + String(reviewTimer.running))
-//                    console.log("endSessionTimer: " + String(endSessionTimer.running))
                 }
             }
 
-            // touch to start area
-//            Rectangle {
-//                id: touchStartArea
-//                width: root.width
-//                height: width
-//                color: "transparent"
-//                border.color: "#ffffff"
-//                border.width: 0
-//                anchors.horizontalCenter: parent.horizontalCenter
-//                anchors.verticalCenter: parent.verticalCenter
-//                z: 4
-//                visible: captureView.state == 'start'
-
-//                MouseArea {
-//                    anchors.fill: parent
-
-//                    onClicked: {
-//                        beforeCaptureState()
-//                    }
-//                }
-//            }
 
             // ==== MAIN BUTTONS ====
-            ColumnLayout {
-                id: mainButtonsLayout
-//                anchors.fill: parent
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.right: parent.right
-                z: 5
-                opacity: 0.8
-                spacing: pixel(6)
-                property real iconSize: pixel(10)
-
-//                Button {
-//                    id: playPauseButton
-//                    text: "Play/Pause"
-//                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
-//                    icon.source: checked ? "qrc:/Images/play_circle_filled_white_white_48dp.png" : "qrc:/Images/pause_circle_outline_white_48dp.png"
-//                    icon.width: mainButtonsLayout.iconSize
-//                    icon.height: mainButtonsLayout.iconSize
-//                    display: AbstractButton.IconOnly
-//                    highlighted: true
-//                    Material.accent: Material.color(Material.Green, Material.Shade700)
-//                    checkable: true
-
-//                    Behavior on icon.source {
-//                        ParallelAnimation {`
-//                            id: playPauseButtonParallelAnimation
-
-//                            NumberAnimation {
-//                                target: playPauseButton
-//                                property: "opacity";
-//                                from: 0.5;
-//                                to: 1;
-//                                duration: 800;
-//                                easing.type: Easing.InOutQuad;
-//                            }
-
-//                            NumberAnimation {
-//                                target: playPauseButton
-//                                property: "scale";
-//                                from: 0.8;
-//                                to: 1;
-//                                duration: 600;
-//                                easing.type: Easing.InOutQuad;
-//                            }
-
-//                        }
-
-//                    }
-
-//                    // checked means pause
-//                    onClicked: {
-//                        if (captureView.state == "beforecapture")
-//                            beforeCaptureTimer.running = !playPauseButton.checked
-//                        if (captureView.state == "liveview")
-//                            countdownTimer.running = !playPauseButton.checked
-//                        if (captureView.state == "review")
-//                            reviewTimer.running = !playPauseButton.checked
-//                        if (captureView.state == "endsession")
-//                            endSessionTimer.running = !playPauseButton.checked
-//                    }
-//                }
+            CaptureToolbar {}
 
 
-
-                UpDownButtonVertical {
-                    id: exposureButton
-                    min: -15
-                    max: 15
-                    value: 0
-                    scale: 1.2
-                    Layout.alignment: Qt.AlignHCenter
-
-                    onValueChanged: {
-                        sonyAPI.setExposureCompensation(exposureButton.value)
-                        toast.show("Camera exposure set to " + exposureButton.value)
-                    }
-
-                    Timer {
-                        id: getExposureTimer
-                        interval: 3000
-                        repeat: false
-                        running: true
-
-                        onTriggered: {
-                            sonyAPI.getExposureCompensation()
-                        }
-
-                    }
-
-                }
-
-                Button {
-                    id: undoLastButton
-                    text: "Undo Last"
-                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
-                    icon.source: "qrc:/Images/settings_backup_restore_white_48dp.png"
-                    icon.width: mainButtonsLayout.iconSize
-                    icon.height: mainButtonsLayout.iconSize
-                    display: AbstractButton.IconOnly
-                    highlighted: true
-                    Material.accent: Material.color(Material.Orange, Material.Shade700)
-
-
-                    ParallelAnimation {
-                        id: undoLastButtonAnimation
-                        NumberAnimation {
-                            target: undoLastButton
-                            property: "opacity";
-                            from: 0.5;
-                            to: 1;
-                            duration: 800;
-                            easing.type: Easing.InOutQuad;
-                        }
-
-                        NumberAnimation {
-                            target: undoLastButton
-                            property: "scale";
-                            from: 0.8;
-                            to: 1;
-                            duration: 600;
-                            easing.type: Easing.InOutQuad;
-                        }
-
-                    }
-
-
-                    onClicked: {
-                        undoLastButtonAnimation.start()
-                        if (captureView.state != "start") {
-                            resetCountdownTimer()
-                            if (photoList.count > 0) {
-                                photoList.remove(photoList.count-1, 1)
-                            }
-                            beforeCaptureState()
-                        }
-                    }
-                }
-
-                Button {
-                    id: undoAllButton
-                    text: "Undo All"
-                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
-                    icon.source: "qrc:/Images/cached_white_48dp.png"
-                    icon.width: mainButtonsLayout.iconSize
-                    icon.height: mainButtonsLayout.iconSize
-                    display: AbstractButton.IconOnly
-                    highlighted: true
-                    Material.accent: Material.color(Material.Cyan, Material.Shade700)
-
-                    ParallelAnimation {
-                        id: undoAllButtonAnimation
-                        NumberAnimation {
-                            target: undoAllButton
-                            property: "opacity";
-                            from: 0.5;
-                            to: 1;
-                            duration: 800;
-                            easing.type: Easing.InOutQuad;
-                        }
-
-                        NumberAnimation {
-                            target: undoAllButton
-                            property: "scale";
-                            from: 0.8;
-                            to: 1;
-                            duration: 600;
-                            easing.type: Easing.InOutQuad;
-                        }
-
-                    }
-
-                    onClicked: {
-                        undoAllButtonAnimation.start()
-                        startState()
-                    }
-                }
-
-                Button {
-                    id: fullScreenButton
-                    text: "Full Screen"
-                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
-                    icon.source: root.visibility === Window.FullScreen ? "qrc:/Images/fullscreen_exit_white_48dp.png" : "qrc:/Images/fullscreen_white_48dp.png"
-                    icon.width: mainButtonsLayout.iconSize
-                    icon.height: mainButtonsLayout.iconSize
-                    display: AbstractButton.IconOnly
-                    highlighted: true
-                    Material.accent: Material.color(Material.Yellow, Material.Shade700)
-
-                    onClicked: {
-                        if (root.visibility === Window.FullScreen) {
-                            root.showNormal();
-                        }
-                        else {
-                            root.showFullScreen();
-                        }
-                    }
-
-                    Behavior on icon.source {
-                        ParallelAnimation {
-                            NumberAnimation {
-                                target: fullScreenButton
-                                property: "opacity";
-                                from: 0.5;
-                                to: 1;
-                                duration: 800;
-                                easing.type: Easing.InOutQuad;
-                            }
-
-                            NumberAnimation {
-                                target: fullScreenButton
-                                property: "scale";
-                                from: 0.5;
-                                to: 1;
-                                duration: 600;
-                                easing.type: Easing.InOutQuad;
-                            }
-
-                        }
-
-                    }
-                }
-
-                Button {
-                    text: "Exit"
-                    flat: false
-                    Layout.alignment: Qt.AlignRight | Qt.AlignTop
-                    icon.source: "qrc:/Images/cancel_white_48dp.png"
-                    icon.width: mainButtonsLayout.iconSize
-                    icon.height: mainButtonsLayout.iconSize
-                    display: AbstractButton.IconOnly
-                    highlighted: true
-                    Material.accent: Material.color(Material.Grey, Material.Shade700)
-                    onClicked: {
-                        root.close()
-                    }
-                }
-
-
-                ColumnLayout { }
-
-            }
 
             // live view from camera
-            SonyLiveview {
-                id: liveView
-                opacity: 0.6
+//            SonyLiveview {
+//                id: liveView
+//                opacity: 0.6
+////                enabled: settings.showLiveVideoOnCountdownSwitch
 
-                flipHorizontally: settingGeneral.mirrorLiveVideoSwitch
-//                height: parent.height
-//                width: root.width * 1.5
+//                flipHorizontally: settings.mirrorLiveVideoSwitch
 
-                width: root.width * 0.9
-                height: width * 0.67
-                anchors.horizontalCenter: parent.horizontalCenter
+//                width: mainWindow.width * 0.9
+//                height: width / photoAspectRatio
+//                anchors.horizontalCenter: parent.horizontalCenter
 
+//            }
+
+            ListView {
+                x: 0
+                y: 0
+                z: 30
+                width: 100
+                height: 300
+
+
+                model: QtMultimedia.availableCameras
+                delegate: Text {
+                    text: modelData.displayName
+
+                    color: "white"
+
+                    MouseArea {
+                        anchors.fill: parent
+                        onClicked: {
+                            camera.deviceId = modelData.deviceId
+                            console.log(modelData.deviceId)
+                        }
+                    }
+                }
             }
 
-            // loader for all videos
-            Loader {
+            Camera {
+                id: camera
+                captureMode: Camera.CaptureStillImage
+                deviceId: mainSettings.cameraDeviceId
+            }
+
+            VideoOutput {
+                id: liveView
+
+                visible: true
+                width: parent.width
+                height: width / photoAspectRatio
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+
+                Rectangle {
+                    anchors.fill: parent
+                    border.color: "white"
+                    border.width: 1
+                    color: "transparent"
+                }
+
+//                source: camera
+            }
+
+            VideoOutput {
                 id: videoLoader
                 anchors.fill: parent
-                opacity: 1
+                source: mediaPlayer
+                fillMode: VideoOutput.PreserveAspectFit
+
             }
 
+            MediaPlayer {
+                id: mediaPlayer
+                autoPlay: true
+                volume: 1
+                loops: MediaPlayer.Infinite
+                playlist: settings.startVideoPlaylist
+
+            }
 
 
             // countdown display
             Countdown {
                 id: countdown
                 anchors.fill: liveView
-                textColor: root.countDownColor
+                textColor: mainWindow.countDownColor
                 opacity: 0
                 z: 4
             }
@@ -1310,7 +934,7 @@ Window {
             // review image
             Rectangle {
                 id: review
-                width: root.width - pixel(10)
+                width: mainWindow.width - pixel(10)
                 height: width * 0.75
                 anchors.top: parent.top
                 anchors.topMargin: pixel(20)
@@ -1321,7 +945,7 @@ Window {
                     id: reviewImage
                     anchors.fill: parent
                     fillMode: Image.PreserveAspectFit
-                    mirror: settingGeneral.mirrorLiveVideoSwitch
+                    mirror: settings.mirrorLiveVideoSwitch
                 }
             }
 
@@ -1336,8 +960,12 @@ Window {
                     anchors.fill: parent
                     anchors.leftMargin: pixel(20)
                     model: photoList
-                    cellWidth: root.width - pixel(40)
+                    cellWidth: mainWindow.width - pixel(40)
                 }
+
+//                Image {
+//                    id: endSessionImage
+//                }
 
 
 
@@ -1347,10 +975,11 @@ Window {
         }
         Item {
             id: galleryView
+
             Gallery {
                 id: gallery
                 anchors.fill: parent
-                folder: addFilePrefix(settingGeneral.printFolder)
+                folder: addFilePrefix(settings.printFolder)
             }
         }
 //        Item {
@@ -1364,7 +993,7 @@ Window {
 
         Item {
             SettingGeneral {
-                id: settingGeneral
+                id: settings
                 anchors.fill: parent
             }
         }

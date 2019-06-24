@@ -23,7 +23,7 @@ Rectangle {
     property alias folder: folderListModel.folder
     property alias model: gridView.model
     property alias cellWidth: gridView.cellWidth
-
+    property bool showFileName: false
 
 
     FolderListModel {
@@ -57,8 +57,6 @@ Rectangle {
         anchors.centerIn: parent
         width: root.width * 0.9
         height: width * 0.75
-
-
 
         onClosed: {
             blurRect.opacity = 0
@@ -111,6 +109,7 @@ Rectangle {
                     text: fileName
                     color: Material.foreground
                     anchors.horizontalCenter: parent.horizontalCenter
+                    visible: showFileName
                 }
             }
         }

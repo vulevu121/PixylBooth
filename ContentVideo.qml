@@ -56,6 +56,7 @@ VideoOutput {
     property alias mediaSource: mediaPlayer.source
     property alias volume: mediaPlayer.volume
     property bool isRunning: true
+    property alias mediaPlayer: mediaPlayer
     fillMode: VideoOutput.PreserveAspectFit
 
     MediaPlayer {
@@ -69,23 +70,6 @@ VideoOutput {
     function pause() { mediaPlayer.pause() }
     function stop() { mediaPlayer.stop() }
 
-//    function toggleplay() {
-//        if (isRunning) {
-//            pause()
-//            isRunning = false
-//        } else {
-//            play()
-//            isRunning = true
-//        }
-//    }
 
-//    MouseArea {
-//        anchors.fill: parent
-//        onClicked: toggleplay()
-//    }
 }
 
-/*##^## Designer {
-    D{i:0;autoSize:true;height:480;width:640}
-}
- ##^##*/

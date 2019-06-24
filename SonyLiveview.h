@@ -21,7 +21,6 @@ public:
     Q_INVOKABLE void setImage(const QImage &image);
     void paint(QPainter *painter);
 
-
 signals:
     void imageChanged();
 

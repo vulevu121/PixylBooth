@@ -320,7 +320,7 @@ Popup {
                 id: printCopyCountButton
                 min: 1
                 value: 1
-                max: settingGeneral.printCopiesPerSession
+                max: settings.printCopiesPerSession
                 height: pixel(20)
                 width: height * 3
                 Layout.alignment: Qt.AlignCenter

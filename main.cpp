@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     QtWebView::initialize();
     
     app.setOrganizationName("PixylBooth");
-    app.setOrganizationDomain("PixylBooth.com");
+    app.setOrganizationDomain("PixylBooth");
     app.setApplicationName("PixylBooth");
 
     QQmlApplicationEngine engine;

@@ -56,5 +56,10 @@
         <file>ToastManager.qml</file>
         <file>UpDownButtonVertical.qml</file>
         <file>LoginScreen.qml</file>
+        <file>TemplateEditor.qml</file>
+        <file>DebugButtons.qml</file>
+        <file>CaptureToolbar.qml</file>
+        <file>LiveViewVideo.qml</file>
+        <file>VideoBrowser.qml</file>
     </qresource>
 </RCC>

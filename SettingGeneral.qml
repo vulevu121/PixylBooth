@@ -10,6 +10,7 @@ import QtQuick.Dialogs 1.3
 import Qt.labs.settings 1.1
 import PrintPhotos 1.0
 import QtGraphicalEffects 1.12
+import QtMultimedia 5.8
 
 Item {
     id: root
@@ -26,8 +27,8 @@ Item {
     property alias beforeCaptureTimer: beforeCaptureTimerButton.value
     property alias reviewTimer: reviewTimerButton.value
     property alias endSessionTimer: endSessionTimerButton.value
-    property alias liveVideoStartSwitch: liveVideoStartSwitch.checked
-    property alias liveVideoCountdownSwitch: liveVideoCountdownSwitch.checked
+    property alias showLiveVideoOnStartSwitch: showLiveVideoOnStartSwitch.checked
+    property alias showLiveVideoOnCountdownSwitch: showLiveVideoOnCountdownSwitch.checked
     property alias mirrorLiveVideoSwitch: mirrorLiveVideoSwitch.checked
 
     property alias printerName: printerNameField.text
@@ -35,14 +36,10 @@ Item {
     property alias autoPrintCopies: autoPrintCopies.value
     property alias printCopiesPerSession: printCopiesPerSessionButton.value
 
-    property alias startVideoListModel: startVideoListModel
-    property alias beforeCaptureVideoListModel: beforeCaptureVideoListModel
-    property alias afterCaptureVideoListModel: afterCaptureVideoListModel
-
-    property string lastFolder: "file:///"
-    property string startVideosListModelString: ""
-    property string beforeCaptureVideosListModelString: ""
-    property string afterCaptureVideosListModelString: ""
+    property string lastFolder: "file:///Users/Vu/Documents/PixylBooth/Videos"
+    property alias startVideoPlaylist: startVideoPlaylist
+    property alias beforeCaptureVideoPlaylist: beforeCapturePlaylist
+    property alias afterCaptureVideoPlaylist: afterCaptureVideoPlaylist
 
     property real rowHeight: pixel(6)
     property real textSize: pixel(4)
@@ -51,9 +48,9 @@ Item {
 
     property string tempFilePath
 
-
     Settings {
         category: "General"
+        id: generalSettings
         property alias countdownTimer: countdownTimerButton.value
         property alias beforeCaptureTimer: beforeCaptureTimerButton.value
         property alias reviewTimer: reviewTimerButton.value
@@ -63,6 +60,7 @@ Item {
 
     Settings {
         category: "Profile"
+        id: profileSettings
         property alias saveFolder: saveFolderField.text
         property alias templateImagePath: templateImageField.text
         property alias printFolder: printFolderField.text
@@ -71,14 +69,16 @@ Item {
 
     Settings {
         category: "Camera"
-        property alias liveVideoStartSwitch: liveVideoStartSwitch.checked
-        property alias liveVideoCountdownSwitch: liveVideoCountdownSwitch.checked
-        property alias mirrorLiveVideoSwitch: mirrorLiveVideoSwitch.checked
+        id: cameraSettings
+        property alias showLiveVideoOnStart: showLiveVideoOnStartSwitch.checked
+        property alias showLiveVideoOnCountdown: showLiveVideoOnCountdownSwitch.checked
+        property alias mirrorLiveVideo: mirrorLiveVideoSwitch.checked
     }
 
 
     Settings {
         category: "Color"
+        id: colorSettings
         property alias backgroundColor: bgColorRectangle.color
         property alias countDownColor: countDownColorRectangle.color
 
@@ -86,6 +86,7 @@ Item {
 
     Settings {
         category: "Printer"
+        id: printerSettings
         property alias printerName: printerNameField.text
         property alias autoPrint: autoPrint.checked
         property alias autoPrintCopies: autoPrintCopies.value
@@ -94,10 +95,11 @@ Item {
 
     Settings {
         category: "Videos"
-        property alias startVideos: root.startVideosListModelString
-        property alias beforeCaptureVideos: root.beforeCaptureVideosListModelString
-        property alias afterCaptureVideos: root.afterCaptureVideosListModelString
+        id: videoSettings
         property alias lastFolder: root.lastFolder
+        property string startVideos
+        property string beforeCaptureVideos
+        property string afterCaptureVideos
     }
 
 
@@ -105,35 +107,6 @@ Item {
         id: imagePrint
     }
 
-    function setLastFolder(folder) {
-        lastFolder = folder
-    }
-
-    function addStartVideo(path) {
-        var pathSplit = ""
-        pathSplit = path.split("/")
-        var fileName = pathSplit[pathSplit.length - 1]
-
-        startVideoListModel.append({ "fileName": fileName, "filePath": path })
-        createStartVideosListModelString()
-
-    }
-
-    function addBeforeCaptureVideo(path) {
-        var pathSplit = ""
-        pathSplit = path.split("/")
-        var fileName = pathSplit[pathSplit.length - 1]
-
-        beforeCaptureVideoListModel.append({ "fileName": fileName, "filePath": path })
-    }
-
-    function addAfterCaptureVideo(path) {
-        var pathSplit = ""
-        pathSplit = path.split("/")
-        var fileName = pathSplit[pathSplit.length - 1]
-
-        afterCaptureVideoListModel.append({ "fileName": fileName, "filePath": path })
-    }
 
     ListModel {
         id: settingModel
@@ -216,6 +189,69 @@ Item {
             }
 
         }
+    }
+
+    Popup {
+        id: filePopup
+        anchors.centerIn: parent
+
+        width: root.width
+        height: root.height
+
+        modal: true
+        focus: true
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside | Popup.CloseOnReleaseOutside
+        z: 10
+
+//        onOpened: {
+//            fileBrowser.show()
+//        }
+
+        VideoBrowser {
+            id: fileBrowser
+            folder: root.lastFolder
+            anchors.fill: parent
+
+            Component.onCompleted: {
+                browserClosed.connect(filePopup.close)
+                fileSelected.connect(filePopup.close)
+            }
+        }
+
+
+
+//        FileBrowser {
+//            id: startVideoBrowser
+//            folder: root.lastFolder
+//            anchors.fill: parent
+//            Component.onCompleted: {
+//                browserClosed.connect(filePopup.close)
+//                fileSelected.connect(filePopup.close)
+//                fileSelected.connect(startVideoPlaylist.addItem)
+//            }
+//        }
+
+//        FileBrowser {
+//            id: beforeCaptureVideoBrowser
+//            folder: root.lastFolder
+//            anchors.fill: parent
+//            Component.onCompleted: {
+//                browserClosed.connect(filePopup.close)
+//                fileSelected.connect(filePopup.close)
+//                fileSelected.connect(beforeCapturePlaylist.addItem)
+//            }
+//        }
+
+//        FileBrowser {
+//            id: afterCaptureVideoBrowser
+//            folder: root.lastFolder
+//            anchors.fill: parent
+//            Component.onCompleted: {
+//                browserClosed.connect(filePopup.close)
+//                fileSelected.connect(filePopup.close)
+//                fileSelected.connect(afterCaptureVideoPlaylist.addItem)
+//            }
+//        }
     }
 
     ColumnLayout {
@@ -559,6 +595,15 @@ Item {
                         }
                     }
 
+                    Button {
+                        text: "Edit Template"
+                        onClicked: {
+                            var component = Qt.createComponent("TemplateEditor.qml")
+                            var window    = component.createObject(root)
+                            window.show()
+                        }
+                    }
+
                     RowLayout {}
 
                 }
@@ -579,7 +624,7 @@ Item {
                         Layout.fillWidth: true
                     }
                     Switch {
-                        id: liveVideoStartSwitch
+                        id: showLiveVideoOnStartSwitch
                     }
 
                     CustomLabel {
@@ -589,7 +634,7 @@ Item {
                         Layout.fillWidth: true
                     }
                     Switch {
-                        id: liveVideoCountdownSwitch
+                        id: showLiveVideoOnCountdownSwitch
                     }
 
                     CustomLabel {
@@ -721,8 +766,6 @@ Item {
 
                     }
 
-
-
                     RowLayout {}
                 }
 
@@ -810,97 +853,49 @@ Item {
                 visible: false
 
                 Component.onCompleted: {
-                    var i
-                    if (startVideosListModelString) {
-                      startVideoListModel.clear()
-                      var datamodel = JSON.parse(startVideosListModelString)
-                      for (i = 0; i < datamodel.length; ++i) startVideoListModel.append(datamodel[i])
-                    }
+                    var playlists = [startVideoPlaylist, beforeCapturePlaylist, afterCaptureVideoPlaylist]
+                    var playlistsString = [videoSettings.startVideos, videoSettings.beforeCaptureVideos, videoSettings.afterCaptureVideos]
 
-                    if (beforeCaptureVideosListModelString) {
-                      beforeCaptureVideoListModel.clear()
-                      var datamodel2 = JSON.parse(beforeCaptureVideosListModelString)
-                      for (i = 0; i < datamodel2.length; ++i) beforeCaptureVideoListModel.append(datamodel2[i])
-                    }
-
-                    if (afterCaptureVideosListModelString) {
-                      afterCaptureVideoListModel.clear()
-                      var datamodel3 = JSON.parse(afterCaptureVideosListModelString)
-                      for (i = 0; i < datamodel3.length; ++i) afterCaptureVideoListModel.append(datamodel3[i])
+                    for (var j = 0 ; j < playlists.length ; j++) {
+                        playlists[j].clear()
+                        var datamodel = JSON.parse(playlistsString[j])
+                        for (var i = 0 ; i < datamodel.length ; i++) playlists[j].addItem(datamodel[i])
                     }
 
                 }
 
                 Component.onDestruction: {
-                    var datamodel = []
-                    var i
-                    for (i = 0; i < startVideoListModel.count; ++i) datamodel.push(startVideoListModel.get(i))
-                    startVideosListModelString = JSON.stringify(datamodel)
 
-                    var datamodel2 = []
-                    for (i = 0; i < beforeCaptureVideoListModel.count; ++i) datamodel2.push(beforeCaptureVideoListModel.get(i))
-                    beforeCaptureVideosListModelString = JSON.stringify(datamodel2)
+                    var playlists = [startVideoPlaylist, beforeCapturePlaylist, afterCaptureVideoPlaylist]
+                    var playlistsString = [videoSettings.startVideos, videoSettings.beforeCaptureVideos, videoSettings.afterCaptureVideos]
 
-                    var datamodel3 = []
-                    for (i = 0; i < afterCaptureVideoListModel.count; ++i) datamodel3.push(afterCaptureVideoListModel.get(i))
-                    afterCaptureVideosListModelString = JSON.stringify(datamodel3)
-                }
+                    for (var j = 0 ; j < playlists.length ; j++) {
+                        var datamodel = []
+                        for (var i = 0 ; i < playlists[j].itemCount ; i++) datamodel.push(playlists[j].itemSource(i))
 
-                ListModel {
-                    id: startVideoListModel
-                }
-
-                ListModel {
-                    id: beforeCaptureVideoListModel
-                }
-
-                ListModel {
-                    id: afterCaptureVideoListModel
-                }
-
-                Popup {
-                    id: filePopup
-                    anchors.centerIn: parent
-                    width: root.width
-                    height: root.height * 0.5
-                    modal: true
-                    focus: true
-                    closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside | Popup.CloseOnReleaseOutside
-                    z: 10
-
-                    FileBrowser {
-                        id: startVideoBrowser
-                        folder: lastFolder
-                        anchors.fill: parent
-                        Component.onCompleted: {
-                            fileSelected.connect(filePopup.close)
-                            browserClosed.connect(filePopup.close)
-                            fileSelected.connect(addStartVideo)
-                        }
+                        if (j === 0) videoSettings.startVideos = JSON.stringify(datamodel)
+                        else if (j === 1) videoSettings.beforeCaptureVideos = JSON.stringify(datamodel)
+                        else if (j === 2) videoSettings.afterCaptureVideos = JSON.stringify(datamodel)
                     }
 
-                    FileBrowser {
-                        id: beforeCaptureVideoBrowser
-                        folder: lastFolder
-                        anchors.fill: parent
-                        Component.onCompleted: {
-                            fileSelected.connect(filePopup.close)
-                            browserClosed.connect(filePopup.close)
-                            fileSelected.connect(addBeforeCaptureVideo)
-                        }
-                    }
-
-                    FileBrowser {
-                        id: afterCaptureVideoBrowser
-                        folder: lastFolder
-                        anchors.fill: parent
-                        Component.onCompleted: {
-                            fileSelected.connect(filePopup.close)
-                            browserClosed.connect(filePopup.close)
-                            fileSelected.connect(addAfterCaptureVideo)
-                        }
-                    }
                 }
+
+
+                Playlist {
+                    id: startVideoPlaylist
+                    playbackMode: Playlist.Random
+                }
+
+                Playlist {
+                    id: beforeCapturePlaylist
+                    playbackMode: Playlist.Random
+                }
+
+                Playlist {
+                    id: afterCaptureVideoPlaylist
+                    playbackMode: Playlist.Random
+                }
+
 
                 ColumnLayout {
                     anchors.fill: parent
@@ -911,45 +906,48 @@ Item {
                         id: startVideoList
                         Layout.fillWidth: true
                         title: "Start Videos"
-                        model: startVideoListModel
+                        model: startVideoPlaylist
+
 
                         addButton.onClicked: {
-                            startVideoBrowser.show()
                             filePopup.open()
-                        }
-                        clearButton.onClicked: {
-                            startVideoListModel.clear()
+                            fileBrowser.playlist = startVideoPlaylist
                         }
 
+                        clearButton.onClicked: {
+                            startVideoPlaylist.clear()
+                        }
                     }
 
                     VideoList {
                         id: beforeCaptureVideoList
                         Layout.fillWidth: true
                         title: "Before Capture Videos"
-                        model: beforeCaptureVideoListModel
+                        model: beforeCapturePlaylist
 
                         addButton.onClicked: {
-                            beforeCaptureVideoBrowser.show()
                             filePopup.open()
+                            fileBrowser.playlist = beforeCapturePlaylist
                         }
+
                         clearButton.onClicked: {
-                            beforeCaptureVideoListModel.clear()
+                            beforeCapturePlaylist.clear()
                         }
+
                     }
 
                     VideoList {
                         id: afterCaptureVideoCaptureList
                         Layout.fillWidth: true
                         title: "After Capture Videos"
-                        model: afterCaptureVideoListModel
+                        model: afterCaptureVideoPlaylist
 
                         addButton.onClicked: {
-                            afterCaptureVideoBrowser.show()
                             filePopup.open()
+                            fileBrowser.playlist = afterCaptureVideoPlaylist
                         }
                         clearButton.onClicked: {
-                            afterCaptureVideoListModel.clear()
+                            afterCaptureVideoPlaylist.clear()
                         }
 
                     }

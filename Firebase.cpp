@@ -188,7 +188,6 @@ void Firebase::getAccountInfoReply(QNetworkReply *reply) {
         userInfoJsonObject = jsonObject;
         emit userInfoReceived();
 //        emit userInfoReceived(userInfoJsonObject);
-
 //        qDebug() << jsonObject;
 
     }
