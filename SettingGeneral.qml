@@ -195,8 +195,8 @@ Item {
         id: filePopup
         anchors.centerIn: parent
 
-        width: root.width
-        height: root.height
+        width: root.width * 0.9
+        height: root.height * 0.7
 
         modal: true
         focus: true
@@ -205,6 +205,13 @@ Item {
 
 //        onOpened: {
 //            fileBrowser.show()
+//        }
+
+//        Overlay.modal: GaussianBlur {
+//            source: root
+//            radius: 8
+//            samples: 16
+//            deviation: 3
 //        }
 
         VideoBrowser {
@@ -256,7 +263,13 @@ Item {
 
     ColumnLayout {
         anchors.fill: parent
-        anchors.margins: pixel(15)
+        anchors {
+            leftMargin: pixel(5)
+            rightMargin: pixel(5)
+            topMargin: pixel(20)
+            bottomMargin: pixel(5)
+        }
+
 
         Rectangle {
             id: outerRect
@@ -658,6 +671,43 @@ Item {
                         id: mirrorLiveVideoSwitch
                     }
 
+                    ComboBox {
+                        Layout.fillWidth: true
+
+                        model: QtMultimedia.availableCameras
+                        textRole: "displayName"
+                        displayText: "Liveview: " + currentText
+                        delegate: ItemDelegate {
+                            text: modelData.displayName
+
+                            onClicked: {
+                                camera.deviceId = modelData.deviceId
+//                                console.log(modelData.displayName)
+                            }
+                        }
+
+                    }
+
+//                    ListView {
+//                        Layout.fillWidth: true
+//                        height: 300
+
+
+//                        model: QtMultimedia.availableCameras
+//                        delegate: Text {
+//                            text: modelData.displayName
+
+//                            color: "white"
+
+//                            MouseArea {
+//                                anchors.fill: parent
+//                                onClicked: {
+//                                    camera.deviceId = modelData.deviceId
+//                                }
+//                            }
+//                        }
+//                    }
+
                     RowLayout {}
 
                 }
@@ -961,6 +1011,8 @@ Item {
     }
 
 }
+
+
 
 
 

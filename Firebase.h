@@ -5,6 +5,7 @@
 #include <QString>
 #include <QNetworkAccessManager>
 #include <QUrl>
+#include <QFile>
 #include <QNetworkRequest>
 #include <QNetworkReply>
 #include <QJsonObject>
@@ -42,13 +43,17 @@ signals:
 public slots:
     void authenticate(const QString &user, const QString &password);
     void getUserData();
+    void getLatestDownload();
     void getAccountInfo();
+    void downloadLatestRelease(const QString &downloadLink);
 
 
 private slots:
     void authenticateReply(QNetworkReply *reply);
     void getAccountInfoReply(QNetworkReply *reply);
     void getUserDataReply(QNetworkReply *reply);
+    void getLatestDownloadReply(QNetworkReply *reply);
+    void downloadLatestReleaseReply(QNetworkReply *reply);
 };
 
 #endif // FIREBASE_H

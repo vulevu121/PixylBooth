@@ -5,11 +5,8 @@ import QtQuick.Controls.Styles 1.4
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.3
-//import QtQml.Models 2.12
+import Qt.labs.settings 1.1
 import QtGraphicalEffects 1.0
-
-
-
 
 Popup {
     id: root
@@ -22,10 +19,16 @@ Popup {
     }
 
     property alias source: imageView.source
-    property real iconSize: pixel(14)
+    property real iconSize: pixel(20)
     property real buttonWidth: pixel(20)
     property real buttonHeight: pixel(10)
     property alias mirror: imageView.mirror
+
+    Settings {
+        id: printerSettings
+        category: "Printer"
+        property real printCopiesPerSession
+    }
 
     Image {
         id: imageView
@@ -320,7 +323,7 @@ Popup {
                 id: printCopyCountButton
                 min: 1
                 value: 1
-                max: settings.printCopiesPerSession
+                max: printerSettings.printCopiesPerSession
                 height: pixel(20)
                 width: height * 3
                 Layout.alignment: Qt.AlignCenter

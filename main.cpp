@@ -1,7 +1,7 @@
 //#include <QGuiApplication>
 #include <QApplication>
 #include <QQmlApplicationEngine>
-#include <QtWebView/QtWebView>
+//#include <QtWebView/QtWebView>
 #include "process.h"
 #include "SonyAPI.h"
 #include "SonyLiveview.h"
@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 //    QGuiApplication app(argc, argv);
 
-    QtWebView::initialize();
+//    QtWebView::initialize();
     
     app.setOrganizationName("PixylBooth");
     app.setOrganizationDomain("PixylBooth");

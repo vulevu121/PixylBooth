@@ -17,8 +17,8 @@ ColumnLayout {
     z: 5
     opacity: 0.8
     spacing: pixel(6)
-    property real iconSize: pixel(10)
-
+    property real iconSize: pixel(16)
+    property alias exposureButton: exposureButton
 
 
     UpDownButtonVertical {

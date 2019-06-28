@@ -1,4 +1,4 @@
-QT += gui quick widgets multimedia network printsupport webview
+QT += gui quick widgets multimedia network printsupport
 CONFIG += c++11
 
 TEMPLATE = app

@@ -47,7 +47,7 @@ void Firebase::authenticate(const QString &user, const QString &password) {
     QByteArray jsonRequest = jsonDoc.toJson();
     QByteArray postDataSize = QByteArray::number(jsonRequest.size());
 
-    req.setRawHeader("Content-Length",postDataSize);
+    req.setRawHeader("Content-Length", postDataSize);
     manager->post(req,jsonRequest);
 
     connect(this->manager, SIGNAL(finished(QNetworkReply*)),
@@ -111,6 +111,10 @@ void Firebase::getUserData() {
 
     QString authHeader("Bearer " + userJsonObject["idToken"].toString());
 
+    qDebug() << userEmail;
+
+    qDebug() << userJsonObject["idToken"].toString();
+
     req.setRawHeader("Authorization", authHeader.toUtf8());
 
     manager->get(req);
@@ -119,7 +123,10 @@ void Firebase::getUserData() {
             this, SLOT(getUserDataReply(QNetworkReply*)));
 }
 
+
+
 void Firebase::getUserDataReply(QNetworkReply *reply) {
+    qDebug() << "reply invoked!";
     if(reply->error()) {
         QByteArray response = reply->readAll();
         QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
@@ -138,6 +145,86 @@ void Firebase::getUserDataReply(QNetworkReply *reply) {
 //        qDebug() << jsonObject["fields"].toObject()["registration"].toObject()["stringValue"].toString();
 
     }
+    manager->disconnect();
+}
+
+void Firebase::getLatestDownload() {
+    if (manager == nullptr) {
+        manager = new QNetworkAccessManager(this);
+    }
+
+//    qDebug() << "getLatestDownload!";
+
+//    QString userEmail(userJsonObject["email"].toString());
+
+    QUrl endpoint("https://firestore.googleapis.com/v1/projects/pixylbooth/databases/(default)/documents/apps/pixylbooth");
+    QNetworkRequest req(endpoint);
+
+    QString authHeader("Bearer " + userJsonObject["idToken"].toString());
+
+    req.setRawHeader("Authorization", authHeader.toUtf8());
+
+    manager->get(req);
+
+    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(getLatestDownloadReply(QNetworkReply*)));
+}
+
+void Firebase::getLatestDownloadReply(QNetworkReply *reply) {
+//    qDebug() << "getLatestDownloadReply!";
+
+    QString downloadLink;
+
+    if(reply->error()) {
+        QByteArray response = reply->readAll();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+        QJsonObject jsonObject = jsonDoc.object();
+
+        qDebug() << jsonObject["error"].toObject()["message"].toString();
+    } else {
+        QByteArray response = reply->readAll();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+        QJsonObject jsonObject = jsonDoc.object();
+
+        userInfoJsonObject = jsonObject;
+
+        downloadLink = jsonObject["fields"].toObject()["latestDownload"].toObject()["stringValue"].toString();
+
+
+//        qDebug() << jsonObject["fields"].toObject()["registration"].toObject()["stringValue"].toString();
+
+    }
+    manager->disconnect();
+    downloadLatestRelease(downloadLink);
+
+}
+
+void Firebase::downloadLatestRelease(const QString &downloadLink) {
+    if (manager == nullptr) {
+        manager = new QNetworkAccessManager(this);
+    }
+
+    qDebug() << "DOWNLOAD Started!";
+    QUrl downloadUrl(downloadLink);
+    QNetworkRequest req(downloadUrl);
+
+    manager->get(req);
+
+    connect(manager, SIGNAL(finished(QNetworkReply*)),
+                        this, SLOT(downloadLatestReleaseReply(QNetworkReply*)));
+}
+
+void Firebase::downloadLatestReleaseReply(QNetworkReply *reply) {
+    QString filePath = "/Users/Vu/Documents/PixylBooth/PixylBooth_Update.exe";
+    QFile file(filePath);
+    file.open(QIODevice::WriteOnly | QIODevice::Truncate);
+    if(file.exists()) {
+        file.write(reply->readAll());
+        file.flush();
+        file.close();
+    }
+    reply->deleteLater();
+    qDebug() << "DOWNLOAD COMPLETED!";
     manager->disconnect();
 }
 
@@ -186,10 +273,17 @@ void Firebase::getAccountInfoReply(QNetworkReply *reply) {
         QJsonObject jsonObject = jsonDoc.object();
 
         userInfoJsonObject = jsonObject;
+
+//        qDebug() << jsonObject;
+
+
         emit userInfoReceived();
+
 //        emit userInfoReceived(userInfoJsonObject);
 //        qDebug() << jsonObject;
 
     }
     manager->disconnect();
+
+    getLatestDownload();
 }

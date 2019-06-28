@@ -61,5 +61,6 @@
         <file>CaptureToolbar.qml</file>
         <file>LiveViewVideo.qml</file>
         <file>VideoBrowser.qml</file>
+        <file>CaptureView.qml</file>
     </qresource>
 </RCC>
