@@ -1,9 +1,9 @@
 #ifndef GPHOTO_H
 #define GPHOTO_H
 
-
 #include <QObject>
 #include <QNetworkReply>
+#include <QNetworkAccessManager>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
@@ -38,14 +38,17 @@ private:
 
 private slots:
 
-    void A_ReceivedReply(QNetworkReply *reply);
-    void B_ReceivedReply(QUrl url);
-    void C_ReceivedReply(QNetworkReply *reply);
-    void D_ReceivedReply(QNetworkReply *reply);
-    void E_ReceivedReply(QNetworkReply *reply);
+    void RequestAccessCode();
+    void RequestAccessToken();
 
-    void uploadBinary();
-    void createMedia();
+    void AccessCodeReply(QNetworkReply *reply);
+    void AccessCodeRedirectReply(QUrl url);
+    void AccessTokenReply(QNetworkReply *reply);
+    void UploadReply(QNetworkReply *reply);
+    void CreateMediaReply(QNetworkReply *reply);
+
+    void UploadPicData();
+    void CreateMedia();
 
 
 };
