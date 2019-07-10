@@ -17,7 +17,7 @@ void GooglePhoto::RequestAuthCode(){
         response_type = QString("&response_type=code");
         redirect_uri = QString("&redirect_uri=http://127.0.0.1:8080/");
         client_id = QString("&client_id=1044474243779-a1gndnc2as4cc5c6ufksmbetoafi5mcr.apps.googleusercontent.com");
-
+        inputAlbumName = QString("My shared album");
 
         QUrl url(authEndpoint + scope + response_type + redirect_uri + client_id);
 
@@ -101,10 +101,10 @@ void GooglePhoto::AccessTokenReply(QNetworkReply *reply) {
         qDebug() <<  token;
         manager->disconnect();
 
-//        UploadPicData();
+        UploadPicData();
 //        CreateAlbum("Made by Qt");
 //        GetAlbums();
-        ShareAlbum("AJIwpNCWJXch_FSn4sOy_T2qHRVMGGZ2uHK_BzSKTMuqTSSlxd8NYLGpLlyPNShUt1w_ym5gTJIW");
+//        ShareAlbum("AJIwpNCWJXch_FSn4sOy_T2qHRVMGGZ2uHK_BzSKTMuqTSSlxd8NYLGpLlyPNShUt1w_ym5gTJIW");
 
     }
 
@@ -152,11 +152,11 @@ void GooglePhoto::UploadReply(QNetworkReply *reply) {
     } else {
         qDebug() << "Upload Success!";
         uploadToken = reply->readAll();
-        qDebug() << "Upload Token: " << uploadToken << endl;
+//        qDebug() << "Upload Token: " << uploadToken << endl;
     }
     manager->disconnect();
-//    CreateMedia("AJIwpNCWJXch_FSn4sOy_T2qHRVMGGZ2uHK_BzSKTMuqTSSlxd8NYLGpLlyPNShUt1w_ym5gTJIW");
 //    CreateMedia();
+    CreateAlbum(inputAlbumName);
 }
 
 
@@ -223,6 +223,7 @@ void GooglePhoto::CreateMediaReply(QNetworkReply *reply) {
 
     }
     manager->disconnect();
+
 }
 
 void GooglePhoto::CreateAlbum(QString album_name){
@@ -246,7 +247,7 @@ void GooglePhoto::CreateAlbum(QString album_name){
 
     QJsonDocument doc (jsonObj);
 
-    qDebug() << doc;
+//    qDebug() << doc;
 
     QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
     QByteArray postDataSize = QByteArray::number(jsonRequest.size());
@@ -278,6 +279,12 @@ void GooglePhoto::CreateAlbumReply(QNetworkReply * reply){
      }
     manager->disconnect();
 
+    ShareAlbum(albumID);
+
+}
+
+QString GooglePhoto::getAlbumId(){
+    return GooglePhoto::albumID;
 }
 
 void GooglePhoto::GetAlbums(){
@@ -352,11 +359,13 @@ void GooglePhoto::ShareAlbumReply(QNetworkReply * reply){
         QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
         QJsonObject jsonObj = jsonDoc.object();
 
-        qDebug() << jsonObj;
+//        qDebug() << jsonObj;
         shareableURL =  jsonObj["shareInfo"].toObject()["shareableUrl"].toString();
         qDebug() << shareableURL;
 
      }
     manager->disconnect();
+    CreateMedia(albumID);
+
 
 }

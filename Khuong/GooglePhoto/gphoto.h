@@ -38,6 +38,7 @@ private:
     QString albumID;
     QString albumURL;
     QString shareableURL;
+    QString inputAlbumName;
 
 
 private slots:
@@ -61,6 +62,8 @@ private slots:
 
     void ShareAlbum(QString AlbumID = "");
     void ShareAlbumReply(QNetworkReply * reply);
+
+    QString getAlbumId();
 
 
 
