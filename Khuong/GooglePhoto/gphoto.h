@@ -35,20 +35,33 @@ private:
     QString client_secret;
     QString grant_type ;
     QString uploadToken;
+    QString albumID;
+    QString albumURL;
+    QString shareableURL;
+
 
 private slots:
 
-    void RequestAccessCode();
+    void RequestAuthCode();
     void RequestAccessToken();
 
-    void AccessCodeReply(QNetworkReply *reply);
-    void AccessCodeRedirectReply(QUrl url);
+    void AuthCodeReply(QNetworkReply *reply);
+    void AuthCodeRedirectReply(QUrl url);
     void AccessTokenReply(QNetworkReply *reply);
     void UploadReply(QNetworkReply *reply);
     void CreateMediaReply(QNetworkReply *reply);
 
     void UploadPicData();
-    void CreateMedia();
+    void CreateMedia(QString AlbumID = "");
+    void CreateAlbum(QString album_name);
+    void CreateAlbumReply(QNetworkReply * reply);
+
+    void GetAlbums();
+    void GetAlbumsReply(QNetworkReply * reply);
+
+    void ShareAlbum(QString AlbumID = "");
+    void ShareAlbumReply(QNetworkReply * reply);
+
 
 
 };
