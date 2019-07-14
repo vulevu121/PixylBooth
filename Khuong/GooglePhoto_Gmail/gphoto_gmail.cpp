@@ -36,8 +36,7 @@ void GooglePhoto::RequestAuthCode(){
 
 //        scope = QString("?scope=https://www.googleapis.com/auth/photoslibrary"); //scope for all access except sharing
 //        scope = QString("?scope=https://www.googleapis.com/auth/photoslibrary.sharing"); // scope for sharing
-        scope = QString("?scope=https://www.googleapis.com/auth/gmail.compose"); // Create, read, update, and delete drafts. Send messages and drafts.
-//        scope = QString("?scope=https://www.googleapis.com/auth/gmail.send");
+        scope = QString("?scope=https://www.googleapis.com/auth/gmail.send"); // Create, read, update, and delete drafts. Send messages and drafts.
 
         response_type = QString("&response_type=code");
 
@@ -52,7 +51,7 @@ void GooglePhoto::RequestAuthCode(){
 //        qDebug() << client_secret;
 
         inputAlbumName = QString("My shared album");
-        pathToPic = QString("C:/Users/khuon/Documents/GooglePhoto/1.jpg");
+        pathToPic = QString("C:/Users/khuon/Documents/GooglePhoto/2.jpg");
 
         QUrl url(authEndpoint + scope + response_type + redirect_uri + client_id);
 
@@ -73,7 +72,7 @@ void GooglePhoto::AuthCodeReply(QNetworkReply *reply) {
         QUrl url = reply->url();
         view = new QWebEngineView;
         view->load(url);
-        view->show();
+//        view->show();
         connect(view,SIGNAL(urlChanged(QUrl)),this,SLOT(AuthCodeRedirectReply(QUrl)));
     }
     manager->disconnect();
@@ -140,12 +139,11 @@ void GooglePhoto::AccessTokenReply(QNetworkReply *reply) {
         QJsonObject jsonObject = jsonDoc.object();
 
         token = jsonObject["access_token"].toString();
-        qDebug() <<  token;
+//        qDebug() <<  token;
         manager->disconnect();
 
 //        UploadPicData();
-//         DraftEmail();
-         SendEmail();
+           _SendEmail();
     }
 
 }
@@ -402,29 +400,188 @@ void GooglePhoto::ShareAlbumReply(QNetworkReply * reply){
      }
     manager->disconnect();
     CreateMedia(albumID);
+
+    _SendEmail();
 }
 
-void GooglePhoto::DraftEmail(){
-    qDebug() << "Drafting email with link...";
+//void GooglePhoto::DraftEmail(){
+//    qDebug() << "Drafting email with link...";
+
+//    if (manager == nullptr) {
+//         manager = new QNetworkAccessManager(this);
+//     }
+
+//    shareableURL = QString("https://photos.app.goo.gl/U59jf5pMxV1FHV4H8");
+//    QString message ("From: khuongnguyensac@gmail.com\n"
+//                    "To: khuong.dinh.ng@gmail.com\n"
+//                     "Subject: Third Test\n"
+//                     "\n"
+////                   "Link:" + shareableURL );
+//                     "Link: https://photos.app.goo.gl/U59jf5pMxV1FHV4H8");
+
+//    QByteArray encoded = message.toUtf8().toBase64(QByteArray::Base64UrlEncoding);
+//    qDebug() << encoded ;
+
+
+//    /* Ensure encoded message is URL safe */
+//    encoded.replace("+","-");
+//    encoded.replace("/","_");
+////    encoded.replace("=","*");
+
+//    qDebug() << encoded ;
+
+//    QJsonObject temp;
+//    temp ["raw"] = QString(encoded);
+
+//    QJsonObject jsonObj;
+//    jsonObj["message"] = temp;
+
+//    QJsonDocument doc (jsonObj);
+
+//    QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
+//    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+
+//    QString endPoint ("https://www.googleapis.com/gmail/v1/users/");
+//    QUrl draftURL(endPoint + "me"+ "/drafts");
+//    QNetworkRequest createDraftReq(draftURL);
+
+//    createDraftReq.setRawHeader("Authorization","Bearer "+ token.toUtf8());
+//    createDraftReq.setRawHeader("Content-Type","application/json");
+//    createDraftReq.setRawHeader("Content-Length", postDataSize);
+
+//    manager->post(createDraftReq,jsonRequest);
+
+//    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+//            this, SLOT(DraftEmailReply(QNetworkReply*)));
+//}
+
+//void GooglePhoto::DraftEmailReply(QNetworkReply * reply){
+//    if(reply->error()) {
+//        qDebug() << "Drafting Email Error" << reply->readAll();
+//        manager->disconnect();
+
+//    } else {
+//        qDebug() << "Drafting Email Success";
+
+//        QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
+//        QJsonObject jsonObj = jsonDoc.object();
+
+//        /* Success response model
+//         {
+//             "id": "r2420125699170800686",
+//             "message": {
+//                        "id": "16be4d8ccb84234a",
+//                        "threadId": "16be4d8ccb84234a",
+//                        "labelIds": ["DRAFT"]
+//             }
+//           }
+//        */
+
+////        qDebug() << jsonObj;
+//        QString id = jsonObj["id"].toString();
+//        qDebug() <<  id;
+
+////        draftId = jsonObj["id"].toString();
+////        qDebug() << draftId;
+//        manager->disconnect();
+
+////        SendEmail(id);
+//     }
+
+//}
+
+
+//void GooglePhoto::SendEmail(QString draftID){
+//    qDebug() << "Sending email...";
+
+//    if (manager == nullptr) {
+//         manager = new QNetworkAccessManager(this);
+//     }
+//    QString ID ("r6633021279641280350");
+////    qDebug() << draftID;
+
+//    QJsonObject jsonObj;
+//    jsonObj["id"] = ID;
+
+//    QJsonDocument doc (jsonObj);
+
+//    QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
+//    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+
+//    QString endPoint ("https://www.googleapis.com/gmail/v1/users/");
+//    QUrl sendURL(endPoint + "me"+ "/drafts/send");
+//    QNetworkRequest sendDraftReq(sendURL);
+
+//    sendDraftReq.setRawHeader("Authorization","Bearer "+ token.toUtf8());
+//    sendDraftReq.setRawHeader("Content-Type","application/json");
+
+//    sendDraftReq.setRawHeader("Content-Length", postDataSize);
+
+//    manager->post(sendDraftReq,jsonRequest);
+
+//    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+//            this, SLOT(SendEmailReply(QNetworkReply*)));
+//}
+
+//void GooglePhoto::SendEmailReply(QNetworkReply * reply){
+//    if(reply->error()) {
+//        qDebug() << "Sending Email Error" << reply->readAll();
+//    } else {
+//        qDebug() << "Sending Email Success";
+
+//        QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
+//        QJsonObject jsonObj = jsonDoc.object();
+
+//        /* Success response model
+//         {
+//            {
+//             "id": "16be4bf443ed7aa7",
+//             "threadId": "16be4bf443ed7aa7",
+//             "labelIds": [
+//              "SENT"
+//             ]
+//            }
+//             }
+//           }
+//        */
+
+//        qDebug() << jsonObj;
+
+//     }
+//    manager->disconnect();
+
+//}
+
+
+void GooglePhoto::_SendEmail(){
+    qDebug() << "_Sending email with link...";
 
     if (manager == nullptr) {
          manager = new QNetworkAccessManager(this);
      }
 
-
-    QString message ("To: <khuong.dinh.ng@gmail.com>,<vulevu121@gmail.com>,<timz1992@yahoo.com>\n"
-                     "From: khuongnguyensac@gmail.com\n"
-                     "Subject: Testing gmail API\n"
-                     "Pixel Booth saying hello again...\n");
+    shareableURL = QString("https://photos.app.goo.gl/U59jf5pMxV1FHV4H8");
+    QString message ("From: khuongnguyensac@gmail.com, vulevu121@gmail.com,timz1992@yahoo.com  \n"
+                    "To: khuong.dinh.ng@gmail.com\n"
+                     "Subject: Sending Email is DONE!\n"
+                     "\n"
+                     "Time to up the pricing!"
+                     "Shareable Album Link:" + shareableURL );
 
     QByteArray encoded = message.toUtf8().toBase64(QByteArray::Base64UrlEncoding);
+//    qDebug() << encoded ;
+
+
+    /* Ensure encoded message is URL safe */
+    encoded.replace("+","-");
+    encoded.replace("/","_");
+//    encoded.replace("=","*");
+
     qDebug() << encoded ;
 
-    QJsonObject temp;
-    temp ["raw"] = QString(encoded);
-
     QJsonObject jsonObj;
-    jsonObj["message"] = temp;
+    jsonObj ["raw"] = QString(encoded);
+
 
     QJsonDocument doc (jsonObj);
 
@@ -432,8 +589,9 @@ void GooglePhoto::DraftEmail(){
     QByteArray postDataSize = QByteArray::number(jsonRequest.size());
 
     QString endPoint ("https://www.googleapis.com/gmail/v1/users/");
-    QUrl draftURL(endPoint + "me"+ "/drafts");
+    QUrl draftURL(endPoint + "me"+ "/messages/send");
     QNetworkRequest createDraftReq(draftURL);
+    qDebug() << draftURL;
 
     createDraftReq.setRawHeader("Authorization","Bearer "+ token.toUtf8());
     createDraftReq.setRawHeader("Content-Type","application/json");
@@ -442,102 +600,26 @@ void GooglePhoto::DraftEmail(){
     manager->post(createDraftReq,jsonRequest);
 
     connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(DraftEmailReply(QNetworkReply*)));
+            this, SLOT(_SendEmailReply(QNetworkReply*)));
 }
 
-void GooglePhoto::DraftEmailReply(QNetworkReply * reply){
+void GooglePhoto::_SendEmailReply(QNetworkReply * reply){
     if(reply->error()) {
-        qDebug() << "Drafting Email Error" << reply->readAll();
+        qDebug() << "_Sending Email Error" << reply->readAll();
         manager->disconnect();
 
     } else {
-        qDebug() << "Drafting Email Success";
+        qDebug() << "_Sending Email Success";
 
         QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
         QJsonObject jsonObj = jsonDoc.object();
 
-        /* Success response model
-         {
-             "id": "r2420125699170800686",
-             "message": {
-                        "id": "16be4d8ccb84234a",
-                        "threadId": "16be4d8ccb84234a",
-                        "labelIds": ["DRAFT"]
-             }
-           }
-        */
 
-//        qDebug() << jsonObj;
-        QString id = jsonObj["id"].toString();
-        qDebug() <<  id;
-
-//        draftId = jsonObj["id"].toString();
-//        qDebug() << draftId;
-        manager->disconnect();
-
-//        QThread::sleep(2);
-
-//        SendEmail();
-     }
-
-}
-
-void GooglePhoto::SendEmail(){
-    qDebug() << "Sending email...";
-
-    if (manager == nullptr) {
-         manager = new QNetworkAccessManager(this);
-     }
-    QString ID ("r-3156063629578856438");
-//    qDebug << draftID;
-
-    QJsonObject jsonObj;
-    jsonObj["id"] = ID;
-
-    QJsonDocument doc (jsonObj);
-
-    QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
-    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
-
-    QString endPoint ("https://www.googleapis.com/gmail/v1/users/");
-    QUrl sendURL(endPoint + "me"+ "/drafts/send");
-    QNetworkRequest sendDraftReq(sendURL);
-
-    sendDraftReq.setRawHeader("Authorization","Bearer "+ token.toUtf8());
-    sendDraftReq.setRawHeader("Content-Type","application/json");
-    sendDraftReq.setRawHeader("Content-Length", postDataSize);
-
-    manager->post(sendDraftReq,jsonRequest);
-
-    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(SendEmailReply(QNetworkReply*)));
-}
-
-void GooglePhoto::SendEmailReply(QNetworkReply * reply){
-    if(reply->error()) {
-        qDebug() << "Sending Email Error" << reply->readAll();
-    } else {
-        qDebug() << "Sending Email Success";
-
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
-        QJsonObject jsonObj = jsonDoc.object();
-
-        /* Success response model
-         {
-            {
-             "id": "16be4bf443ed7aa7",
-             "threadId": "16be4bf443ed7aa7",
-             "labelIds": [
-              "SENT"
-             ]
-            }
-             }
-           }
-        */
 
         qDebug() << jsonObj;
 
+        manager->disconnect();
+
      }
-    manager->disconnect();
 
 }

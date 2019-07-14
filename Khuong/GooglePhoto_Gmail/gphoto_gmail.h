@@ -70,10 +70,14 @@ private slots:
 
     QString getAlbumId();
 
-    void DraftEmail();
-    void DraftEmailReply(QNetworkReply * reply);
-    void SendEmail();
-    void SendEmailReply(QNetworkReply * reply);
+//    void DraftEmail();
+//    void DraftEmailReply(QNetworkReply * reply);
+//    void SendEmail(QString draftID = "");
+//    void SendEmailReply(QNetworkReply * reply);
+
+    void _SendEmail();
+    void _SendEmailReply(QNetworkReply * reply);
+
 
 };
 
