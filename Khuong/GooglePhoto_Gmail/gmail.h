@@ -9,46 +9,24 @@
 #include <QJsonArray>
 #include <QString>
 #include <QFile>
-#include <QDir>
 #include <QUrl>
-#include <QWebEngineView>
-#include <QJsonArray>
 
-class Gmail : public QObject
+class GMAIL : public QObject
 {
     Q_OBJECT
-
 public:
-    explicit Gmail(QObject *parent = nullptr);
-
+    explicit GMAIL(QObject *parent = nullptr);
 private:
-    QNetworkAccessManager *manager;
-    QString pathToPic;
-    QString authCode;
-    QString authEndpoint;
-    QString scope;
-    QString response_type;
-    QString redirect_uri;
-    QString client_id;
-    QString token;
-    QString tokenEndpoint ;
-    QString client_secret;
-    QString grant_type ;
-    QString uploadToken;
-    QString albumID;
+    QNetworkAccessManager *manager = nullptr;
     QString albumURL;
-    QString shareableURL;
-    QString inputAlbumName;
+    QString accessToken;
 
+signals:
 
-private slots:
-    void G_RequestAuthCode();
-    void G_RequestAccessToken();
-    void G_AuthCodeReply(QNetworkReply *reply);
-    void G_AuthCodeRedirectReply(QUrl url);
-    void G_AccessTokenReply(QNetworkReply *reply);
-    void G_UploadReply(QNetworkReply *reply);
+public slots:
 
+    void SendEmail();
+    void SendEmailReply(QNetworkReply * reply);
 
 
 };

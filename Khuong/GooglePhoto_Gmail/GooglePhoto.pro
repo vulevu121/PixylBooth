@@ -1,6 +1,5 @@
 QT += widgets network networkauth gui core
 QT += webenginewidgets
-
 #CONFIG += c++11 console
 #CONFIG -= app_bundle
 
@@ -16,7 +15,9 @@ QT += webenginewidgets
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        gphoto_gmail.cpp \
+    gmail.cpp \
+        googleoauth2.cpp \
+    googlephoto.cpp \
         main.cpp
 
 ## Default rules for deployment.
@@ -25,4 +26,6 @@ SOURCES += \
 #!isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    gphoto_gmail.h
+    gmail.h \
+    googleoauth2.h \
+    googlephoto.h
