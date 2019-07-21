@@ -33,7 +33,8 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
 
         onClicked: {
-            root.value = root.value > min ? (root.value - 1) : min
+//            root.value = root.value > min ? (root.value - 1) : min
+            root.value = root.value-1 < min ? min : root.value-1
         }
     }
     
@@ -61,7 +62,8 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
 
         onClicked: {
-            root.value = root.value < max ? (root.value + 1) : max
+//            root.value = root.value < max ? (root.value + 1) : max
+            root.value = root.value+1 > max ? max : root.value+1
         }
     }
     

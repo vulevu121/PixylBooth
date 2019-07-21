@@ -13,8 +13,6 @@ ColumnLayout {
     id: debugLayout
     z: 5
     opacity: 0.5
-    visible: false
-    enabled: visible
 
     Button {
         text: "startRecMode"
@@ -76,6 +74,13 @@ ColumnLayout {
         text: "getUserData"
         onClicked: {
             firebase.getUserData()
+        }
+    }
+
+    Button {
+        text: "Process"
+        onClicked:  {
+            process.start("/PixylBooth/Update.bat", "")
         }
     }
 }

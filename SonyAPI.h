@@ -34,6 +34,7 @@ signals:
 
 public slots:
     void start();
+    void stop();
     void startReply(QNetworkReply *reply);
     void startRecMode();
     void startRecModeReply(QNetworkReply *reply);

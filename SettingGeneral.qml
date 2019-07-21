@@ -12,6 +12,7 @@ import PrintPhotos 1.0
 import QtGraphicalEffects 1.12
 import QtMultimedia 5.8
 
+
 Item {
     id: root
     property alias templateImagePath: templateImageField.text
@@ -25,6 +26,7 @@ Item {
 
     property alias countdownTimer: countdownTimerButton.value
     property alias beforeCaptureTimer: beforeCaptureTimerButton.value
+    property alias afterCaptureTimer: afterCaptureTimerButton.value
     property alias reviewTimer: reviewTimerButton.value
     property alias endSessionTimer: endSessionTimerButton.value
     property alias showLiveVideoOnStartSwitch: showLiveVideoOnStartSwitch.checked
@@ -46,16 +48,21 @@ Item {
     property real spacing: pixel(3)
     property real columnMargins: pixel(3)
 
-    property string tempFilePath
+    property real numberPhotos
+    property string templateFormat
+    property real buttonHeight: pixel(12)
+    property string cameraDeviceId: "deviceId"
 
     Settings {
         category: "General"
         id: generalSettings
         property alias countdownTimer: countdownTimerButton.value
         property alias beforeCaptureTimer: beforeCaptureTimerButton.value
+        property alias afterCaptureTimer: afterCaptureTimerButton.value
         property alias reviewTimer: reviewTimerButton.value
         property alias endSessionTimer: endSessionTimerButton.value
         property alias displayScale: displayScalingButton.value
+
     }
 
     Settings {
@@ -65,7 +72,10 @@ Item {
         property alias templateImagePath: templateImageField.text
         property alias printFolder: printFolderField.text
         property alias emailFolder: emailFolderField.text
+        property alias templateFormat: root.templateFormat
+        property alias numberPhotos: root.numberPhotos
     }
+
 
     Settings {
         category: "Camera"
@@ -73,6 +83,9 @@ Item {
         property alias showLiveVideoOnStart: showLiveVideoOnStartSwitch.checked
         property alias showLiveVideoOnCountdown: showLiveVideoOnCountdownSwitch.checked
         property alias mirrorLiveVideo: mirrorLiveVideoSwitch.checked
+        property string cameraDeviceId
+        property alias cameraDeviceIdIndex: cameraDeviceIdCombo.currentIndex
+        property alias cameraDisplayName: cameraDeviceIdCombo.currentText
     }
 
 
@@ -321,7 +334,7 @@ Item {
                 anchors.left: parent.left
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
-                width: pixel(40)
+                width: pixel(35)
                 color: "#333"
 
                 ListView {
@@ -416,7 +429,20 @@ Item {
 
                     UpDownButton {
                         id: beforeCaptureTimerButton
-                        height: pixel(10)
+                        height: buttonHeight
+                        width: height * 3
+                    }
+
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: qsTr("After Capture Video Timer")
+                        subtitle: qsTr("Seconds to display video after capture ")
+                    }
+
+                    UpDownButton {
+                        id: afterCaptureTimerButton
+                        height: buttonHeight
                         width: height * 3
                     }
 
@@ -427,9 +453,10 @@ Item {
                         subtitle: qsTr("Seconds before picture taken")
                     }
 
+
                     UpDownButton {
                         id: countdownTimerButton
-                        height: pixel(10)
+                        height: buttonHeight
                         width: height * 3
                     }
 
@@ -443,7 +470,7 @@ Item {
 
                     UpDownButton {
                         id: reviewTimerButton
-                        height: pixel(10)
+                        height: buttonHeight
                         width: height * 3
                     }
 
@@ -457,7 +484,7 @@ Item {
 
                     UpDownButton {
                         id: endSessionTimerButton
-                        height: pixel(10)
+                        height: buttonHeight
                         width: height * 3
                     }
 
@@ -472,7 +499,7 @@ Item {
 
                     UpDownButton {
                         id: displayScalingButton
-                        height: pixel(10)
+                        height: buttonHeight
                         width: height * 3
                     }
 
@@ -671,7 +698,70 @@ Item {
                         id: mirrorLiveVideoSwitch
                     }
 
+//                    SpinBox {
+//                        value: 9
+//                    }
+
+//                    SpinBox {
+//                        value: 10
+
+//                        up.indicator: Rectangle {
+//                            height: parent.height - pixel(3)
+//                            width: height
+//                            implicitWidth: 40
+//                            implicitHeight: 40
+//                            color: "#808080"
+//                            radius: height / 2
+
+//                            anchors {
+//                                left: parent.left
+//                                verticalCenter: parent.verticalCenter
+//                            }
+
+//                            Text {
+//                                text: "-"
+//                                font.pixelSize: parent.height
+//                                color: "#ffffff"
+//                                anchors.fill: parent
+//                                fontSizeMode: Text.Fit
+//                                horizontalAlignment: Text.AlignHCenter
+//                                verticalAlignment: Text.AlignVCenter
+//                            }
+//                        }
+
+//                        down.indicator: Rectangle {
+//                            height: parent.height - pixel(3)
+//                            width: height
+//                            implicitWidth: 40
+//                            implicitHeight: 40
+//                            color: "#808080"
+//                            radius: height / 2
+
+//                            anchors {
+//                                right: parent.right
+//                                verticalCenter: parent.verticalCenter
+//                            }
+
+//                            Text {
+//                                text: "+"
+//                                font.pixelSize: parent.height
+//                                color: "#ffffff"
+//                                anchors.fill: parent
+//                                fontSizeMode: Text.Fit
+//                                horizontalAlignment: Text.AlignHCenter
+//                                verticalAlignment: Text.AlignVCenter
+//                            }
+//                        }
+
+
+//                        background: Rectangle {
+//                            color: Material.background
+//                            radius: height / 2
+//                        }
+//                    }
+
                     ComboBox {
+                        id: cameraDeviceIdCombo
                         Layout.fillWidth: true
 
                         model: QtMultimedia.availableCameras
@@ -681,32 +771,12 @@ Item {
                             text: modelData.displayName
 
                             onClicked: {
-                                camera.deviceId = modelData.deviceId
-//                                console.log(modelData.displayName)
+                                cameraSettings.cameraDeviceId = modelData.deviceId
                             }
                         }
 
                     }
 
-//                    ListView {
-//                        Layout.fillWidth: true
-//                        height: 300
-
-
-//                        model: QtMultimedia.availableCameras
-//                        delegate: Text {
-//                            text: modelData.displayName
-
-//                            color: "white"
-
-//                            MouseArea {
-//                                anchors.fill: parent
-//                                onClicked: {
-//                                    camera.deviceId = modelData.deviceId
-//                                }
-//                            }
-//                        }
-//                    }
 
                     RowLayout {}
 
@@ -846,7 +916,7 @@ Item {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                                printerNameField.text = String(imagePrint.getPrinterName())
+                                printerNameField.text = imagePrint.getPrinterName(printerNameField.text)
 
                             }
                         }
@@ -873,7 +943,7 @@ Item {
 
                     UpDownButton {
                         id: autoPrintCopies
-                        height: pixel(10)
+                        height: buttonHeight
                         width: height * 3
                     }
 
@@ -887,7 +957,7 @@ Item {
 
                     UpDownButton {
                         id: printCopiesPerSessionButton
-                        height: pixel(10)
+                        height: buttonHeight
                         width: height * 3
                     }
 

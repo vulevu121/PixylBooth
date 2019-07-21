@@ -31,6 +31,7 @@ Window {
     width: 1080/2
     height: 1920/2
 
+
     minimumWidth: 1080/2
     minimumHeight: 1920/2
     maximumWidth: 1080/2
@@ -40,11 +41,10 @@ Window {
     title: qsTr("PixylBooth")
 
     property real pixelDensity: Screen.pixelDensity
-    property real numberPhotos: 3
     property string lastCombinedPhoto
     property bool liveviewStarted: false
-    property string username: usernameField.text
-    property string password: passwordField.text
+//    property string username: usernameField.text
+//    property string password: passwordField.text
     property string idToken
     property string refreshToken
     property real photoAspectRatio: 3/2
@@ -54,12 +54,14 @@ Window {
         property alias x: mainWindow.x
         property alias y: mainWindow.y
         property alias lastCombinedPhoto: mainWindow.lastCombinedPhoto
-        property alias username: mainWindow.username
-        property alias password: mainWindow.password
-        property alias rememberMe: rememberMeCheckBox.checked
+//        property alias username: mainWindow.username
+//        property alias password: mainWindow.password
+//        property alias rememberMe: rememberMeCheckBox.checked
         property alias idToken: mainWindow.idToken
         property alias refreshToken: mainWindow.refreshToken
     }
+
+
 
 
     // function to assist in scaling with different resolutions and dpi
@@ -96,7 +98,9 @@ Window {
         return filePrefix.concat(path)
     }
 
-
+    Process {
+        id: process
+    }
 
 
     Firebase {
@@ -159,6 +163,8 @@ Window {
 
 
 
+
+
 //    Timer {
 //        id: initialTimer2
 //        interval: 1000
@@ -184,168 +190,170 @@ Window {
 //        }
 //    }
 
-    Timer {
-        id: loginPopupTimer
-        interval: 100
-        repeat: false
-        running: true
-        onTriggered: {
-            loginPopup.open()
-        }
-    }
+//    Timer {
+//        id: loginPopupTimer
+//        interval: 100
+//        repeat: false
+//        running: true
+//        onTriggered: {
+//            loginPopup.open()
+//        }
+//    }
 
 
-    Popup {
-        id: loginPopup
-        modal: true
-        closePolicy: Popup.NoAutoClose
-        anchors.centerIn: parent
-        z: 20
+//    Popup {
+//        id: loginPopup
+//        modal: true
+//        closePolicy: Popup.NoAutoClose
+//        anchors.centerIn: parent
+//        z: 20
 
-        background: Rectangle {
-            color: Material.background
-            opacity: 0.7
-            radius: pixel(3)
-            clip: true
+//        background: Rectangle {
+//            color: Material.background
+//            opacity: 0.7
+//            radius: pixel(3)
+//            clip: true
 
-            Rectangle {
-                width: parent.width
-                height: 3
-                id: barRect
-                color: Material.background
+//            Rectangle {
+//                width: parent.width
+//                height: 3
+//                id: barRect
+//                color: Material.background
 
-                Rectangle {
-                    id: movingRect
-                    width: 40
-                    x: -width
-                    height: parent.height
-                    color: Material.accent
-                }
+//                Rectangle {
+//                    id: movingRect
+//                    width: 40
+//                    x: -width
+//                    height: parent.height
+//                    color: Material.accent
+//                }
 
-                PropertyAnimation {
-                    id: loadingBar
-                    target: movingRect
-                    property: "x"
-                    from: -movingRect.width
-                    to: barRect.width
-                    duration: 1000
-                    easing.type: Easing.InOutQuad
-                    running: false
-                    loops: Animation.Infinite
-                }
-            }
-        }
-
-
-        Overlay.modal: GaussianBlur {
-            source: swipeview
-            radius: 8
-            samples: 16
-            deviation: 3
-        }
-
-//        Component.onCompleted: {
-//            if (refreshToken.search("eyJhbGciOiJSUzI1NiIsImtpZCI6IjY2NDNkZDM5") < 0) {
-//                loginPopup.open()
-//                if (rememberMeCheckBox.checked) {
-//                    usernameField.text = username
-//                    passwordField.text = password
+//                PropertyAnimation {
+//                    id: loadingBar
+//                    target: movingRect
+//                    property: "x"
+//                    from: -movingRect.width
+//                    to: barRect.width
+//                    duration: 1000
+//                    easing.type: Easing.InOutQuad
+//                    running: false
+//                    loops: Animation.Infinite
 //                }
 //            }
 //        }
 
-        Component.onCompleted: {
-            if (rememberMeCheckBox.checked) {
-                usernameField.text = username
-//                passwordField.text = password
-            }
-        }
 
-        GridLayout {
-            id: gridLayout
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            columns: 2
+//        Overlay.modal: GaussianBlur {
+//            source: swipeview
+//            radius: 8
+//            samples: 16
+//            deviation: 3
+//        }
 
-            Label {
-                text: qsTr("Username")
-                font.pixelSize: usernameField.font.pixelSize
-                color: Material.foreground
-            }
+////        Component.onCompleted: {
+////            if (refreshToken.search("eyJhbGciOiJSUzI1NiIsImtpZCI6IjY2NDNkZDM5") < 0) {
+////                loginPopup.open()
+////                if (rememberMeCheckBox.checked) {
+////                    usernameField.text = username
+////                    passwordField.text = password
+////                }
+////            }
+////        }
 
-            TextField {
-                id: usernameField
-                text: ""
-                Layout.minimumWidth: 200
-                selectByMouse: true
-//                placeholderText: "Enter your email"
-                Keys.onReturnPressed: {
-                    loginButton.clicked()
-                }
+//        Component.onCompleted: {
+//            if (rememberMeCheckBox.checked) {
+//                usernameField.text = username
+////                passwordField.text = password
+//            }
+//        }
 
-            }
+//        GridLayout {
+//            id: gridLayout
+//            anchors.verticalCenter: parent.verticalCenter
+//            anchors.horizontalCenter: parent.horizontalCenter
+//            columns: 2
 
-            Label {
-                text: qsTr("Password")
-                font.pixelSize: passwordField.font.pixelSize
-                color: Material.foreground
-            }
+//            Label {
+//                text: qsTr("Username")
+//                font.pixelSize: usernameField.font.pixelSize
+//                color: Material.foreground
+//            }
 
-            TextField {
-                id: passwordField
-                Layout.minimumWidth: 200
-                selectByMouse: true
-//                placeholderText: "Enter your password"
-                echoMode: TextInput.Password
-                Keys.onReturnPressed: {
-                    loginButton.clicked()
-                }
+//            TextField {
+//                id: usernameField
+//                text: ""
+//                Layout.minimumWidth: 200
+//                selectByMouse: true
+////                placeholderText: "Enter your email"
+//                Keys.onReturnPressed: {
+//                    loginButton.clicked()
+//                }
 
-            }
+//            }
 
-            CheckBox {
-                id: rememberMeCheckBox
-                text: qsTr("Remember")
-            }
+//            Label {
+//                text: qsTr("Password")
+//                font.pixelSize: passwordField.font.pixelSize
+//                color: Material.foreground
+//            }
 
-            Button {
-                id: loginButton
-                text: qsTr("Login")
-                onClicked: {
-                    console.log("Logging in...")
-                    loadingBar.running = true
-                    firebase.authenticate(usernameField.text.toString(), passwordField.text.toString())
-                }
-            }
+//            TextField {
+//                id: passwordField
+//                Layout.minimumWidth: 200
+//                selectByMouse: true
+////                placeholderText: "Enter your password"
+//                echoMode: TextInput.Password
+//                Keys.onReturnPressed: {
+//                    loginButton.clicked()
+//                }
 
-        }
+//            }
 
-    }
+//            CheckBox {
+//                id: rememberMeCheckBox
+//                text: qsTr("Remember")
+//            }
+
+//            Button {
+//                id: loginButton
+//                text: qsTr("Login")
+//                onClicked: {
+//                    console.log("Logging in...")
+//                    loadingBar.running = true
+//                    firebase.authenticate(usernameField.text.toString(), passwordField.text.toString())
+//                }
+//            }
+
+//        }
+
+//    }
 
 
 
 //    // ==== PUT DEBUG BUTTONS HERE!!! ====
-//    DebugButtons {}
+//    DebugButtons {
+//        visible: true
+//    }
 
 
     // ==== SWIPEVIEW ====
     SwipeView {
         id: swipeview
-        currentIndex: tabBar.currentIndex
+        currentIndex: 1
         anchors.fill: parent
-
-        Item {
-            CaptureView {
-                id: captureView
-                anchors.fill: parent
-            }
-        }
 
         Item {
             Gallery {
                 id: gallery
                 anchors.fill: parent
                 folder: addFilePrefix(settings.printFolder)
+            }
+        }
+
+        Item {
+            CaptureView {
+                id: captureView
+                anchors.fill: parent
             }
         }
 
@@ -409,42 +417,45 @@ Window {
 
         property real iconSize: pixel(10)
 
+        TabButton {
+            text: "Gallery"
+            width: implicitWidth
+            icon.source: "qrc:/Images/play_circle_filled_white_white_48dp.png"
+            icon.width: tabBar.iconSize
+            icon.height: tabBar.iconSize
+            display: AbstractButton.IconOnly
+
+            onClicked: {
+                swipeview.currentIndex = 0
+            }
+        }
 
         TabButton {
-            text: "Start"
+            text: "Capture"
             width: implicitWidth
             icon.source: "qrc:/Images/camera_white_48dp.png"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly
 
+            onClicked: {
+                swipeview.currentIndex = 1
+            }
         }
-
         TabButton {
-            text: "Play"
-            width: implicitWidth
-            icon.source: "qrc:/Images/play_circle_filled_white_white_48dp.png"
-            icon.width: tabBar.iconSize
-            icon.height: tabBar.iconSize
-            display: AbstractButton.IconOnly
-        }
-//        TabButton {
-//            text: "Game"
-//            width: implicitWidth
-//            icon.source: "qrc:/Images/apps_white_48dp.png"
-//            icon.width: iconSize
-//            icon.height: iconSize
-//            display: AbstractButton.IconOnly
-//        }
-
-        TabButton {
-            text: "General"
+            text: "Settings"
             width: implicitWidth
             icon.source: "qrc:/Images/settings_white_48dp.png"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly
+
+            onClicked: {
+                swipeview.currentIndex = 2
+            }
         }
+
+
 
 
     }

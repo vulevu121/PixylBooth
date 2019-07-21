@@ -1,24 +1,9 @@
 <RCC>
     <qresource prefix="/">
-        <file>main.qml</file>
-        <file>main.cpp</file>
-        <file>CustomButton.qml</file>
         <file>qtquickcontrols2.conf</file>
-        <file>ContentVideo.qml</file>
-        <file>FileBrowser.qml</file>
         <file>Images/folder_white_48dp.png</file>
         <file>Images/back_white_48dp.png</file>
         <file>Images/file_white_48dp.png</file>
-        <file>Countdown.qml</file>
-        <file>SettingGeneral.qml</file>
-        <file>SettingColor.qml</file>
-        <file>SettingVideo.qml</file>
-        <file>SettingCamera.qml</file>
-        <file>VideoList.qml</file>
-        <file>CustomPane.qml</file>
-        <file>LiveView.qml</file>
-        <file>CustomLabel.qml</file>
-        <file>SettingAction.qml</file>
         <file>Images/camera_alt_white_48dp.png</file>
         <file>Images/camera_white_48dp.png</file>
         <file>Images/settings_white_48dp.png</file>
@@ -29,19 +14,15 @@
         <file>Images/exit_to_app_white_48dp.png</file>
         <file>Images/fullscreen_exit_white_48dp.png</file>
         <file>Images/cancel_white_48dp.png</file>
-        <file>SettingPrinter.qml</file>
         <file>Images/print_white_48dp.png</file>
         <file>Images/sms_white_48dp.png</file>
         <file>Images/email_white_48dp.png</file>
         <file>Images/play_circle_filled_white_white_48dp.png</file>
         <file>Images/box-shadow.png</file>
-        <file>Gallery.qml</file>
         <file>Images/settings_backup_restore_white_48dp.png</file>
         <file>Images/corner.png</file>
         <file>Images/add_white_48dp.png</file>
         <file>Images/remove_white_48dp.png</file>
-        <file>UpDownButton.qml</file>
-        <file>ImagePopup.qml</file>
         <file>Images/clear_white_48dp.png</file>
         <file>Images/pause_white_48dp.png</file>
         <file>Images/play_arrow_white_48dp.png</file>
@@ -52,15 +33,38 @@
         <file>Images/send_white_48dp.png</file>
         <file>Images/transparent_48dp.png</file>
         <file>Images/cached_white_48dp.png</file>
+        <file>Images/drag_indicator_white_48dp.png</file>
+        <file>Images/open_with_white_48dp.png</file>
+        <file>Images/pan_tool_white_48dp.png</file>
+        <file>Images/zoom_in_white_48dp.png</file>
+        <file>Images/zoom_out_white_48dp.png</file>
+        <file>Images/delete_forever_white_48dp.png</file>
+        <file>CameraDummy.qml</file>
+        <file>CameraItem.qml</file>
+        <file>CaptureFrame.qml</file>
+        <file>CaptureToolbar.qml</file>
+        <file>CaptureView.qml</file>
+        <file>ContentVideo.qml</file>
+        <file>Countdown.qml</file>
+        <file>CustomButton.qml</file>
+        <file>CustomLabel.qml</file>
+        <file>CustomPane.qml</file>
+        <file>DebugButtons.qml</file>
+        <file>FileBrowser.qml</file>
+        <file>Gallery.qml</file>
+        <file>ImagePopup.qml</file>
+        <file>LiveView.qml</file>
+        <file>LiveViewVideo.qml</file>
+        <file>LoginScreen.qml</file>
+        <file>main.qml</file>
+        <file>SettingGeneral.qml</file>
+        <file>TemplateEditor.qml</file>
         <file>Toast.qml</file>
         <file>ToastManager.qml</file>
+        <file>UpDownButton.qml</file>
         <file>UpDownButtonVertical.qml</file>
-        <file>LoginScreen.qml</file>
-        <file>TemplateEditor.qml</file>
-        <file>DebugButtons.qml</file>
-        <file>CaptureToolbar.qml</file>
-        <file>LiveViewVideo.qml</file>
         <file>VideoBrowser.qml</file>
-        <file>CaptureView.qml</file>
+        <file>VideoList.qml</file>
+        <file>Webcamera.qml</file>
     </qresource>
 </RCC>

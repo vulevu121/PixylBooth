@@ -18,7 +18,7 @@ class SonyLiveview : public QQuickPaintedItem
 
 public:
     SonyLiveview(QQuickItem *parent = nullptr);
-    Q_INVOKABLE void setImage(const QImage &image);
+//    Q_INVOKABLE void setImage(const QImage &image);
     void paint(QPainter *painter);
 
 signals:
@@ -28,6 +28,7 @@ public slots:
     void connected();
     void disconnected();
     void readyRead();
+    void error();
     void start();
     void stop();
     bool isHostConnected();
@@ -37,8 +38,10 @@ public slots:
 
 private:
     QTcpSocket *socket = nullptr;
-    QByteArray array;
-    QImage currentImage;
+    QByteArray array = QByteArray("", 65535);
+    int payloadDataSize = 0;
+    QImage currentImage = QImage(640, 424, QImage::Format_RGB32);
+    QImage *currentImage2 = nullptr;
     bool m_hostConnected = false;
     bool m_flipHorizontally = false;
 };

@@ -11,42 +11,44 @@ import Qt.labs.settings 1.1
 
 ColumnLayout {
     id: mainButtonsLayout
-//                anchors.fill: parent
+
     anchors.verticalCenter: parent.verticalCenter
     anchors.right: parent.right
     z: 5
     opacity: 0.8
     spacing: pixel(6)
     property real iconSize: pixel(16)
-    property alias exposureButton: exposureButton
+    property alias playPauseButton: playPauseButton
+//    property alias exposureButton: exposureButton
 
 
-    UpDownButtonVertical {
-        id: exposureButton
-        min: -15
-        max: 15
-        value: 0
-        scale: 1.2
-        Layout.alignment: Qt.AlignHCenter
+//    UpDownButton {
+//        id: exposureButton
+//        min: -15
+//        max: 15
+//        value: 0
+//        height: pixel(12)
 
-        onValueChanged: {
-            sonyAPI.setExposureCompensation(exposureButton.value)
-            toast.show("Camera exposure set to " + exposureButton.value)
-        }
+//        Layout.alignment: Qt.AlignTop
 
-        Timer {
-            id: getExposureTimer
-            interval: 3000
-            repeat: false
-            running: true
+//        onValueChanged: {
+//            sonyAPI.setExposureCompensation(exposureButton.value)
+//            toast.show("Camera exposure set to " + exposureButton.value)
+//        }
 
-            onTriggered: {
-                sonyAPI.getExposureCompensation()
-            }
+//        Timer {
+//            id: getExposureTimer
+//            interval: 3000
+//            repeat: false
+//            running: true
 
-        }
+//            onTriggered: {
+//                sonyAPI.getExposureCompensation()
+//            }
 
-    }
+//        }
+
+//    }
 
     Button {
         id: undoLastButton
@@ -86,7 +88,6 @@ ColumnLayout {
         onClicked: {
             undoLastButtonAnimation.start()
             if (captureView.state != "start") {
-                resetCountdownTimer()
                 if (photoList.count > 0) {
                     photoList.remove(photoList.count-1, 1)
                 }
@@ -133,6 +134,71 @@ ColumnLayout {
             startState()
         }
     }
+
+    Button {
+        id: playPauseButton
+        text: "Play/Pause"
+        Layout.alignment: Qt.AlignRight | Qt.AlignTop
+        icon.source: checked ? "qrc:/Images/pause_white_48dp.png" : "qrc:/Images/play_arrow_white_48dp.png"
+        icon.width: mainButtonsLayout.iconSize
+        icon.height: mainButtonsLayout.iconSize
+        display: AbstractButton.IconOnly
+        highlighted: true
+        Material.accent: Material.color(Material.Green, Material.Shade700)
+        checkable: true
+
+        onClicked: {
+
+            playPauseButtonAnimation.start()
+            var playState = playPauseButton.checked
+
+            if (root.state === "start") {
+                liveView.start()
+                beforeCaptureState()
+            }
+
+            if (root.state === "beforecapture") {
+                beforeCaptureTimer.running = playState
+            }
+
+            if (root.state === "liveview") {
+                countdownTimer.running = playState
+            }
+
+            if (root.state === "review") {
+                reviewTimer.running = playState
+            }
+
+            if (root.state === "endsession") {
+                endSessionTimer.running = playState
+            }
+
+        }
+
+        ParallelAnimation {
+            id: playPauseButtonAnimation
+            NumberAnimation {
+                target: playPauseButton
+                property: "opacity";
+                from: 0.5;
+                to: 1;
+                duration: 800;
+                easing.type: Easing.InOutQuad;
+            }
+
+            NumberAnimation {
+                target: playPauseButton
+                property: "scale";
+                from: 0.8;
+                to: 1;
+                duration: 600;
+                easing.type: Easing.InOutQuad;
+            }
+
+        }
+
+    }
+
 
     Button {
         id: fullScreenButton

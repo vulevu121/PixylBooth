@@ -1,11 +1,11 @@
-QT += gui quick widgets multimedia network printsupport
+QT += gui quick widgets multimedia network printsupport webview
 CONFIG += c++11
 
 TEMPLATE = app
-win32:VERSION = 0.92
-else:VERSION = 0.92
+win32:VERSION = 1.1
+else:VERSION = 1.1
 
-RC_ICONS = 1718703_0d0_icon.ico
+RC_ICONS = PixylBooth.ico
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -50,4 +50,6 @@ HEADERS += \
     SonyLiveview.h \
     SonyAPI.h
 
-DISTFILES +=
+DISTFILES += \
+
+

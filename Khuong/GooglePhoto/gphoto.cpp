@@ -3,6 +3,7 @@
 GooglePhoto::GooglePhoto(QObject *parent) : QObject(parent)
 {
     RequestAuthCode();
+    qDebug() << "Starting...";
 }
 
 void GooglePhoto::RequestAuthCode(){
@@ -10,7 +11,7 @@ void GooglePhoto::RequestAuthCode(){
          manager = new QNetworkAccessManager(this);
      }
 
-    QFile jsonFile("C:/Users/khuon/Documents/GooglePhoto/client_secret_1044474243779-a1gndnc2as4cc5c6ufksmbetoafi5mcr.apps.googleusercontent.com.json");
+    QFile jsonFile("C:/Users/Vu/Documents/PixylBooth/Khuong/GooglePhoto/client_secret_105228333017-kta8j4v1f338vea2ktnkgjkudd08n89j.apps.googleusercontent.com.json");
     jsonFile.open(QFile::ReadOnly);
     QJsonDocument document = QJsonDocument().fromJson(jsonFile.readAll());
 
@@ -51,7 +52,7 @@ void GooglePhoto::RequestAuthCode(){
 //        qDebug() << client_secret;
 
         inputAlbumName = QString("My shared album");
-        pathToPic = QString("C:/Users/khuon/Documents/GooglePhoto/1.jpg");
+        pathToPic = QString("C:/Users/Vu/Documents/PixylBooth/Khuong/GooglePhoto/1.jpg");
 
         QUrl url(authEndpoint + scope + response_type + redirect_uri + client_id);
 
@@ -69,8 +70,8 @@ void GooglePhoto::AuthCodeReply(QNetworkReply *reply) {
         qDebug() << reply->errorString();
     } else {
         qDebug() << "Access Code request success!";
-        QUrl url = reply->url();
-        QWebEngineView *view = new QWebEngineView;
+        QUrl url(reply->url());
+        QWebEngineView *view = new QWebEngineView();
         view->load(url);
         connect(view,SIGNAL(urlChanged(QUrl)),this,SLOT(AuthCodeRedirectReply(QUrl)));
     }
@@ -133,317 +134,317 @@ void GooglePhoto::AccessTokenReply(QNetworkReply *reply) {
         qDebug() <<  token;
         manager->disconnect();
 
-        UploadPicData();
+//        UploadPicData();
 //        EmailAlbumLink();
     }
 
 }
 
-void GooglePhoto::UploadPicData(){
-        qDebug() << "Uploading binary";
+//void GooglePhoto::UploadPicData(){
+//        qDebug() << "Uploading binary";
 
-        if (manager == nullptr) {
-             manager = new QNetworkAccessManager(this);
-         }
-//        QFile file("C:/Users/khuon/Documents/GooglePhoto/rdm.jpg");
-        QFile file(pathToPic);
+//        if (manager == nullptr) {
+//             manager = new QNetworkAccessManager(this);
+//         }
+////        QFile file("C:/Users/khuon/Documents/GooglePhoto/rdm.jpg");
+//        QFile file(pathToPic);
 
-        qDebug() << "File exists:" << file.exists();
+//        qDebug() << "File exists:" << file.exists();
 
-        file.open(QIODevice::ReadOnly);
-        QByteArray fileBytes = file.readAll();
-        file.close();
+//        file.open(QIODevice::ReadOnly);
+//        QByteArray fileBytes = file.readAll();
+//        file.close();
 
 
-        QNetworkRequest req (QUrl("https://photoslibrary.googleapis.com/v1/uploads"));
-        req.setRawHeader("Authorization","Bearer "+ token.toUtf8());
-        req.setRawHeader("Content-Type","application/octet-stream");
-        req.setRawHeader("X-Goog-Upload-File-Name",file.fileName().toUtf8());
-        req.setRawHeader("X-Goog-Upload-File-Name","rdm1.jpg");
-        req.setRawHeader("X-Goog-Upload-Protocol", "raw");
+//        QNetworkRequest req (QUrl("https://photoslibrary.googleapis.com/v1/uploads"));
+//        req.setRawHeader("Authorization","Bearer "+ token.toUtf8());
+//        req.setRawHeader("Content-Type","application/octet-stream");
+//        req.setRawHeader("X-Goog-Upload-File-Name",file.fileName().toUtf8());
+//        req.setRawHeader("X-Goog-Upload-File-Name","rdm1.jpg");
+//        req.setRawHeader("X-Goog-Upload-Protocol", "raw");
 
-//        qDebug() << req.rawHeader("Authorization");
-//        qDebug() << req.rawHeader("X-Goog-Upload-File-Name");
-//        qDebug() << req.rawHeader("X-Goog-Upload-Protocol");
-//        qDebug() << req.rawHeader("Content-Type");
+////        qDebug() << req.rawHeader("Authorization");
+////        qDebug() << req.rawHeader("X-Goog-Upload-File-Name");
+////        qDebug() << req.rawHeader("X-Goog-Upload-Protocol");
+////        qDebug() << req.rawHeader("Content-Type");
 
 
-        manager->post(req, fileBytes);
-        connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-                this, SLOT(UploadReply(QNetworkReply*)));
-}
+//        manager->post(req, fileBytes);
+//        connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+//                this, SLOT(UploadReply(QNetworkReply*)));
+//}
 
-void GooglePhoto::UploadReply(QNetworkReply *reply) {
-    if(reply->error()) {
-        qDebug() << reply->errorString();
-    } else {
-        qDebug() << "Upload Success!";
-        uploadToken = reply->readAll();
-//        qDebug() << "Upload Token: " << uploadToken << endl;
-    }
-    manager->disconnect();
-//    CreateMedia();
-    CreateAlbum(inputAlbumName);
-}
+//void GooglePhoto::UploadReply(QNetworkReply *reply) {
+//    if(reply->error()) {
+//        qDebug() << reply->errorString();
+//    } else {
+//        qDebug() << "Upload Success!";
+//        uploadToken = reply->readAll();
+////        qDebug() << "Upload Token: " << uploadToken << endl;
+//    }
+//    manager->disconnect();
+////    CreateMedia();
+//    CreateAlbum(inputAlbumName);
+//}
 
 
-void GooglePhoto::CreateMedia(QString AlbumID){
-    if (manager == nullptr) {
-        manager = new QNetworkAccessManager(this);
-    }
+//void GooglePhoto::CreateMedia(QString AlbumID){
+//    if (manager == nullptr) {
+//        manager = new QNetworkAccessManager(this);
+//    }
 
-    QUrl endpoint("https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate");
-    QNetworkRequest req(endpoint);
-    req.setRawHeader("Content-Type","application/json");
-    req.setRawHeader("Authorization","Bearer "+ token.toUtf8());
+//    QUrl endpoint("https://photoslibrary.googleapis.com/v1/mediaItems:batchCreate");
+//    QNetworkRequest req(endpoint);
+//    req.setRawHeader("Content-Type","application/json");
+//    req.setRawHeader("Authorization","Bearer "+ token.toUtf8());
 
-    QJsonObject temp;
-        temp["uploadToken"] = uploadToken;
+//    QJsonObject temp;
+//        temp["uploadToken"] = uploadToken;
 
-    QJsonObject temp2;
-    temp2 [ "description" ] = "my rdm";
-    temp2 ["simpleMediaItem"] = temp;
+//    QJsonObject temp2;
+//    temp2 [ "description" ] = "my rdm";
+//    temp2 ["simpleMediaItem"] = temp;
 
-    QJsonArray arr;
-    arr.append(temp2);
+//    QJsonArray arr;
+//    arr.append(temp2);
 
-    QJsonObject obj;
-    obj ["newMediaItems"] = arr;
+//    QJsonObject obj;
+//    obj ["newMediaItems"] = arr;
 
 
-    /* Add media to provided album id if available */
-    if (AlbumID.isEmpty()){
-        qDebug() << "album ID not available";
-      }else{
-        qDebug() << "album ID available";
-        obj ["albumId"] = AlbumID;
+//    /* Add media to provided album id if available */
+//    if (AlbumID.isEmpty()){
+//        qDebug() << "album ID not available";
+//      }else{
+//        qDebug() << "album ID available";
+//        obj ["albumId"] = AlbumID;
 
-    }
+//    }
 
 
-    //to see the JSON output
-    QJsonDocument doc (obj);
-//    qDebug() << doc << endl; //this object works, but something goes wrong when convert to QJsonDocument
+//    //to see the JSON output
+//    QJsonDocument doc (obj);
+////    qDebug() << doc << endl; //this object works, but something goes wrong when convert to QJsonDocument
 
 
-    QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
-    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
-    req.setRawHeader("Content-Length", postDataSize);
+//    QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
+//    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+//    req.setRawHeader("Content-Length", postDataSize);
 
-      manager->post(req,jsonRequest);
+//      manager->post(req,jsonRequest);
 
-    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(CreateMediaReply(QNetworkReply*)));
-}
+//    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+//            this, SLOT(CreateMediaReply(QNetworkReply*)));
+//}
 
-void GooglePhoto::CreateMediaReply(QNetworkReply *reply) {
-    if(reply->error()) {
-        qDebug() << "Create Media Error" << reply->readAll();
-    } else {
-        qDebug() << "Create Media Success!";
-//        qDebug() << reply->readAll();
+//void GooglePhoto::CreateMediaReply(QNetworkReply *reply) {
+//    if(reply->error()) {
+//        qDebug() << "Create Media Error" << reply->readAll();
+//    } else {
+//        qDebug() << "Create Media Success!";
+////        qDebug() << reply->readAll();
 
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
-        QJsonObject jsonObj = jsonDoc.object();
+//        QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
+//        QJsonObject jsonObj = jsonDoc.object();
 
-        qDebug() << jsonObj["newMediaItemResults"].toArray()[0].toObject()["mediaItem"].toObject()["description"];
+//        qDebug() << jsonObj["newMediaItemResults"].toArray()[0].toObject()["mediaItem"].toObject()["description"];
 
-    }
-    manager->disconnect();
+//    }
+//    manager->disconnect();
 
-}
+//}
 
-void GooglePhoto::CreateAlbum(QString album_name){
-    qDebug() << "Creating new album!";
+//void GooglePhoto::CreateAlbum(QString album_name){
+//    qDebug() << "Creating new album!";
 
-    if (manager == nullptr) {
-        manager = new QNetworkAccessManager(this);
-    }
+//    if (manager == nullptr) {
+//        manager = new QNetworkAccessManager(this);
+//    }
 
-    QUrl endpoint("https://photoslibrary.googleapis.com/v1/albums");
-    QNetworkRequest req(endpoint);
-    req.setRawHeader("Content-Type","application/json");
-    req.setRawHeader("Authorization","Bearer "+ token.toUtf8());
+//    QUrl endpoint("https://photoslibrary.googleapis.com/v1/albums");
+//    QNetworkRequest req(endpoint);
+//    req.setRawHeader("Content-Type","application/json");
+//    req.setRawHeader("Authorization","Bearer "+ token.toUtf8());
 
-    QJsonObject obj;
-    obj["title"] = album_name;
+//    QJsonObject obj;
+//    obj["title"] = album_name;
 
-    QJsonObject jsonObj {
-        {"album",obj}
-    };
+//    QJsonObject jsonObj {
+//        {"album",obj}
+//    };
 
-    QJsonDocument doc (jsonObj);
+//    QJsonDocument doc (jsonObj);
 
-//    qDebug() << doc;
+////    qDebug() << doc;
 
-    QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
-    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
-    req.setRawHeader("Content-Length", postDataSize);
+//    QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
+//    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+//    req.setRawHeader("Content-Length", postDataSize);
 
-    manager->post(req,jsonRequest);
+//    manager->post(req,jsonRequest);
 
-    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(CreateAlbumReply(QNetworkReply*)));
-}
+//    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+//            this, SLOT(CreateAlbumReply(QNetworkReply*)));
+//}
 
 
-void GooglePhoto::CreateAlbumReply(QNetworkReply * reply){
-    if(reply->error()) {
-        qDebug() << "Create Album Error" << reply->readAll();
-    } else {
-//        qDebug() << "Create Album Success!";
-//        qDebug() << reply->readAll();
+//void GooglePhoto::CreateAlbumReply(QNetworkReply * reply){
+//    if(reply->error()) {
+//        qDebug() << "Create Album Error" << reply->readAll();
+//    } else {
+////        qDebug() << "Create Album Success!";
+////        qDebug() << reply->readAll();
 
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
-        QJsonObject jsonObj = jsonDoc.object();
+//        QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
+//        QJsonObject jsonObj = jsonDoc.object();
 
 
-        albumID = jsonObj["id"].toString();
-        qDebug() << "Album created:" << albumID;
+//        albumID = jsonObj["id"].toString();
+//        qDebug() << "Album created:" << albumID;
 
-          albumURL = jsonObj["productUrl"].toString();
-          qDebug() << "Album link:" << albumURL;
-     }
-    manager->disconnect();
+//          albumURL = jsonObj["productUrl"].toString();
+//          qDebug() << "Album link:" << albumURL;
+//     }
+//    manager->disconnect();
 
-    ShareAlbum(albumID);
+//    ShareAlbum(albumID);
 
-}
+//}
 
-QString GooglePhoto::getAlbumId(){
-    return GooglePhoto::albumID;
-}
+//QString GooglePhoto::getAlbumId(){
+//    return GooglePhoto::albumID;
+//}
 
-void GooglePhoto::GetAlbums(){
-    if (manager == nullptr) {
-        manager = new QNetworkAccessManager(this);
-    }
+//void GooglePhoto::GetAlbums(){
+//    if (manager == nullptr) {
+//        manager = new QNetworkAccessManager(this);
+//    }
 
-    QUrl endpoint("https://photoslibrary.googleapis.com/v1/albums");
-    QNetworkRequest req(endpoint);
-    req.setRawHeader("Authorization","Bearer "+ token.toUtf8());
+//    QUrl endpoint("https://photoslibrary.googleapis.com/v1/albums");
+//    QNetworkRequest req(endpoint);
+//    req.setRawHeader("Authorization","Bearer "+ token.toUtf8());
 
-    manager->get(req);
+//    manager->get(req);
 
-    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(GetAlbumsReply(QNetworkReply*)));
-}
+//    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+//            this, SLOT(GetAlbumsReply(QNetworkReply*)));
+//}
 
-void GooglePhoto::GetAlbumsReply(QNetworkReply * reply){
-    if(reply->error()) {
-        qDebug() << "Get Shared Albums Error" << reply->readAll();
-    } else {
+//void GooglePhoto::GetAlbumsReply(QNetworkReply * reply){
+//    if(reply->error()) {
+//        qDebug() << "Get Shared Albums Error" << reply->readAll();
+//    } else {
 
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
-        QJsonObject jsonObj = jsonDoc.object();
+//        QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
+//        QJsonObject jsonObj = jsonDoc.object();
 
-        qDebug() << jsonObj; //["mediaItems"].toArray()["mediaItem"].toObject()["description"];
+//        qDebug() << jsonObj; //["mediaItems"].toArray()["mediaItem"].toObject()["description"];
 
-     }
-    manager->disconnect();
-}
+//     }
+//    manager->disconnect();
+//}
 
-void GooglePhoto::ShareAlbum(QString AlbumID){
-    if (manager == nullptr) {
-         manager = new QNetworkAccessManager(this);
-     }
+//void GooglePhoto::ShareAlbum(QString AlbumID){
+//    if (manager == nullptr) {
+//         manager = new QNetworkAccessManager(this);
+//     }
 
-    QString endpoint ("https://photoslibrary.googleapis.com/v1/albums/");
+//    QString endpoint ("https://photoslibrary.googleapis.com/v1/albums/");
 
-    QUrl reqURL(endpoint + AlbumID + QString(":share"));
-    QNetworkRequest req(reqURL);
-    req.setRawHeader("Authorization","Bearer "+ token.toUtf8());
-    req.setRawHeader("Content-Type","application/json");
+//    QUrl reqURL(endpoint + AlbumID + QString(":share"));
+//    QNetworkRequest req(reqURL);
+//    req.setRawHeader("Authorization","Bearer "+ token.toUtf8());
+//    req.setRawHeader("Content-Type","application/json");
 
-    QJsonObject temp{
-        {"isCollaborative", "false"},
-        {"isCommentable", "false"}
-    };
+//    QJsonObject temp{
+//        {"isCollaborative", "false"},
+//        {"isCommentable", "false"}
+//    };
 
-    QJsonObject jsonObj{
-        {"sharedAlbumOptions", temp}
-    };
+//    QJsonObject jsonObj{
+//        {"sharedAlbumOptions", temp}
+//    };
 
-    QJsonDocument doc (jsonObj);
+//    QJsonDocument doc (jsonObj);
 
-//    qDebug() << doc;
+////    qDebug() << doc;
 
-    QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
-    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
-    req.setRawHeader("Content-Length", postDataSize);
+//    QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
+//    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+//    req.setRawHeader("Content-Length", postDataSize);
 
-    manager->post(req,jsonRequest);
+//    manager->post(req,jsonRequest);
 
-    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(ShareAlbumReply(QNetworkReply*)));
-}
-void GooglePhoto::ShareAlbumReply(QNetworkReply * reply){
-    if(reply->error()) {
-        qDebug() << "Sharing Albums Error" << reply->readAll();
-    } else {
-        qDebug() << "Sharing Albums Success";
+//    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+//            this, SLOT(ShareAlbumReply(QNetworkReply*)));
+//}
+//void GooglePhoto::ShareAlbumReply(QNetworkReply * reply){
+//    if(reply->error()) {
+//        qDebug() << "Sharing Albums Error" << reply->readAll();
+//    } else {
+//        qDebug() << "Sharing Albums Success";
 
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
-        QJsonObject jsonObj = jsonDoc.object();
+//        QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
+//        QJsonObject jsonObj = jsonDoc.object();
+
+////        qDebug() << jsonObj;
+//        shareableURL =  jsonObj["shareInfo"].toObject()["shareableUrl"].toString();
+//        qDebug() << shareableURL;
+
+//     }
+//    manager->disconnect();
+//    CreateMedia(albumID);
+//}
+
+//void GooglePhoto::EmailAlbumLink(){
+//    qDebug() << "Emailing Album Link...";
+
+//    if (manager == nullptr) {
+//         manager = new QNetworkAccessManager(this);
+//     }
+
+//    QByteArray message ("To: khuong.dinh.ng@gmail.com"
+//                     "Subject: Saying Hello"
+//                     "This is a message just to say hello. So, Hello.");
+//    QByteArray encoded = message.toBase64(QByteArray::Base64UrlEncoding);
+
+//    QJsonObject jsonObj;
+//    jsonObj ["raw"] = QString(encoded);
+
+//    QString email ("me");
+//    QString endPoint ("https://www.googleapis.com/gmail/v1/users/");
+//    QUrl url(endPoint + email + "/messages/send");
+//    QNetworkRequest req(url);
+
+//    req.setRawHeader("Authorization","Bearer "+ token.toUtf8());
+//    req.setRawHeader("Content-Type","application/json");
+
+//    QJsonDocument doc (jsonObj);
+
+////    qDebug() << doc;
+
+//    QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
+//    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+//    req.setRawHeader("Content-Length", postDataSize);
+
+//    manager->post(req,jsonRequest);
+
+//    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+//            this, SLOT(EmailAlbumLinkReply(QNetworkReply*)));
+//}
+
+//void GooglePhoto::EmailAlbumLinkReply(QNetworkReply * reply){
+//    if(reply->error()) {
+//        qDebug() << "Emailing Link Error" << reply->readAll();
+//    } else {
+//        qDebug() << "Emailing Link Success";
+
+//        QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
+//        QJsonObject jsonObj = jsonDoc.object();
 
 //        qDebug() << jsonObj;
-        shareableURL =  jsonObj["shareInfo"].toObject()["shareableUrl"].toString();
-        qDebug() << shareableURL;
 
-     }
-    manager->disconnect();
-    CreateMedia(albumID);
-}
+//     }
+//    manager->disconnect();
 
-void GooglePhoto::EmailAlbumLink(){
-    qDebug() << "Emailing Album Link...";
-
-    if (manager == nullptr) {
-         manager = new QNetworkAccessManager(this);
-     }
-
-    QByteArray message ("To: khuong.dinh.ng@gmail.com"
-                     "Subject: Saying Hello"
-                     "This is a message just to say hello. So, Hello.");
-    QByteArray encoded = message.toBase64(QByteArray::Base64UrlEncoding);
-
-    QJsonObject jsonObj;
-    jsonObj ["raw"] = QString(encoded);
-
-    QString email ("me");
-    QString endPoint ("https://www.googleapis.com/gmail/v1/users/");
-    QUrl url(endPoint + email + "/messages/send");
-    QNetworkRequest req(url);
-
-    req.setRawHeader("Authorization","Bearer "+ token.toUtf8());
-    req.setRawHeader("Content-Type","application/json");
-
-    QJsonDocument doc (jsonObj);
-
-//    qDebug() << doc;
-
-    QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
-    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
-    req.setRawHeader("Content-Length", postDataSize);
-
-    manager->post(req,jsonRequest);
-
-    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(EmailAlbumLinkReply(QNetworkReply*)));
-}
-
-void GooglePhoto::EmailAlbumLinkReply(QNetworkReply * reply){
-    if(reply->error()) {
-        qDebug() << "Emailing Link Error" << reply->readAll();
-    } else {
-        qDebug() << "Emailing Link Success";
-
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
-        QJsonObject jsonObj = jsonDoc.object();
-
-        qDebug() << jsonObj;
-
-     }
-    manager->disconnect();
-
-}
+//}

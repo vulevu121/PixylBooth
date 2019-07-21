@@ -5,14 +5,14 @@ PrintPhotos::PrintPhotos(QObject *parent) : QObject(parent)
 
 }
 
-QString PrintPhotos::getPrinterName() {
+QString PrintPhotos::getPrinterName(QString const &printerName) {
     QPrinter printer;
 
     QPrintDialog *dialog = new QPrintDialog(&printer);
     dialog->setWindowTitle("Print Document");
 
-    if (dialog->exec() != QDialog::Accepted)
-        return "";
+    if (dialog->exec() != QDialog::Accepted) return printerName;
+
 
     return printer.printerName();
 
@@ -93,7 +93,7 @@ void PrintThread::run() {
 
     qDebug() << photoPath;
 
-    QImage photoScaled = photo.scaled(int(qsize.width()), int(qsize.height()));
+    QImage photoScaled = photo.scaled(1820, 1230);
     printerPainter.drawImage(0, 0, photoScaled);
 
     printerPainter.end();
