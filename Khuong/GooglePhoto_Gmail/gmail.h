@@ -10,23 +10,35 @@
 #include <QString>
 #include <QFile>
 #include <QUrl>
+#include "googleoauth2.h"
 
 class GMAIL : public QObject
 {
     Q_OBJECT
 public:
     explicit GMAIL(QObject *parent = nullptr);
+
 private:
     QNetworkAccessManager *manager = nullptr;
+    GoogleOAuth2 auth;
     QString albumURL;
     QString accessToken;
+    QString receiverEmail;
+    QString senderEmail;
 
 signals:
+    QString SentStatus (QString reply);
+    void sendReady();
 
 public slots:
-
+    void SetAlbumURL(QString url);
     void SendEmail();
+    void SetToEmail(QString email);
+    void SetFromEmail(QString email);
+
+private slots:
     void SendEmailReply(QNetworkReply * reply);
+    void SetAccessToken(QString token);
 
 
 };

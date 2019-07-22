@@ -2,10 +2,27 @@
 
 GMAIL::GMAIL(QObject *parent) : QObject(parent)
 {
-    accessToken = QString("ya29.GlxJB30WnIvGJ9IjDMPHxqspVhVOs5VntOmhy1uThP6kDKdC37FMlLnN0q7YzIJzVML46GBpM3_ptHOaNHp5dxfEzRNYuJA4De0E12jQL4HJb9esJo_9ulw_qtKFFA");
-    albumURL = QString("https://photos.app.goo.gl/U59jf5pMxV1FHV4H8");
-    SendEmail();
+    auth.SetScope("GMAIL"); // default scope is google photo
+    auth.RequestAuthCode();
 
+    connect(&auth,SIGNAL(tokenReady(QString)),this,SLOT(SetAccessToken(QString)));
+    connect(this, SIGNAL(sendReady()),this,SLOT(SendEmail()));
+
+}
+
+void GMAIL::SetToEmail(QString email){
+    receiverEmail = email;
+}
+void GMAIL::SetFromEmail(QString email){
+    senderEmail = email;
+    }
+void GMAIL::SetAccessToken(QString token){
+    accessToken = token;
+    emit sendReady();
+}
+
+void GMAIL::SetAlbumURL(QString url){
+    albumURL = url;
 }
 void GMAIL::SendEmail(){
     qDebug() << "Sending email with link...";
@@ -14,8 +31,8 @@ void GMAIL::SendEmail(){
          manager = new QNetworkAccessManager(this);
      }
 
-    QString message ("From: khuongnguyensac@gmail.com\n"
-                    "To: khuong.dinh.ng@gmail.com,vulevu121@gmail.com,timz1992@yahoo.com  \n"
+    QString message ("From:"+ senderEmail+ "\n"
+                    "To:" + receiverEmail+ "\n"
                      "Subject: Sending Email is DONE!\n"
                      "\n"
                      "Time to up the pricing!\n"
@@ -30,7 +47,7 @@ void GMAIL::SendEmail(){
     encoded.replace("/","_");
 //    encoded.replace("=","*");
 
-    qDebug() << encoded ;
+//    qDebug() << encoded ;
 
     QJsonObject jsonObj;
     jsonObj ["raw"] = QString(encoded);

@@ -41,9 +41,9 @@ private slots:
     void AccessTokenReply(QNetworkReply *reply);
 
 public slots:
-    void RequestAuthCode(QString RequestScope = "PHOTO");
-    QString GetAccessToken();
-
+    void RequestAuthCode();
+    void SetScope(QString RequestScope = "PHOTO");
+    void SetScopeRaw(QString RawScope);
 signals:
     void tokenReady(QString token);
 };

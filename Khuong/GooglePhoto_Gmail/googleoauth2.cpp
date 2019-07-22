@@ -4,7 +4,22 @@ GoogleOAuth2::GoogleOAuth2(QObject *parent) : QObject(parent)
 {
 
 }
-void GoogleOAuth2::RequestAuthCode(QString RequestScope){
+void GoogleOAuth2::SetScope(QString RequestScope){
+
+    if(RequestScope == "GMAIL"){
+        qDebug() << "Scope for Gmail";
+        scope = QString("?scope=https://www.googleapis.com/auth/gmail.send"); // Create, read, update, and delete drafts. Send messages and drafts.
+    }else{
+        qDebug() << "Scope for Google Photo";
+        scope = QString("?scope=https://www.googleapis.com/auth/photoslibrary.sharing"); // scope for sharing
+    }
+}
+
+void GoogleOAuth2::SetScopeRaw(QString RawScope){
+    scope = QString("?scope="+RawScope);
+
+}
+void GoogleOAuth2::RequestAuthCode(){
     if (manager == nullptr) {
          manager = new QNetworkAccessManager(this);
      }
@@ -17,14 +32,6 @@ void GoogleOAuth2::RequestAuthCode(QString RequestScope){
     settingsObject = object["web"].toObject();
     authEndpoint = settingsObject["auth_uri"].toString();
     tokenEndpoint = settingsObject["token_uri"].toString() + "?";
-
-    if (RequestScope == "PHOTO"){
-        qDebug() << "Scope for Google Photo";
-        scope = QString("?scope=https://www.googleapis.com/auth/photoslibrary.sharing"); // scope for sharing
-     }else{
-        qDebug() << "Scope for Gmail";
-        scope = QString("?scope=https://www.googleapis.com/auth/gmail.send"); // Create, read, update, and delete drafts. Send messages and drafts.
-     }
 
     response_type = QString("&response_type=code");
 
@@ -118,14 +125,15 @@ void GoogleOAuth2::AccessTokenReply(QNetworkReply *reply) {
 
         QJsonObject jsonObject = jsonDoc.object();
 
+
         accessToken = jsonObject["access_token"].toString();
         qDebug() <<  accessToken;
-        manager->disconnect();
         emit tokenReady(accessToken);
+
+        manager->disconnect();
     }
-//    return;
 }
 
-QString GoogleOAuth2::GetAccessToken(){
-    return accessToken;
-}
+//QString GoogleOAuth2::GetAccessToken(){
+//    return accessToken;
+//}
