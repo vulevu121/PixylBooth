@@ -195,7 +195,8 @@ void Firebase::getLatestDownloadReply(QNetworkReply *reply) {
 
     }
     manager->disconnect();
-    downloadLatestRelease(downloadLink);
+
+    if (downloadLink.length() > 0) downloadLatestRelease(downloadLink);
 
 }
 

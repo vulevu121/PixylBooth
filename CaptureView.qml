@@ -26,18 +26,40 @@ Item {
     property alias liveView: liveView
     property alias mediaPlayer: mediaPlayer
     property alias countdown: countdown
-    property alias playPauseButton: playPauseButton
+
     property alias videoLoader: videoLoader
     property alias review: review
     property alias endSession: endSession
     property alias captureToolbar: captureToolbar
 
-    Settings {
-        id: mainSettings
-        property string cameraDeviceId
-    }
+
+//    Settings {
+//        id: mainSettings
+//        property string cameraDeviceId
+//    }
+
+//    Settings {
+//        id: profileSettings
+//        property string templateImagePath
+//    }
+
+
+//    Settings {
+//        id: templateSettings
+//        category: "Template"
+//        property string templateFormat
+//        property real numberPhotos
+//    }
+
+//    Settings {
+//        id: cameraSettings
+//        category: "Camera"
+//        property string cameraDeviceId
+//    }
 
     function startState() {
+        sonyAPI.stop()
+        sonyAPI.start()
         playStartVideos()
 
         // clear photo list and timers before capture
@@ -45,20 +67,21 @@ Item {
         stopAllTimers()
         resetCountdownTimer()
 
-
-        sonyAPI.start()
         toast.show("Initializing Sony camera")
 
-        playPauseButton.checked = false
+        captureToolbar.playPauseButton.checked = false
         root.state = "start"
+//        liveView.stop()
+//        liveView.start()
 
     }
 
     function beforeCaptureState() {
+        stopAllTimers()
+        sonyAPI.cancelHalfPressShutter()
         playBeforeCaptureVideos()
         beforeCaptureTimer.restart()
         root.state = "beforecapture"
-
     }
 
     function liveviewState() {
@@ -67,6 +90,13 @@ Item {
         countdownTimer.restart()
         reviewImage.source = ""
         root.state = "liveview"
+
+    }
+
+    function afterCaptureState() {
+        playAfterCaptureVideos()
+        afterCaptureTimer.restart()
+        root.state = "afterCapture"
 
     }
 
@@ -81,14 +111,16 @@ Item {
         endSessionPopup.open()
         endSessionTimer.restart()
         root.state = "endsession"
-//        liveView.stop()
+        liveView.stop()
     }
 
     function stopAllTimers() {
         beforeCaptureTimer.stop()
+        afterCaptureTimer.stop()
         reviewTimer.stop()
         endSessionTimer.stop()
         countdownTimer.stop()
+        actTakePictureTimer.stop()
     }
 
     function resetCountdownTimer() {
@@ -109,6 +141,7 @@ Item {
         mediaPlayer.playlist = settings.beforeCaptureVideoPlaylist
         settings.beforeCaptureVideoPlaylist.next()
         mediaPlayer.play()
+        console.log('playBeforeCaptureVideos')
 
     }
 
@@ -117,11 +150,12 @@ Item {
         mediaPlayer.playlist = settings.afterCaptureVideoPlaylist
         settings.afterCaptureVideoPlaylist.next()
         mediaPlayer.play()
+        console.log('playAfterCaptureVideos')
     }
 
     function combinePhotos() {
         // make the template as the first image in the list
-        var photos = settings.templateImagePath.concat(";")
+        var photos = ""
 
         // iterate and append all the photos to the list string
         var i
@@ -151,7 +185,7 @@ Item {
         }
 
         onExposureSignal: {
-            captureToolbar.exposureButton.value = exposure
+            exposureButton.value = exposure
         }
 
     }
@@ -162,36 +196,24 @@ Item {
         id: processPhotos
         saveFolder: settings.printFolder
 
+        templatePath: settings.templateImagePath
+        templateFormat: settings.templateFormat
     }
 
-    // timer to initialize to a default root.state
+
+
+
+    // timer to initialize to a default state
     Timer {
         id: initialTimer1
-        interval: 3000
+        interval: 1000
         running: true
         repeat: false
 
         onTriggered: {
             startState()
-//            liveView.enabled = true
         }
     }
-
-//    Timer {
-//        id: loadCameraTimer
-//        repeat: true
-//        interval: 1000
-//        running: true
-
-//        onTriggered: {
-//            console.log("Camera status:", camera.cameraStatus)
-//            console.log("Camera state:", camera.cameraState)
-//            if (camera.cameraStatus == 0) {
-//                liveView.source = camera
-//            }
-//        }
-//    }
-
 
 
     // timer for before capture video
@@ -202,6 +224,17 @@ Item {
 
         onTriggered: {
             liveviewState()
+        }
+    }
+
+    // timer for after capture video
+    Timer {
+        id: afterCaptureTimer
+        interval: settings.afterCaptureTimer * 1000
+        repeat: false
+
+        onTriggered: {
+            beforeCaptureState()
         }
     }
 
@@ -234,7 +267,6 @@ Item {
                 captureView.countdown.count--
             }
 
-//            toast.show("Counting down..." + countdown.count)
         }
     }
 
@@ -257,8 +289,9 @@ Item {
         repeat: false
 
         onTriggered: {
-            if (photoList.count < mainWindow.numberPhotos) {
-                beforeCaptureState()
+            if (photoList.count < settings.numberPhotos) {
+//                beforeCaptureState()
+                afterCaptureState()
             } else {
                 combinePhotos()
                 endSessionState()
@@ -280,6 +313,61 @@ Item {
             startState()
 
         }
+    }
+
+
+
+
+    UpDownButton {
+        id: exposureButton
+        min: -15
+        max: 15
+        value: 0
+        height: pixel(12)
+        z: 5
+
+        anchors {
+            top: parent.top
+            right: parent.right
+            margins: pixel(2)
+        }
+
+        onValueChanged: {
+            sonyAPI.setExposureCompensation(exposureButton.value)
+            toast.show("Camera exposure set to " + exposureButton.value)
+        }
+
+        Timer {
+            id: getExposureTimer
+            interval: 3000
+            repeat: false
+            running: true
+
+            onTriggered: {
+                sonyAPI.getExposureCompensation()
+            }
+
+        }
+
+    }
+
+    Timer {
+        id: autorunTimer
+        interval: 60000
+        repeat: true
+        running: autorunTimerSwitch.checked
+
+        triggeredOnStart: true
+
+        onTriggered: {
+            captureToolbar.playPauseButton.checked = true
+            captureToolbar.playPauseButton.clicked()
+        }
+    }
+
+    Switch {
+        id: autorunTimerSwitch
+        z: 3
     }
 
     
@@ -309,8 +397,6 @@ Item {
                 scale: 1
             }
         },
-        
-        
         // ==== liveview state ====
         State {
             name: "liveview"
@@ -325,11 +411,22 @@ Item {
             }
             PropertyChanges {
                 target: countdown
-                opacity: 1
+                opacity: 0.5
                 scale: 1
             }
 
         },
+
+        // ==== after capture state ====
+        State {
+            name: "afterCapture"
+            PropertyChanges {
+                target: videoLoader
+                opacity: 1
+                scale: 1
+            }
+        },
+
         // ==== review state ====
         State {
             name: "review"
@@ -375,129 +472,241 @@ Item {
     }
     
     
-    Button {
-        id: playPauseButton
-        text: "Play/Pause"
-        Layout.alignment: Qt.AlignRight | Qt.AlignTop
-        icon.source: checked ? "qrc:/Images/pause_white_48dp.png" : "qrc:/Images/play_arrow_white_48dp.png"
-        icon.width: pixel(10)
-        icon.height: pixel(10)
-        anchors.centerIn: parent
-        display: AbstractButton.IconOnly
-        highlighted: false
-        flat: false
-        opacity: 0.3
-        background: Rectangle {
-            color: "transparent"
-        }
+//    Button {
+//        id: playPauseButton
+//        text: "Play/Pause"
+//        Layout.alignment: Qt.AlignRight | Qt.AlignTop
+//        icon.source: checked ? "qrc:/Images/pause_white_48dp.png" : "qrc:/Images/play_arrow_white_48dp.png"
+//        icon.width: pixel(20)
+//        icon.height: pixel(20)
+//        anchors.centerIn: parent
+//        display: AbstractButton.IconOnly
+//        highlighted: false
+//        flat: false
+//        opacity: 0.8
+//        background: Rectangle {
+//            color: "transparent"
+//        }
 
-        Material.accent: Material.color(Material.Green, Material.Shade700)
-        checkable: true
-        z: 10
-        scale: 3
-        smooth: true
+//        Material.accent: Material.color(Material.Green, Material.Shade700)
+//        checkable: true
+//        z: 10
+//        scale: 3
+//        smooth: true
 
-        Behavior on icon.source {
-            ParallelAnimation {
-                id: playPauseButtonParallelAnimation
+//        Behavior on icon.source {
+//            ParallelAnimation {
+//                id: playPauseButtonParallelAnimation
 
-                NumberAnimation {
-                    target: playPauseButton
-                    property: "opacity";
-                    from: 0.1;
-                    to: 0.3;
-                    duration: 800;
-                    easing.type: Easing.InOutQuad;
-                }
+//                NumberAnimation {
+//                    target: playPauseButton
+//                    property: "opacity";
+//                    from: 0.1;
+//                    to: 0.3;
+//                    duration: 800;
+//                    easing.type: Easing.InOutQuad;
+//                }
 
-                NumberAnimation {
-                    target: playPauseButton
-                    property: "scale";
-                    from: 2;
-                    to: 3;
-                    duration: 600;
-                    easing.type: Easing.InOutQuad;
-                }
-            }
-        }
+//                NumberAnimation {
+//                    target: playPauseButton
+//                    property: "scale";
+//                    from: 2;
+//                    to: 3;
+//                    duration: 600;
+//                    easing.type: Easing.InOutQuad;
+//                }
+//            }
+//        }
 
-        onClicked: {
-            var playState = playPauseButton.checked
+//        onClicked: {
+//            var playState = playPauseButton.checked
 
-            if (root.state == "start") {
-                beforeCaptureState()
-            }
+//            if (root.state == "start") {
+//                beforeCaptureState()
+//            }
 
-            if (root.state == "beforecapture") {
-                beforeCaptureTimer.running = playState
-            }
+//            if (root.state == "beforecapture") {
+//                beforeCaptureTimer.running = playState
+//            }
 
-            if (root.state == "liveview") {
-                countdownTimer.running = playState
-            }
+//            if (root.state == "liveview") {
+//                countdownTimer.running = playState
+//            }
 
-            if (root.state == "review") {
-                reviewTimer.running = playState
-            }
+//            if (root.state == "review") {
+//                reviewTimer.running = playState
+//            }
 
-            if (root.state == "endsession") {
-                endSessionTimer.running = playState
-            }
+//            if (root.state == "endsession") {
+//                endSessionTimer.running = playState
+//            }
 
-        }
-    }
+//        }
+//    }
     
     CaptureToolbar {
         id: captureToolbar
+        opacity: 0.5
     }
     
         
-    // live view from camera
-    //            SonyLiveview {
-    //                id: liveView
-    //                opacity: 0.6
-    ////                enabled: settings.showLiveVideoOnCountdownSwitch
-    
-    //                flipHorizontally: settings.mirrorLiveVideoSwitch
-    
-    //                width: mainWindow.width * 0.9
-    //                height: width / photoAspectRatio
-    //                anchors.horizontalCenter: parent.horizontalCenter
-    
-    //            }
-    
-    
-    
-    Camera {
-        id: camera
-        captureMode: Camera.CaptureStillImage
-        deviceId: mainSettings.cameraDeviceId
-    }
-    
-    VideoOutput {
+//     live view from camera
+    SonyLiveview {
         id: liveView
         opacity: 0
         scale: 0.1
-//        enabled: false
-        
-        visible: true
+        z:1
+
+        flipHorizontally: settings.mirrorLiveVideoSwitch
+
         width: parent.width
         height: width / photoAspectRatio
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors {
-            topMargin: pixel(30)
-        }
-        
-        Rectangle {
-            anchors.fill: parent
-            border.color: "#808080"
-            border.width: 1
-            color: "transparent"
-        }
-        
-//        source: camera
+
     }
+
+//    Button {
+//        onClicked: {
+//            liveView.start()
+//            liveView.opacity = 1
+//            liveView.scale = 1
+//        }
+//    }
+    
+    
+    
+
+
+//    Timer {
+//        interval: 3000
+//        running: true
+//        repeat: false
+
+//        onTriggered: {
+//            try {
+//                console.log("Initializing Webcamera")
+//                liveView.source = "CameraItem.qml"
+////                liveView.item.start()
+//                if (liveView.status == Loader.Error) {
+//                    liveView.source = "CameraDummy.qml"
+//                    console.log("CameraDummy")
+//                }
+//            }
+//            catch(err) {
+//                console.log(err)
+//            }
+
+
+//        }
+//    }
+
+//    WebView {
+//        id: liveView
+//        opacity: 0
+//        scale: 0.1
+
+//        url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test"
+
+//        width: parent.width
+//        height: width / photoAspectRatio
+//        anchors.horizontalCenter: parent.horizontalCenter
+
+//        anchors {
+//            top: parent.top
+//            topMargin: pixel(30)
+//        }
+//    }
+
+//    Loader {
+//        id: liveView
+//        opacity: 0
+//        scale: 0.1
+
+////        source: "CameraItem.qml"
+
+//        width: parent.width
+//        height: width / photoAspectRatio
+//        anchors.horizontalCenter: parent.horizontalCenter
+
+//        anchors {
+//            top: parent.top
+//            topMargin: pixel(30)
+//        }
+
+//    }
+
+    
+//    VideoOutput {
+//        id: liveView
+//        opacity: 0
+//        scale: 0.1
+
+        
+//        visible: true
+//        width: parent.width
+//        height: width / photoAspectRatio
+//        anchors.horizontalCenter: parent.horizontalCenter
+
+//        anchors {
+//            top: parent.top
+//            topMargin: pixel(30)
+//        }
+
+////        source: camera
+
+//        Text {
+//            text: qsTr("Preview")
+//            color: Material.foreground
+//            font.pixelSize: pixel(5)
+//        }
+        
+////        Rectangle {
+////            anchors.fill: parent
+////            border.color: "#808080"
+////            border.width: 1
+////            color: "transparent"
+////        }
+
+
+////        Button {
+////            text: "Stop"
+////            onClicked: {
+////                camera.stop()
+
+////                liveView.source = camera;
+
+////                liveView.update()
+
+////                camera.start()
+////            }
+////        }
+//    }
+
+//    Camera {
+//        id: camera
+//        captureMode: Camera.CaptureStillImage
+//        deviceId: settings.cameraDeviceId
+
+
+//    }
+
+
+
+//    Webcamera {
+//        id: liveview
+
+//        opacity: 0
+//        scale: 0.1
+//        width: parent.width
+//        height: width / photoAspectRatio
+//        anchors.horizontalCenter: parent.horizontalCenter
+//        anchors.top: parent.top
+//        anchors {
+//            top: parent.top
+//            topMargin: pixel(30)
+//        }
+//    }
+
     
     VideoOutput {
         id: videoLoader
@@ -506,6 +715,14 @@ Item {
         fillMode: VideoOutput.PreserveAspectFit
         opacity: 0
         scale: 0.1
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                captureToolbar.playPauseButton.checked = true
+                captureToolbar.playPauseButton.clicked()
+            }
+        }
 
     }
     

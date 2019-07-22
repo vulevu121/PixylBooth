@@ -22,7 +22,7 @@ class GooglePhoto : public QObject
 public:
     explicit GooglePhoto(QObject *parent = nullptr);
 
-private:
+//private:
     QNetworkAccessManager *manager;
     QString pathToPic;
     QString authCode;
@@ -42,31 +42,31 @@ private:
     QString inputAlbumName;
 
 
-private slots:
+public slots:
 
     void RequestAuthCode();
     void RequestAccessToken();
     void AuthCodeReply(QNetworkReply *reply);
     void AuthCodeRedirectReply(QUrl url);
     void AccessTokenReply(QNetworkReply *reply);
-    void UploadReply(QNetworkReply *reply);
+//    void UploadReply(QNetworkReply *reply);
 
-    void CreateMediaReply(QNetworkReply *reply);
-    void UploadPicData();
-    void CreateMedia(QString AlbumID = "");
-    void CreateAlbum(QString album_name);
-    void CreateAlbumReply(QNetworkReply * reply);
+//    void CreateMediaReply(QNetworkReply *reply);
+//    void UploadPicData();
+//    void CreateMedia(QString AlbumID = "");
+//    void CreateAlbum(QString album_name);
+//    void CreateAlbumReply(QNetworkReply * reply);
 
-    void GetAlbums();
-    void GetAlbumsReply(QNetworkReply * reply);
+//    void GetAlbums();
+//    void GetAlbumsReply(QNetworkReply * reply);
 
-    void ShareAlbum(QString AlbumID = "");
-    void ShareAlbumReply(QNetworkReply * reply);
+//    void ShareAlbum(QString AlbumID = "");
+//    void ShareAlbumReply(QNetworkReply * reply);
 
-    QString getAlbumId();
+//    QString getAlbumId();
 
-    void EmailAlbumLink();
-    void EmailAlbumLinkReply(QNetworkReply * reply);
+//    void EmailAlbumLink();
+//    void EmailAlbumLinkReply(QNetworkReply * reply);
 
 };
 

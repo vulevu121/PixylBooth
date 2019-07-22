@@ -11,7 +11,12 @@ class Process : public QProcess {
     Q_OBJECT
 
 public:
-    Process(QObject *parent = 0) : QProcess(parent) { }
+    Process(QObject *parent = nullptr) : QProcess(parent) { }
+
+//    void start2(const QString &program) {
+//        QProcess *process = new QProcess(this);
+//        process->start(program);
+//    }
 
     Q_INVOKABLE void start(const QString &program, const QVariantList &arguments) {
         QStringList args;
@@ -35,4 +40,6 @@ public:
     Q_INVOKABLE void kill() {
         return QProcess::kill();
     }
+private:
+    QProcess *process = nullptr;
 };

@@ -25,6 +25,14 @@ bool SonyAPI::readyFlag() {
     return m_readyFlag;
 }
 
+void SonyAPI::stop() {
+    if (!m_readyFlag) {
+        manager->disconnect();
+        manager = nullptr;
+        m_readyFlag = true;
+    }
+}
+
 void SonyAPI::start() {
     if (m_readyFlag) {
         if (manager == nullptr) {
@@ -164,7 +172,7 @@ void SonyAPI::startRecModeReply(QNetworkReply *reply)
 
     }
     m_readyFlag = true;
-    this->manager->disconnect();
+    manager->disconnect();
 }
 
 void SonyAPI::startLiveview() {

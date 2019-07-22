@@ -1,63 +1,38 @@
-/****************************************************************************
-**
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of the examples of the Qt Toolkit.
-**
-** $QT_BEGIN_LICENSE:BSD$
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** BSD License Usage
-** Alternatively, you may use this file under the terms of the BSD license
-** as follows:
-**
-** "Redistribution and use in source and binary forms, with or without
-** modification, are permitted provided that the following conditions are
-** met:
-**   * Redistributions of source code must retain the above copyright
-**     notice, this list of conditions and the following disclaimer.
-**   * Redistributions in binary form must reproduce the above copyright
-**     notice, this list of conditions and the following disclaimer in
-**     the documentation and/or other materials provided with the
-**     distribution.
-**   * Neither the name of The Qt Company Ltd nor the names of its
-**     contributors may be used to endorse or promote products derived
-**     from this software without specific prior written permission.
-**
-**
-** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
-**
-** $QT_END_LICENSE$
-**
-****************************************************************************/
 import QtQuick 2.6
 import QtQuick.Dialogs 1.0
-import QtQuick.Window 2.1
+import QtQuick.Window 2.12
 import Qt.labs.folderlistmodel 1.0
 import Qt.labs.settings 1.1
+import QtQuick.Layouts 1.3
+import QtQuick.Controls.Styles 1.4
+import QtQuick.Controls 2.5
+import QtQuick.Controls.Material 2.12
 
 Window {
-    id: root
+    id: templateEditor
     visible: true
-    width: 1200; height: 800
     color: "black"
+
+    property real photoAspectRatio: 3/2
+    width: 1200
+    height: width / photoAspectRatio
+
+    minimumWidth: width
+    maximumWidth: width
+
+    maximumHeight: height
+    minimumHeight: height
+//    height: width / photoAspectRatio
+    property real iconSize: pixel(8)
+
+    Settings {
+        category: "Profile"
+        property alias templateEditorWidth: templateEditor.width
+        property alias templateEditorHeight: templateEditor.height
+        property alias templateEditorX: templateEditor.x
+        property alias templateEditorY: templateEditor.y
+    }
+
 
     function addFilePrefix(path) {
         if (path.search("file://") >= 0)
@@ -71,87 +46,153 @@ Window {
         return filePrefix.concat(path)
     }
 
-
-    Settings {
-        id: settings
-        category: "Template"
-        property string jsonString
-
+    function get_pheight(pwidth) {
+        return Math.round(pwidth / photoAspectRatio)
     }
 
-    Settings {
-        category: "Profile"
-        id: profile
-        property string templateImagePath
+    function get_ax(px) {
+        return Math.round(px / templateImage.width * templateImage.sourceSize.width)
     }
+
+    function get_ay(py) {
+        return Math.round(py / templateImage.height * templateImage.sourceSize.height)
+    }
+
+    function get_awidth(pwidth) {
+        return Math.round(pwidth / templateImage.width * templateImage.sourceSize.width)
+    }
+
+    function get_aheight(pheight) {
+        return Math.round(pheight / templateImage.height * templateImage.sourceSize.height)
+    }
+
+
+//    Settings {
+//        id: templateSettings
+//        category: "Template"
+//        property string templateFormat
+//        property real numberPhotos
+
+//    }
+
+//    Settings {
+//        category: "Profile"
+//        id: profileSettings
+//        property string templateImagePath
+//    }
 
 
     Image {
         id: templateImage
-        source: addFilePrefix(profile.templateImagePath)
-        width: parent.width
-        height: parent.height
+        source: addFilePrefix(root.templateImagePath)
+        anchors.fill: parent
         fillMode: Image.PreserveAspectFit
-        z: 10
+        z: 3
     }
 
     Component.onCompleted: {
-        if (settings.jsonString) {
+        if (root.templateFormat) {
           photoFrameModel.clear()
-          var jsonModel = JSON.parse(settings.jsonString)
+          var jsonModel = JSON.parse(root.templateFormat)
           for (var i = 0; i < jsonModel.length; ++i) {
               photoFrameModel.append(jsonModel[i])
           }
         }
+
+        console.log("Template loaded.")
     }
 
     onClosing: {
+
+        for (var i = 0 ; i < photoFrameModel.count ; i++) {
+            photoFrameModel.get(i).ax = get_ax(photoFrameModel.get(i).px)
+            photoFrameModel.get(i).ay = get_ay(photoFrameModel.get(i).py)
+            photoFrameModel.get(i).awidth = get_awidth(photoFrameModel.get(i).pwidth)
+            photoFrameModel.get(i).aheight = get_aheight(photoFrameModel.get(i).pheight)
+        }
+
         var jsonModel = []
         for (var i = 0; i < photoFrameModel.count; i++) {
             jsonModel.push(photoFrameModel.get(i))
         }
-        settings.jsonString = JSON.stringify(jsonModel)
+        root.templateFormat = JSON.stringify(jsonModel)
+        root.numberPhotos = photoFrameModel.count
+
+        console.log("Template saved.")
     }
 
     ListModel {
         id: photoFrameModel
         ListElement {
-            index: 0
             px: 0
             py: 0
             pwidth: 300
             pheight: 200
-            pcolor: "red"
             ax: 0
             ay: 0
             awidth: 300
             aheight: 200
         }
         ListElement {
-            index: 1
             px: 0
             py: 0
             pwidth: 300
             pheight: 200
-            pcolor: "green"
             ax: 0
             ay: 0
             awidth: 300
             aheight: 200
         }
         ListElement {
-            index: 2
             px: 0
             py: 0
             pwidth: 300
             pheight: 200
-            pcolor: "blue"
             ax: 0
             ay: 0
             awidth: 300
             aheight: 200
         }
 
+
+    }
+
+
+    ColumnLayout {
+        id: buttons
+        anchors.fill: parent
+        z: 4
+
+        Button {
+            text: "Add Photo"
+            icon.source: "qrc:/Images/add_white_48dp.png"
+            icon.width: iconSize
+            icon.height: iconSize
+            width: height
+
+//            display: Button.IconOnly
+            onClicked: {
+                var pwidth = templateImage.width / 2
+                var pheight = templateImage.height / 2
+                var px = templateImage.width/2 - pwidth/2
+                var py = templateImage.height/2 - pheight/2
+                photoFrameModel.append({"px": px, "py": py, "pwidth": pwidth, "pheight": pheight, "ax": 0, "ay": 0, "awidth": 0, "aheight": 0})
+            }
+        }
+
+        Button {
+            text: "Close"
+            icon.source: "qrc:/Images/close_white_48dp.png"
+            icon.width: iconSize
+            icon.height: iconSize
+            width: height
+
+            onClicked: {
+                templateEditor.close()
+            }
+        }
+
+        RowLayout {}
     }
 
 
@@ -163,69 +204,164 @@ Window {
             id: photoFrame
             x: px
             y: py
-            color: pcolor
+            color: "#008000"
             width: pwidth
             height: pheight
+            z: 2
+            opacity: 1
+            border.width: 3
+
+            MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                drag.target: photoFrame
+
+                onReleased: {
+                    photoFrameModel.get(index).px = photoFrame.x
+                    photoFrameModel.get(index).py = photoFrame.y
+
+                    photoFrameModel.get(index).ax = get_ax(photoFrame.x)
+                    photoFrameModel.get(index).ay = get_ay(photoFrame.y)
+                }
+            }
+
 
             Text {
                 text: index+1
                 z: 1
-                font.pointSize: 24
+                font.pointSize: 48
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.horizontalCenter: parent.horizontalCenter
-                color: "black"
+                color: "white"
             }
 
-            PinchArea {
-                anchors.fill: parent
-                pinch.target: photoFrame
-                pinch.minimumRotation: 0
-                pinch.maximumRotation: 0
-                pinch.minimumScale: 0.1
-                pinch.maximumScale: 10
-                pinch.dragAxis: Pinch.XAndYAxis
+            ColumnLayout {
+                z: 1
 
-                onPinchFinished: {
+                Button {
+                    text: "Delete"
+                    display: Button.IconOnly
+                    icon.source: "qrc:/Images/delete_forever_white_48dp.png"
+                    icon.width: iconSize
+                    icon.height: iconSize
+                    flat: true
 
-                }
-            }
-
-            Rectangle {
-                anchors.fill: parent
-                anchors.margins: 20
-                MouseArea {
-                    id: dragArea
-                    hoverEnabled: true
-                    anchors.fill: parent
-                    drag.target: photoFrame
-
-
-                    onWheel: {
-                        photoFrameModel.get(index).pwidth += Math.round(photoFrameModel.get(index).pwidth * wheel.angleDelta.y / 120 / 40);
-                        photoFrameModel.get(index).pheight = Math.round(photoFrameModel.get(index).pwidth * 2 / 3)
-                        photoFrameModel.get(index).pwidth = photoFrame.width
-                        photoFrameModel.get(index).pheight = photoFrame.height
-
-                        var awidth = Math.round(photoFrameModel.get(index).pwidth / root.width * templateImage.sourceSize.width)
-                        var aheight = Math.round(photoFrameModel.get(index).pheight / root.height * templateImage.sourceSize.height)
-
-                        photoFrameModel.get(index).awidth = awidth
-                        photoFrameModel.get(index).aheight = aheight
-                    }
-
-                    onReleased: {
-                        photoFrameModel.get(index).px = photoFrame.x
-                        photoFrameModel.get(index).py = photoFrame.y
-
-                        var ax = Math.round(photoFrameModel.get(index).px / root.width * templateImage.sourceSize.width)
-                        var ay = Math.round(photoFrameModel.get(index).py / root.height * templateImage.sourceSize.height)
-
-                        photoFrameModel.get(index).ax = ax
-                        photoFrameModel.get(index).ay = ay
-
+                    onClicked: {
+                        photoFrameModel.remove(index)
                     }
                 }
+
+                Button {
+                    text: "Scale up"
+                    display: Button.IconOnly
+                    icon.source: "qrc:/Images/zoom_in_white_48dp.png"
+                    icon.width: iconSize
+                    icon.height: iconSize
+                    flat: true
+                    autoRepeat: true
+
+
+                    onClicked: {
+                        photoFrameModel.get(index).pwidth += 10
+                        photoFrameModel.get(index).pheight = get_pheight(photoFrameModel.get(index).pwidth)
+                    }
+
+                }
+
+                Button {
+                    text: "Scale down"
+                    display: Button.IconOnly
+                    icon.source: "qrc:/Images/zoom_out_white_48dp.png"
+                    icon.width: iconSize
+                    icon.height: iconSize
+                    flat: true
+                    autoRepeat: true
+
+
+                    onClicked: {
+                        photoFrameModel.get(index).pwidth -= 10
+                        photoFrameModel.get(index).pheight = get_pheight(photoFrameModel.get(index).pwidth)
+                    }
+                }
+
+//                Button {
+//                    text: "Drag"
+//                    display: Button.IconOnly
+//                    icon.source: "qrc:/Images/open_with_white_48dp.png"
+//                    icon.width: iconSize
+//                    icon.height: iconSize
+//                    flat: true
+
+//                    MouseArea {
+//                        anchors.fill: parent
+//                        hoverEnabled: true
+//                        drag.target: photoFrame
+
+//                        onReleased: {
+//                            photoFrameModel.get(index).px = photoFrame.x
+//                            photoFrameModel.get(index).py = photoFrame.y
+
+//                            photoFrameModel.get(index).ax = get_ax(photoFrame.x)
+//                            photoFrameModel.get(index).ay = get_ay(photoFrame.y)
+//                        }
+//                    }
+//                }
+
             }
+
+
+//            PinchArea {
+//                anchors.fill: parent
+//                pinch.target: photoFrame
+//                pinch.minimumRotation: 0
+//                pinch.maximumRotation: 0
+//                pinch.minimumScale: 0.1
+//                pinch.maximumScale: 10
+//                pinch.dragAxis: Pinch.XAndYAxis
+
+//                onPinchFinished: {
+//                    console.log(pinch.startPoint1, pinch.startPoint2)
+//                    photoFrameModel.get(index).pwidth = photoFrame.width
+//                    photoFrameModel.get(index).pheight = get_pheight(photoFrame.width)
+
+//                    photoFrameModel.get(index).awidth = get_awidth(photoFrameModel.get(index).pwidth)
+//                    photoFrameModel.get(index).aheight = get_aheight(photoFrameModel.get(index).pheight)
+
+//                }
+//            }
+
+
+
+
+
+//            Rectangle {
+//                anchors.fill: parent
+//                anchors.margins: 20
+//                MouseArea {
+//                    id: dragArea
+//                    hoverEnabled: true
+//                    anchors.fill: parent
+//                    drag.target: photoFrame
+
+
+//                    onWheel: {
+//                        photoFrameModel.get(index).pwidth += Math.round(photoFrameModel.get(index).pwidth * wheel.angleDelta.y / 120 / 40);
+//                        photoFrameModel.get(index).pheight = get_pheight(photoFrameModel.get(index).pwidth)
+
+//                        photoFrameModel.get(index).awidth = get_awidth(photoFrame.width)
+//                        photoFrameModel.get(index).aheight = get_aheight(photoFrame.height)
+//                    }
+
+//                    onReleased: {
+//                        photoFrameModel.get(index).px = photoFrame.x
+//                        photoFrameModel.get(index).py = photoFrame.y
+
+//                        photoFrameModel.get(index).ax = get_ax(photoFrame.x)
+//                        photoFrameModel.get(index).ay = get_ay(photoFrame.y)
+
+//                    }
+//                }
+//            }
 
         }
     }

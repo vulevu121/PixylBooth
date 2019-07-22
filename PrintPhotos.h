@@ -29,7 +29,7 @@ signals:
 
 public slots:
     void printPhoto(const QString &photoPath, int copyCount);
-    QString getPrinterName();
+    QString getPrinterName(QString const &printerName);
 
 private:
     QString m_saveFolder;

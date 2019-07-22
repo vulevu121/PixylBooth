@@ -42,7 +42,8 @@ Popup {
 
     RowLayout {
         height: iconSize
-        anchors.top: imageView.bottom
+//        anchors.top: imageView.bottom
+        anchors.bottom: imageView.top
         width: root.width
         spacing: pixel(6)
 
