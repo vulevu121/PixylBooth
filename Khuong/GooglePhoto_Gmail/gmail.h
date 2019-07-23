@@ -27,8 +27,8 @@ private:
     QString senderEmail;
 
 signals:
-    QString SentStatus (QString reply);
-    void sendReady();
+    void authenticated();
+    void linkReady();
 
 public slots:
     void SetAlbumURL(QString url);

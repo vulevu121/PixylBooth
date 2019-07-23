@@ -11,6 +11,7 @@
 #include <QFile>
 #include <QUrl>
 #include "googleoauth2.h"
+#include "gmail.h"
 
 class GooglePhoto : public QObject
 {
@@ -21,6 +22,7 @@ public:
 private:
     QNetworkAccessManager *manager = nullptr;
     GoogleOAuth2 auth;
+    GMAIL email;
     QString accessToken;
     QString uploadToken;
     QString uploadedPicURL;
@@ -34,11 +36,12 @@ signals:
     void accessTokenSaved();
     void uploadTokenReceived();
     void albumCreated();
-    void albumShared();
+    void albumShared(QString link2Share);
+    void albumIdChanged();
+    void mediaCreated();
 
 
 private slots:
-    void GetAccess();
     void SetAccessToken(QString token);
 
     void UploadPicData();
@@ -56,14 +59,17 @@ private slots:
     void GetAlbums();
     void GetAlbumsReply(QNetworkReply * reply);
 
+    void SetTargetAlbumToUpload(QString id);
+    void SetAlbumName(QString name);
+
 
 
 public slots:
     /* If album already exists, this function will set the target album for all uploads */
-    void SetTargetAlbumID(QString id);
     void SetAlbumDescription(QString note);
-    void UploadPhoto(QString pathToPic);
-    void SetAlbumName(QString name);
+    void CreateAlbumAndUploadPhoto(QString pathToPic, QString albumName);
+    void UploadPhotoToAlbum(QString pathToPic, QString id= NULL);
+
 };
 
 #endif // GOOGLEPHOTO_H

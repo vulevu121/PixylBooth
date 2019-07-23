@@ -6,7 +6,6 @@ GMAIL::GMAIL(QObject *parent) : QObject(parent)
     auth.RequestAuthCode();
 
     connect(&auth,SIGNAL(tokenReady(QString)),this,SLOT(SetAccessToken(QString)));
-    connect(this, SIGNAL(sendReady()),this,SLOT(SendEmail()));
 
 }
 
@@ -18,11 +17,12 @@ void GMAIL::SetFromEmail(QString email){
     }
 void GMAIL::SetAccessToken(QString token){
     accessToken = token;
-    emit sendReady();
+    emit authenticated();
 }
 
 void GMAIL::SetAlbumURL(QString url){
     albumURL = url;
+    emit linkReady();
 }
 void GMAIL::SendEmail(){
     qDebug() << "Sending email with link...";
@@ -30,6 +30,14 @@ void GMAIL::SendEmail(){
     if (manager == nullptr) {
          manager = new QNetworkAccessManager(this);
      }
+
+    if(senderEmail.isEmpty()){
+        qDebug() << "FROM email was not provided. Please set.";
+        return;
+    }else if(receiverEmail.isEmpty()){
+        qDebug() << "TO email not provided. Please set.";
+        return;
+    }
 
     QString message ("From:"+ senderEmail+ "\n"
                     "To:" + receiverEmail+ "\n"

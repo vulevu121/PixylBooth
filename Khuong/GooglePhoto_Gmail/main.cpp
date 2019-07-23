@@ -16,9 +16,14 @@ int main(int argc, char *argv[])
 //    g.SetFromEmail("khuongnguyensac@gmail.com");
 
     GooglePhoto p;
-//    p.SetAlbumName("Default name");
-//    p.SetTargetAlbumID("AJIwpNCxInDhwKm-5qIbArwKmV11yOejSzOIsQDixP_sLHHZx6k3Cgw24wzyPXzk0Lk71R6-IIx9");
-    p.UploadPhoto("C:/Users/khuon/Documents/GooglePhoto_Gmail/3.jpg");
+    //this works
+    p.CreateAlbumAndUploadPhoto("C:/Users/khuon/Documents/GooglePhoto_Gmail/rdm.jpg","new sea");
+    //this doesnt work with above
+    p.UploadPhotoToAlbum("C:/Users/khuon/Documents/GooglePhoto_Gmail/2.jpg");
+    //This works
+//    p.UploadPhotoToAlbum("C:/Users/khuon/Documents/GooglePhoto_Gmail/2.jpg","AJIwpNCZCdWFDnPJAeaZkiSkprgBSOHAUuE1ku-iekI_fBYwwez4Y64tW3XYXy8vgm8144_0bvEY");
+
+
     return app.exec();
 }
 

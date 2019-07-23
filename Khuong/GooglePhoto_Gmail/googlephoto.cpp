@@ -2,21 +2,16 @@
 
 GooglePhoto::GooglePhoto(QObject *parent) : QObject(parent)
 {
-//    accessToken = QString("ya29.Gl1NB7_UvfBelOC2AHlH1mr1GZ630PzOfGnJAiF6xCGc9c5sGyApeQpl5rh15o8Nu-XXyS03AJ6NzNxCWY1n-Vabb8jOaIT2lqVmef9AOJGghnvzMn_k19KrD7ty4kQ");
-//    SetAlbumName("Default");
-//    CreateAlbum();
-//    connect(this, SIGNAL(albumCreated()),this, SLOT(ShareAlbum()));
-}
-
-void GooglePhoto::GetAccess(){
     auth.SetScope(); // default scope is google photo
-    auth.SetScopeRaw("https://www.googleapis.com/auth/photoslibrary");
-//    auth.RequestAuthCode();   //Share scope cannot querry for list of albums from Google Photo
+//    auth.SetScopeRaw("https://www.googleapis.com/auth/photoslibrary");
+    auth.RequestAuthCode();   //Share scope cannot querry for list of albums from Google Photo
     connect(&auth,SIGNAL(tokenReady(QString)),this,SLOT(SetAccessToken(QString)));
 }
 
-void GooglePhoto::SetTargetAlbumID(QString id){
+
+void GooglePhoto::SetTargetAlbumToUpload(QString id){
     albumID = id;
+    emit albumIdChanged();
 //    qDebug() << albumID;
 }
 
@@ -31,24 +26,50 @@ void GooglePhoto::SetAlbumName(QString name){
 }
 
 
-void GooglePhoto::UploadPhoto(QString pathToPic){
+void GooglePhoto::CreateAlbumAndUploadPhoto(QString pathToPic, QString albumName){
     pathToFile = pathToPic;
-    GetAccess();
+    SetAlbumName(albumName);
     /* Query list of albums */
-    connect(this,SIGNAL(accessTokenSaved()),this,SLOT(GetAlbums()));
+//    connect(this,SIGNAL(accessTokenSaved()),this,SLOT(GetAlbums()));
 
-//    if(albumID.isEmpty()){
-//        /* No album ID was provided. Create a new album*/
-//        connect(this,SIGNAL(accessTokenSaved()),this,SLOT(CreateAlbum()));
-//        connect(this,SIGNAL(albumCreated()),this,SLOT(ShareAlbum()));
-//        connect(this,SIGNAL(albumShared()),this,SLOT(UploadPicData()));
-//        connect(this,SIGNAL(uploadTokenReceived()),this,SLOT(CreateMediaInAlbum()));
+    /* Create a new album, make album shareable, and upload a photo*/
+    connect(this,SIGNAL(accessTokenSaved()),this,SLOT(CreateAlbum()));
+    connect(this,SIGNAL(albumCreated()),this,SLOT(ShareAlbum()));
 
-//    }else{
-//        /* Album ID (should have Shared setting) available. Create media thre */
-//        connect(this,SIGNAL(accessTokenSaved()),this,SLOT(UploadPicData()));
-//        connect(this,SIGNAL(uploadTokenReceived()),this,SLOT(CreateMediaInAlbum()));
-//    }
+    connect(this,SIGNAL(albumShared(QString)),this,SLOT(UploadPicData()));
+    connect(this,SIGNAL(uploadTokenReceived()),this,SLOT(CreateMediaInAlbum()));
+
+//    email.SetToEmail("khuong.dinh.ng@gmail.com");
+//    email.SetFromEmail("khuongnguyensac@gmail.com");
+//    connect(this,SIGNAL(albumShared(QString)),&email,SLOT(SetAlbumURL(QString)));
+//    connect(&email,SIGNAL(linkReady()),&email,SLOT(SendEmail()));
+}
+
+void GooglePhoto::UploadPhotoToAlbum(QString pathToPic, QString id){
+    pathToFile = pathToPic;
+    qDebug()<< "token is Null:" <<!accessToken.isNull();
+    qDebug() << "ID is Null:" << id.isNull();
+
+    /* if token is not available but an existing album ID is provided. Needs to wait for access token */
+    if(accessToken.isNull() && !id.isNull()){
+        qDebug() << "uploading to existing album w/o a token, but w/ an album ID";
+        SetTargetAlbumToUpload(id);
+        connect(this,SIGNAL(accessTokenSaved()),this,SLOT(UploadPicData()));
+        connect(this,SIGNAL(uploadTokenReceived()),this,SLOT(CreateMediaInAlbum()));
+
+    }//Need to figure out the logic for this: Create album and upload a photo, then immediately upload another photo to that album
+    /* otherise, if token is available but album ID is NOT provided, we are uploading a photo into a existing album created by the step just before */
+    else if(!accessToken.isNull() && id.isNull() ){
+        qDebug() << " Uploading a photo AFTER the album has been created. The token is already saved";
+        /* wait until createAlbumAndUploadPhoto is done first */
+        connect(this,SIGNAL(mediaCreated()),this,SLOT(UploadPicData()));
+        connect(this,SIGNAL(uploadTokenReceived()),this,SLOT(CreateMediaInAlbum()));
+        }
+    /* album is already created, shared and albumID is available, upload photo data */
+    else{
+        qDebug() << "Undefined case";
+        return;
+        }
 
 }
 void GooglePhoto::UploadPicData(){
@@ -113,17 +134,13 @@ void GooglePhoto::CreateMediaInAlbum(){
     if(albumDescription.isEmpty()){
         albumDescription = QString("Not available");
      }
-
     QJsonObject temp2;
     temp2 [ "description" ] = albumDescription;
     temp2 ["simpleMediaItem"] = temp;
-
     QJsonArray arr;
     arr.append(temp2);
-
     QJsonObject obj;
     obj ["newMediaItems"] = arr;
-
 
     /* Add media to provided album id if available */
     if (albumID.isEmpty()){
@@ -133,7 +150,6 @@ void GooglePhoto::CreateMediaInAlbum(){
         obj ["albumId"] = albumID;
 
     }
-    qDebug() << albumID;
     //to see the JSON output
     QJsonDocument doc (obj);
 
@@ -151,16 +167,16 @@ void GooglePhoto::CreateMediaInAlbum(){
 void GooglePhoto::CreateMediaReply(QNetworkReply *reply) {
     if(reply->error()) {
         qDebug() << "Create Media Error" << reply->readAll();
+        manager->disconnect();
+
     } else {
         qDebug() << "Create Media Success!";
-
         QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
         QJsonObject jsonObj = jsonDoc.object();
-
         qDebug() << jsonObj["newMediaItemResults"].toArray()[0].toObject()["mediaItem"].toObject()["description"];
-
+        manager->disconnect();
+        emit mediaCreated();
     }
-    manager->disconnect();
 
 }
 
@@ -189,7 +205,6 @@ void GooglePhoto::CreateAlbum(){
     req.setRawHeader("Content-Length", postDataSize);
 
     manager->post(req,jsonRequest);
-
     connect(this->manager, SIGNAL(finished(QNetworkReply*)),
             this, SLOT(CreateAlbumReply(QNetworkReply*)));
 }
@@ -202,21 +217,16 @@ void GooglePhoto::CreateAlbumReply(QNetworkReply * reply){
 
     } else {
         qDebug() << "Create Album Success!";
-
         QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
         QJsonObject jsonObj = jsonDoc.object();
-
-
         albumID = jsonObj["id"].toString();
         qDebug() << "Album created! ID:" << albumID;
-
         albumURL = jsonObj["productUrl"].toString();
-        qDebug() << "Album link:" << albumURL;
+//        qDebug() << "Album link:" << albumURL;
         manager->disconnect();
         emit albumCreated();
 
      }
-
 }
 
 
@@ -227,25 +237,19 @@ void GooglePhoto::ShareAlbum(){
      }
 
     QString endpoint ("https://photoslibrary.googleapis.com/v1/albums/");
-
     QUrl reqURL(endpoint + albumID + QString(":share"));
     QNetworkRequest req(reqURL);
     req.setRawHeader("Authorization","Bearer "+ accessToken.toUtf8());
     req.setRawHeader("Content-Type","application/json");
-
     QJsonObject temp{
         {"isCollaborative", "false"},
         {"isCommentable", "false"}
     };
-
     QJsonObject jsonObj{
         {"sharedAlbumOptions", temp}
     };
-
     QJsonDocument doc (jsonObj);
-
 //    qDebug() << doc;
-
     QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
     QByteArray postDataSize = QByteArray::number(jsonRequest.size());
     req.setRawHeader("Content-Length", postDataSize);
@@ -269,12 +273,12 @@ void GooglePhoto::ShareAlbumReply(QNetworkReply * reply){
         albumURL =  jsonObj["shareInfo"].toObject()["shareableUrl"].toString();
 //        qDebug() << albumURL;
         manager->disconnect();
-        emit albumShared();
+        emit albumShared(albumURL);
 
      }
 
 }
-
+/* Must use non-sharing scope when request OAuth2 for those functions */
 void GooglePhoto::GetAlbums(){
     if (manager == nullptr) {
         manager = new QNetworkAccessManager(this);
@@ -298,7 +302,7 @@ void GooglePhoto::GetAlbumsReply(QNetworkReply * reply){
         QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
         QJsonObject jsonObj = jsonDoc.object();
 
-        qDebug() << jsonObj; //["mediaItems"].toArray()["mediaItem"].toObject()["description"];
+        qDebug() << jsonObj;
 
      }
     manager->disconnect();
