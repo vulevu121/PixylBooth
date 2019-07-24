@@ -2,10 +2,10 @@
 
 GooglePhoto::GooglePhoto(QObject *parent) : QObject(parent)
 {
-    auth.SetJsonFilePath("C:/Users/khuon/Documents/GooglePhoto/client_secret_1044474243779-a1gndnc2as4cc5c6ufksmbetoafi5mcr.apps.googleusercontent.com.json");
+//    auth.SetScopeRaw("https://www.googleapis.com/auth/photoslibrary"); // for list album
+
     auth.SetScope(); // default scope is google photo
-    //    auth.SetScopeRaw("https://www.googleapis.com/auth/photoslibrary");
-    auth.RequestAuthCode();   //Share scope cannot querry for list of albums from Google Photo
+    auth.Authenticate();   //Share scope cannot querry for list of albums from Google Photo
     connect(&auth,SIGNAL(tokenReady(QString)),this,SLOT(SetAccessToken(QString)));
 }
 
@@ -40,10 +40,6 @@ void GooglePhoto::CreateAlbumAndUploadPhoto(QString pathToPic, QString albumName
     connect(this,SIGNAL(albumShared(QString)),this,SLOT(UploadPicData()));
     connect(this,SIGNAL(uploadTokenReceived()),this,SLOT(CreateMediaInAlbum()));
 
-//    email.SetToEmail("khuong.dinh.ng@gmail.com");
-//    email.SetFromEmail("khuongnguyensac@gmail.com");
-//    connect(this,SIGNAL(albumShared(QString)),&email,SLOT(SetAlbumURL(QString)));
-//    connect(&email,SIGNAL(linkReady()),&email,SLOT(SendEmail()));
 }
 
 void GooglePhoto::UploadPhotoToAlbum(QString pathToPic, QString id){

@@ -1,11 +1,11 @@
 
 For Authentication
-Go to gmail.cpp:5 (for email) and googlephoto.cpp:5 (for photo upload) and input the path to the .json file download from Google Developer Console -> Credential
+Go to googleoauth2.h:25 and input the path to the .json file download from Google Developer Console -> Credential
 
 To Test Google Photo Upload:
-Go to main.cpp:16, input parameters for p.CreateAlbumAndUploadPhoto(path to file, album name)
+Go to googlephotoqueu.cpp:6, input parameters for p.CreateAlbumAndUploadPhoto(path to file, album name)
 Run program
 
 To Test emailing the ALbum URL:
-Go to googlephoto:43-46 and uncomment them. Change the To and From email.
+Uncomment googlephotoqueu.cpp:13 - 16. Change the To and From email.
 Run program

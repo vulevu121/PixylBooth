@@ -22,7 +22,6 @@ public:
 private:
     QNetworkAccessManager *manager = nullptr;
     GoogleOAuth2 auth;
-    GMAIL email;
     QString accessToken;
     QString uploadToken;
     QString uploadedPicURL;

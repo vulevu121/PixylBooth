@@ -13,6 +13,7 @@ void GoogleOAuth2::SetScope(QString RequestScope){
         qDebug() << "Scope for Google Photo";
         scope = QString("?scope=https://www.googleapis.com/auth/photoslibrary.sharing"); // scope for sharing
     }
+    emit scopeSet();
 }
 
 void GoogleOAuth2::SetScopeRaw(QString RawScope){
@@ -22,8 +23,10 @@ void GoogleOAuth2::SetScopeRaw(QString RawScope){
 
 void GoogleOAuth2::SetJsonFilePath(QString path){
     jsonFilePath = path;
+    emit jsonFilePathSet();
+
 }
-void GoogleOAuth2::RequestAuthCode(){
+void GoogleOAuth2::Authenticate(){
     if (manager == nullptr) {
          manager = new QNetworkAccessManager(this);
      }
@@ -53,10 +56,10 @@ void GoogleOAuth2::RequestAuthCode(){
         manager->get(req);
 
         connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-                this, SLOT(AuthCodeReply(QNetworkReply*)));
+                this, SLOT(AuthenticateReply(QNetworkReply*)));
 }
 
-void GoogleOAuth2::AuthCodeReply(QNetworkReply *reply) {
+void GoogleOAuth2::AuthenticateReply(QNetworkReply *reply) {
     if(reply->error()) {
         qDebug() << reply->errorString();
     } else {
@@ -65,19 +68,18 @@ void GoogleOAuth2::AuthCodeReply(QNetworkReply *reply) {
         view = new QWebEngineView();
         view->load(url);
         view->show();
-        connect(view,SIGNAL(urlChanged(QUrl)),this,SLOT(AuthCodeRedirectReply(QUrl)));
+        connect(view,SIGNAL(urlChanged(QUrl)),this,SLOT(AuthenticateRedirectReply(QUrl)));
     }
     manager->disconnect();
 
 }
 
-void GoogleOAuth2::AuthCodeRedirectReply(QUrl url) {
+void GoogleOAuth2::AuthenticateRedirectReply(QUrl url) {
     qDebug() << "Access Code Received!";
     QString url_string(url.toString());
 //    qDebug() << url_string;
 
-    /* For GMAIL authentication, needs to go through several steps, so this
-     section will be different from Google Photo API*/
+
     url_string.replace("?","&");
     QStringList list  = url_string.split(QString("&"));
 
@@ -87,19 +89,18 @@ void GoogleOAuth2::AuthCodeRedirectReply(QUrl url) {
         authCode = list.at(1);
 //        qDebug() << authCode;
 
-        RequestAccessToken();
+        ExchangeAccessToken();
     }
 }
 
-void GoogleOAuth2::RequestAccessToken(){
-    qDebug() << "Requesting Access Token...";
+void GoogleOAuth2::ExchangeAccessToken(){
+    qDebug() << "Exchanging Access Token...";
 
     /* Exchange the access code for access token */
     if (manager == nullptr) {
          manager = new QNetworkAccessManager(this);
      }
 
-    grant_type  = QString("&grant_type=authorization_code");
 
     QUrl urlToken(tokenEndpoint+ authCode+client_id+client_secret+redirect_uri+grant_type);
     QNetworkRequest req(urlToken);
@@ -110,10 +111,10 @@ void GoogleOAuth2::RequestAccessToken(){
     manager->post(req,data);
 
     connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(AccessTokenReply(QNetworkReply*)));
+            this, SLOT(ExchangeTokenReply(QNetworkReply*)));
 }
 
-void GoogleOAuth2::AccessTokenReply(QNetworkReply *reply) {
+void GoogleOAuth2::ExchangeTokenReply(QNetworkReply *reply) {
     if(reply->error()) {
         QByteArray response = reply->readAll();
         QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
@@ -138,6 +139,4 @@ void GoogleOAuth2::AccessTokenReply(QNetworkReply *reply) {
     }
 }
 
-//QString GoogleOAuth2::GetAccessToken(){
-//    return accessToken;
-//}
+

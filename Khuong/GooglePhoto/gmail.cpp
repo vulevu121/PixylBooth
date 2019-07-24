@@ -2,10 +2,8 @@
 
 GMAIL::GMAIL(QObject *parent) : QObject(parent)
 {
-    auth.SetJsonFilePath("C:/Users/khuon/Documents/GooglePhoto/client_secret_1044474243779-a1gndnc2as4cc5c6ufksmbetoafi5mcr.apps.googleusercontent.com.json");
     auth.SetScope("GMAIL"); // default scope is google photo
-    auth.RequestAuthCode();
-
+    auth.Authenticate();
     connect(&auth,SIGNAL(tokenReady(QString)),this,SLOT(SetAccessToken(QString)));
 
 }

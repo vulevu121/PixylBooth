@@ -18,6 +18,7 @@ SOURCES += \
     gmail.cpp \
         googleoauth2.cpp \
     googlephoto.cpp \
+    googlephotoqueu.cpp \
         main.cpp
 
 ## Default rules for deployment.
@@ -28,4 +29,5 @@ SOURCES += \
 HEADERS += \
     gmail.h \
     googleoauth2.h \
-    googlephoto.h
+    googlephoto.h \
+    googlephotoqueu.h
