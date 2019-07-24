@@ -1,115 +1,102 @@
 #include "gmail.h"
 
-Gmail::Gmail(QObject *parent) : QObject(parent)
+GMAIL::GMAIL(QObject *parent) : QObject(parent)
 {
-    G_RequestAuthCode();
+    auth.SetJsonFilePath("C:/Users/khuon/Documents/GooglePhoto/client_secret_1044474243779-a1gndnc2as4cc5c6ufksmbetoafi5mcr.apps.googleusercontent.com.json");
+    auth.SetScope("GMAIL"); // default scope is google photo
+    auth.RequestAuthCode();
+
+    connect(&auth,SIGNAL(tokenReady(QString)),this,SLOT(SetAccessToken(QString)));
+
 }
 
-void Gmail::G_RequestAuthCode(){
-    if (manager == nullptr) {
-         manager = new QNetworkAccessManager(this);
-     }
-
-    QFile jsonFile("C:/Users/khuon/Documents/GooglePhoto/client_secret_1044474243779-a1gndnc2as4cc5c6ufksmbetoafi5mcr.apps.googleusercontent.com.json");
-    jsonFile.open(QFile::ReadOnly);
-    QJsonDocument document = QJsonDocument().fromJson(jsonFile.readAll());
-
-    const auto object = document.object();
-    const auto settingsObject = object["web"].toObject();
-
-
-        authEndpoint = settingsObject["auth_uri"].toString();
-
-          tokenEndpoint = settingsObject["token_uri"].toString() + "?";
-
-        scope = QString("?scope=https://www.googleapis.com/auth/gmail.compose"); // Create, read, update, and delete drafts. Send messages and drafts.
-
-        response_type = QString("&response_type=code");
-
-        redirect_uri = QString("&redirect_uri=" + settingsObject["redirect_uris"].toArray()[0].toString());
-
-        client_id = "&client_id=" + settingsObject["client_id"].toString();
-
-        client_secret = "&client_secret=" + settingsObject["client_secret"].toString();
-
-        QUrl url(authEndpoint + scope + response_type + redirect_uri + client_id);
-
-        QNetworkRequest req(url);
-
-        manager->get(req);
-
-        connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-                this, SLOT(G_AuthCodeReply(QNetworkReply*)));
+void GMAIL::SetToEmail(QString email){
+    receiverEmail = email;
 }
-
-void Gmail::G_AuthCodeReply(QNetworkReply *reply) {
-    if(reply->error()) {
-        qDebug() << reply->errorString();
-    } else {
-        qDebug() << "Access Code request success!";
-        QUrl url = reply->url();
-        QWebEngineView *view = new QWebEngineView;
-        view->load(url);
-        connect(view,SIGNAL(urlChanged(QUrl)),this,SLOT(G_AuthCodeRedirectReply(QUrl)));
+void GMAIL::SetFromEmail(QString email){
+    senderEmail = email;
     }
-    manager->disconnect();
-
+void GMAIL::SetAccessToken(QString token){
+    accessToken = token;
+    emit authenticated();
 }
 
-
-void Gmail::G_AuthCodeRedirectReply(QUrl url) {
-    qDebug() << "Access Code Received!";
-    QString url_string(url.toString());
-
-/* Extract the access code from the URI */
-    url_string.replace("?","&");
-    QStringList list  = url_string.split(QString("&"));
-//    qDebug() << list;
-    authCode = list.at(1);
-    qDebug() << authCode;
-    G_RequestAccessToken();
+void GMAIL::SetAlbumURL(QString url){
+    albumURL = url;
+    emit linkReady();
 }
+void GMAIL::SendEmail(){
+    qDebug() << "Sending email with link...";
 
-void Gmail::G_RequestAccessToken(){
-    /* Exchange the access code for access token */
     if (manager == nullptr) {
          manager = new QNetworkAccessManager(this);
      }
 
-    grant_type  = QString("&grant_type=authorization_code");
+    if(senderEmail.isEmpty()){
+        qDebug() << "FROM email was not provided. Please set.";
+        return;
+    }else if(receiverEmail.isEmpty()){
+        qDebug() << "TO email not provided. Please set.";
+        return;
+    }
 
-    QUrl urlToken(tokenEndpoint+ authCode+client_id+client_secret+redirect_uri+grant_type);
-    QNetworkRequest req(urlToken);
-    req.setRawHeader("Content-Type","application/x-www-form-urlencoded");
+    QString message ("From:"+ senderEmail+ "\n"
+                    "To:" + receiverEmail+ "\n"
+                     "Subject: Sending Email is DONE!\n"
+                     "\n"
+                     "Time to up the pricing!\n"
+                     "Shareable Album Link:" + albumURL );
 
-    QByteArray data;
-    manager->post(req,data);
+    QByteArray encoded = message.toUtf8().toBase64(QByteArray::Base64UrlEncoding);
+//    qDebug() << encoded ;
+
+
+    /* Ensure encoded message is URL safe */
+    encoded.replace("+","-");
+    encoded.replace("/","_");
+//    encoded.replace("=","*");
+
+//    qDebug() << encoded ;
+
+    QJsonObject jsonObj;
+    jsonObj ["raw"] = QString(encoded);
+
+
+    QJsonDocument doc (jsonObj);
+
+    QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
+    QByteArray postDataSize = QByteArray::number(jsonRequest.size());
+
+    QString endPoint ("https://www.googleapis.com/gmail/v1/users/");
+    QUrl sendURL(endPoint + "me"+ "/messages/send");
+    QNetworkRequest sendReq(sendURL);
+//    qDebug() << sendURL;
+
+    sendReq.setRawHeader("Authorization","Bearer "+ accessToken.toUtf8());
+    sendReq.setRawHeader("Content-Type","application/json");
+    sendReq.setRawHeader("Content-Length", postDataSize);
+
+    manager->post(sendReq,jsonRequest);
 
     connect(this->manager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(G_AccessTokenReply(QNetworkReply*)));
+            this, SLOT(SendEmailReply(QNetworkReply*)));
 }
 
-void Gmail::G_AccessTokenReply(QNetworkReply *reply) {
+void GMAIL::SendEmailReply(QNetworkReply * reply){
     if(reply->error()) {
-        QByteArray response = reply->readAll();
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
-        QJsonObject jsonObject = jsonDoc.object();
-        qDebug() << jsonObject["error"].toObject()["message"].toString();
+        qDebug() << "Sending Email Error" << reply->readAll();
         manager->disconnect();
 
     } else {
-        qDebug() << "Token Received!";
+        qDebug() << "Sending Email Success";
 
-        QByteArray response = reply->readAll();
-        QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
+        QJsonObject jsonObj = jsonDoc.object();
 
-        QJsonObject jsonObject = jsonDoc.object();
+        qDebug() << jsonObj;
 
-        token = jsonObject["access_token"].toString();
-        qDebug() <<  token;
         manager->disconnect();
 
-
-    }
+     }
 
 }

@@ -19,12 +19,16 @@ void GoogleOAuth2::SetScopeRaw(QString RawScope){
     scope = QString("?scope="+RawScope);
 
 }
+
+void GoogleOAuth2::SetJsonFilePath(QString path){
+    jsonFilePath = path;
+}
 void GoogleOAuth2::RequestAuthCode(){
     if (manager == nullptr) {
          manager = new QNetworkAccessManager(this);
      }
 
-    QFile jsonFile("C:/Users/khuon/Documents/GooglePhoto_Gmail/client_secret_1044474243779-a1gndnc2as4cc5c6ufksmbetoafi5mcr.apps.googleusercontent.com.json");
+    QFile jsonFile(jsonFilePath);
     jsonFile.open(QFile::ReadOnly);
     QJsonDocument document = QJsonDocument().fromJson(jsonFile.readAll());
 
@@ -60,7 +64,7 @@ void GoogleOAuth2::AuthCodeReply(QNetworkReply *reply) {
         QUrl url(reply->url());
         view = new QWebEngineView();
         view->load(url);
-//        view->show();
+        view->show();
         connect(view,SIGNAL(urlChanged(QUrl)),this,SLOT(AuthCodeRedirectReply(QUrl)));
     }
     manager->disconnect();

@@ -22,7 +22,7 @@ private:
     QNetworkAccessManager *manager = nullptr;
     QWebEngineView *view = nullptr;
     QJsonObject settingsObject;
-
+    QString jsonFilePath;
     QString authCode;
     QString authEndpoint;
     QString scope;
@@ -44,6 +44,8 @@ public slots:
     void RequestAuthCode();
     void SetScope(QString RequestScope = "PHOTO");
     void SetScopeRaw(QString RawScope);
+    void SetJsonFilePath(QString path);
+
 signals:
     void tokenReady(QString token);
 };
