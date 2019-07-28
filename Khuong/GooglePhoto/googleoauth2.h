@@ -21,6 +21,7 @@ public:
 private:
     QNetworkAccessManager *manager = nullptr;
     QWebEngineView *view = nullptr;
+
     QJsonObject settingsObject;
     QString jsonFilePath = QString("C:/Users/khuon/Documents/GooglePhoto/client_secret_1044474243779-a1gndnc2as4cc5c6ufksmbetoafi5mcr.apps.googleusercontent.com.json");
     QString authCode;
@@ -46,13 +47,11 @@ public slots:
     void Authenticate();
     void SetScope(QString RequestScope = "PHOTO");
     void SetScopeRaw(QString RawScope);
-    void SetJsonFilePath(QString path);
 
 signals:
     void tokenReady(QString token);
-    void jsonFilePathSet();
     void scopeSet();
-
+    void authCodeReady();
 };
 
 #endif // GOOGLEOAUTH2_H

@@ -15,19 +15,16 @@ QT += webenginewidgets
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    gmail.cpp \
+        gmail.cpp \
+        googlephoto.cpp \
+        googlephotoqueu.cpp \
         googleoauth2.cpp \
-    googlephoto.cpp \
-    googlephotoqueu.cpp \
         main.cpp
 
-## Default rules for deployment.
-#qnx: target.path = /tmp/$${TARGET}/bin
-#else: unix:!android: target.path = /opt/$${TARGET}/bin
-#!isEmpty(target.path): INSTALLS += target
+
 
 HEADERS += \
     gmail.h \
-    googleoauth2.h \
     googlephoto.h \
-    googlephotoqueu.h
+    googlephotoqueu.h\
+    googleoauth2.h \

@@ -2,7 +2,7 @@
 
 GoogleOAuth2::GoogleOAuth2(QObject *parent) : QObject(parent)
 {
-
+    connect(this, SIGNAL(authCodeReady()),this,SLOT(ExchangeAccessToken()));
 }
 void GoogleOAuth2::SetScope(QString RequestScope){
 
@@ -21,11 +21,7 @@ void GoogleOAuth2::SetScopeRaw(QString RawScope){
 
 }
 
-void GoogleOAuth2::SetJsonFilePath(QString path){
-    jsonFilePath = path;
-    emit jsonFilePathSet();
 
-}
 void GoogleOAuth2::Authenticate(){
     if (manager == nullptr) {
          manager = new QNetworkAccessManager(this);
@@ -67,7 +63,7 @@ void GoogleOAuth2::AuthenticateReply(QNetworkReply *reply) {
         QUrl url(reply->url());
         view = new QWebEngineView();
         view->load(url);
-        view->show();
+//        view->show();
         connect(view,SIGNAL(urlChanged(QUrl)),this,SLOT(AuthenticateRedirectReply(QUrl)));
     }
     manager->disconnect();
@@ -88,8 +84,7 @@ void GoogleOAuth2::AuthenticateRedirectReply(QUrl url) {
     if (list[0] == settingsObject["redirect_uris"].toArray()[0].toString()){
         authCode = list.at(1);
 //        qDebug() << authCode;
-
-        ExchangeAccessToken();
+        emit authCodeReady();
     }
 }
 

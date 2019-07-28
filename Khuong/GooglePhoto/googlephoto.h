@@ -11,13 +11,14 @@
 #include <QFile>
 #include <QUrl>
 #include "googleoauth2.h"
-#include "gmail.h"
 
 class GooglePhoto : public QObject
 {
     Q_OBJECT
 public:
     explicit GooglePhoto(QObject *parent = nullptr);
+    bool Uploading = false;
+    bool albumReady = false;
 
 private:
     QNetworkAccessManager *manager = nullptr;
@@ -30,20 +31,23 @@ private:
     QString albumDescription;
     QString albumURL;
     QString pathToFile;
+    QString fileName;
+    QStringList uploadTokenList;
+
 
 signals:
-    void accessTokenSaved();
-    void uploadTokenReceived();
+    void authenticated();
+    void uploadTokenReceived(QString);
     void albumCreated();
-    void albumShared(QString link2Share);
+    void albumShared(QString);
     void albumIdChanged();
-    void mediaCreated();
-
+    void mediaCreated(QString);
+    void pathToFileChanged(QString);
 
 private slots:
     void SetAccessToken(QString token);
 
-    void UploadPicData();
+    void UploadPicData(QString);
     void UploadReply(QNetworkReply *reply);
 
     void CreateAlbum();
@@ -52,23 +56,29 @@ private slots:
     void ShareAlbum();
     void ShareAlbumReply(QNetworkReply * reply);
 
-    void CreateMediaInAlbum();
+    void CreateMediaInAlbum(QString);
+
     void CreateMediaReply(QNetworkReply *reply);
 
     void GetAlbums();
     void GetAlbumsReply(QNetworkReply * reply);
 
     void SetTargetAlbumToUpload(QString id);
-    void SetAlbumName(QString name);
 
+    void AppendUploadTokenList(QString);
 
 
 public slots:
     /* If album already exists, this function will set the target album for all uploads */
     void SetAlbumDescription(QString note);
-    void CreateAlbumAndUploadPhoto(QString pathToPic, QString albumName);
-    void UploadPhotoToAlbum(QString pathToPic, QString id= NULL);
+    void SetPathToFile(QString path);
+    void UploadPhoto(QString pathToPic= NULL);
+    void CreateAlbumByName(QString albumName);
+    void SetAlbumName(QString name);
+    bool isUploading();
+    void CreateMultipleMediaInAlbum();
 
+    QString GetAlbumID();
 };
 
 #endif // GOOGLEPHOTO_H
