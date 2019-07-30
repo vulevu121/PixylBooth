@@ -17,8 +17,6 @@ class GooglePhoto : public QObject
     Q_OBJECT
 public:
     explicit GooglePhoto(QObject *parent = nullptr);
-    bool Uploading = false;
-    bool albumReady = false;
 
 private:
     QNetworkAccessManager *manager = nullptr;
@@ -33,6 +31,8 @@ private:
     QString pathToFile;
     QString fileName;
     QStringList uploadTokenList;
+    bool Uploading = false;
+    bool albumReady = false;
 
 
 signals:
@@ -46,25 +46,17 @@ signals:
 
 private slots:
     void SetAccessToken(QString token);
-
     void UploadPicData(QString);
     void UploadReply(QNetworkReply *reply);
-
     void CreateAlbum();
     void CreateAlbumReply(QNetworkReply * reply);
-
     void ShareAlbum();
     void ShareAlbumReply(QNetworkReply * reply);
-
     void CreateMediaInAlbum(QString);
-
     void CreateMediaReply(QNetworkReply *reply);
-
     void GetAlbums();
     void GetAlbumsReply(QNetworkReply * reply);
-
     void SetTargetAlbumToUpload(QString id);
-
     void AppendUploadTokenList(QString);
 
 
@@ -72,12 +64,13 @@ public slots:
     /* If album already exists, this function will set the target album for all uploads */
     void SetAlbumDescription(QString note);
     void SetPathToFile(QString path);
-    void UploadPhoto(QString pathToPic= NULL);
-    void CreateAlbumByName(QString albumName);
+    void UploadPhoto(QString pathToPic);
     void SetAlbumName(QString name);
     bool isUploading();
+    bool isAlbumReady();
     void CreateMultipleMediaInAlbum();
 
+    /* This requires a different scope. Need to authenticate again*/
     QString GetAlbumID();
 };
 

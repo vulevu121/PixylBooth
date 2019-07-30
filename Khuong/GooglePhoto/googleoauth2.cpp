@@ -16,7 +16,7 @@ void GoogleOAuth2::SetScope(QString RequestScope){
     emit scopeSet();
 }
 
-void GoogleOAuth2::SetScopeRaw(QString RawScope){
+void GoogleOAuth2::SetRawScope(QString RawScope){
     scope = QString("?scope="+RawScope);
 
 }
@@ -119,19 +119,78 @@ void GoogleOAuth2::ExchangeTokenReply(QNetworkReply *reply) {
 
     } else {
         qDebug() << "Token Received!";
-
         QByteArray response = reply->readAll();
         QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
-
         QJsonObject jsonObject = jsonDoc.object();
-
-
+        /* Extract the tokens */
         accessToken = jsonObject["access_token"].toString();
-        qDebug() <<  accessToken;
+        expireTime  = jsonObject["expires_in"].toInt();
+
+        /* Exchange new access token after expire time.
+        APPARENTLY, THE RESPONSE DOES NOT CONTAIN REFRESH TOKEN
+        Just have to Authenticate() after the expire time*/
+
+        qDebug() << "Expire in" << expireTime;
+        QTimer::singleShot(expireTime*1000 - cautionOffset,this,SLOT(Authenticate())); // Conversion to milisecond
+        /* Use for testing only */
+//        QTimer::singleShot(expireTime*2,this,SLOT(Authenticate())); // Conversion to milisecond
+
+        qDebug() << "New Access Token:" << accessToken;
+        /* disconnext previous connect */
+        manager->disconnect();
         emit tokenReady(accessToken);
 
-        manager->disconnect();
     }
 }
+/* Note that there are limits on the number of refresh tokens that will be issued;
+ * one limit per client/user combination, and another per user across all clients*/
 
+void GoogleOAuth2::RefreshAccessToken(){
+    qDebug() << "Refreshing Access Token...";
+
+    /* Exchange the access code for access token */
+    if (manager == nullptr) {
+         manager = new QNetworkAccessManager(this);
+     }
+
+    grant_type = QString("&grant_type=refresh_token");
+    /* Prepend the keyword to build the API request*/
+    refreshToken = QString("refresh_token="+refreshToken);
+
+    QUrl urlToken(tokenEndpoint+refreshToken+client_id+client_secret+grant_type);
+    QNetworkRequest req(urlToken);
+    req.setRawHeader("Content-Type","application/x-www-form-urlencoded");
+
+    qDebug() << urlToken;
+    QByteArray data;
+    manager->post(req,data);
+
+    connect(this->manager, SIGNAL(finished(QNetworkReply*)),
+            this, SLOT(RefreshAccessTokenReply(QNetworkReply*)));
+}
+void GoogleOAuth2::RefreshAccessTokenReply(QNetworkReply* reply){
+    if(reply->error()) {
+        QByteArray response = reply->readAll();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+        QJsonObject jsonObject = jsonDoc.object();
+        qDebug() << jsonObject["error"].toObject()["message"].toString();
+        manager->disconnect();
+
+    } else {
+        qDebug() << "Access Token is renewed!";
+        QByteArray response = reply->readAll();
+        QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
+        QJsonObject jsonObject = jsonDoc.object();
+        /* Extract the tokens */
+        accessToken = jsonObject["access_token"].toString();
+        expireTime  = jsonObject["expires_in"].toInt();
+        qDebug() <<  "Refreshed Access Token:" << accessToken;
+        /* disconnext previous connect */
+        manager->disconnect();
+        /* Use the same signal so that the class uses googleoauth2 automatically
+         * update their stored token */
+        emit tokenReady(accessToken);
+
+    }
+}
 

@@ -2,7 +2,7 @@
 #include <QtCore>
 #include <QtWidgets>
 #include "googlephotoqueu.h"
-//#include "googleoauth2.h"
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -11,7 +11,6 @@ int main(int argc, char *argv[])
 //    auth.Authenticate();
     GooglePhotoQueu q;
 //    GooglePhoto p;
-//    p.CreateAlbumAndUploadPhoto("C:/Users/khuon/Documents/GooglePhoto/me.jpg","Ice");
     return app.exec();
 }
 

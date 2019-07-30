@@ -21,10 +21,12 @@ public:
 private:
     QNetworkAccessManager *manager = nullptr;
     GoogleOAuth2 auth;
-    QString albumURL;
+    QString albumURL = QString("No URL available");
     QString accessToken;
-    QString receiverEmail;
-    QString senderEmail;
+    QString receiverEmail = QString("khuong.dinh.ng@gmail.com");
+    QString senderEmail = QString("khuongnguyensac@gmail.com");
+    QString emailSubject = QString("Subject is not available");
+    QString emailBody = QString("Body is not available");
 
 signals:
     void authenticated();
@@ -35,6 +37,9 @@ public slots:
     void SendEmail();
     void SetToEmail(QString email);
     void SetFromEmail(QString email);
+    void SetSubject(QString);
+    void SetBody(QString);
+
 
 private slots:
     void SendEmailReply(QNetworkReply * reply);

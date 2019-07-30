@@ -23,6 +23,15 @@ void GMAIL::SetAlbumURL(QString url){
     albumURL = url;
     emit linkReady();
 }
+
+void GMAIL::SetBody(QString body){
+    emailBody = body;
+}
+
+void GMAIL::SetSubject(QString subject){
+    emailSubject = subject;
+}
+
 void GMAIL::SendEmail(){
     qDebug() << "Sending email with link...";
 
@@ -36,13 +45,19 @@ void GMAIL::SendEmail(){
     }else if(receiverEmail.isEmpty()){
         qDebug() << "TO email not provided. Please set.";
         return;
+    }else if(emailSubject.isEmpty()){
+        qDebug() << "Subject is not provided. Please set.";
+        return;
+    }else if(emailBody.isEmpty()){
+        qDebug() << "Body is not provided. Please set.";
+        return;
     }
 
+    /* NEED A LINE BETWEEN SUBJECT AND BODY FOR THIS TO WORK */
     QString message ("From:"+ senderEmail+ "\n"
                     "To:" + receiverEmail+ "\n"
-                     "Subject: Sending Email is DONE!\n"
-                     "\n"
-                     "Time to up the pricing!\n"
+                     "Subject: " + emailSubject +"\n"
+                     "\n" + emailBody + "\n"
                      "Shareable Album Link:" + albumURL );
 
     QByteArray encoded = message.toUtf8().toBase64(QByteArray::Base64UrlEncoding);
@@ -91,7 +106,7 @@ void GMAIL::SendEmailReply(QNetworkReply * reply){
         QJsonDocument jsonDoc = QJsonDocument::fromJson(reply->readAll());
         QJsonObject jsonObj = jsonDoc.object();
 
-        qDebug() << jsonObj;
+//        qDebug() << jsonObj;
 
         manager->disconnect();
 

@@ -4,7 +4,7 @@ GooglePhoto::GooglePhoto(QObject *parent) : QObject(parent)
 {
 //    auth.SetScopeRaw("https://www.googleapis.com/auth/photoslibrary"); // for list album
 
-    auth.SetScope(); // default scope is google photo
+    auth.SetScope();        // default scope is google photo
     auth.Authenticate();   //Share scope cannot querry for list of albums from Google Photo
     connect(&auth,SIGNAL(tokenReady(QString)),this,SLOT(SetAccessToken(QString)));
 }
@@ -36,29 +36,14 @@ void GooglePhoto::SetPathToFile(QString path){
     emit pathToFileChanged(path);
 }
 
-//void GooglePhoto::CreateAlbumAndUploadPhoto(QString pathToPic, QString albumName){
-//    pathToFile = pathToPic;
-//    SetAlbumName(albumName);
-//    /* Query list of albums */
-////    connect(this,SIGNAL(accessTokenSaved()),this,SLOT(GetAlbums()));
 
-//    /* Create a new album, make album shareable, and upload a photo*/
-//    connect(this,SIGNAL(accessTokenSaved()),this,SLOT(CreateAlbum()));
-//    connect(this,SIGNAL(albumCreated()),this,SLOT(ShareAlbum()));
-
-//    connect(this,SIGNAL(albumShared(QString)),this,SLOT(UploadPicData()));
-//    connect(this,SIGNAL(uploadTokenReceived()),this,SLOT(CreateMediaInAlbum()));
-
-//}
-
-
-void GooglePhoto::CreateAlbumByName(QString albumName){
-    SetAlbumName(albumName);
-    /* Create a new album, make album shareable, and upload a photo*/
-    connect(this,SIGNAL(accessTokenSaved()),this,SLOT(CreateAlbum()));
-    connect(this,SIGNAL(albumCreated(QString)),this,SLOT(ShareAlbum()));
+bool GooglePhoto::isUploading(){
+    return Uploading;
 }
 
+bool GooglePhoto::isAlbumReady(){
+    return albumReady;
+}
 void GooglePhoto::UploadPhoto(QString pathToPic){
 
     qDebug() << "Uploading to existing album...";
@@ -76,21 +61,12 @@ void GooglePhoto::UploadPhoto(QString pathToPic){
         return;
      }
 
-
     /* Disconnect all previous connection to avoid multiple trigger */
     this->disconnect();
     /* Start uploading */
     UploadPicData(pathToPic);
+    /* Create the file on Google Photo */
     connect(this,SIGNAL(uploadTokenReceived(QString)),this,SLOT(CreateMediaInAlbum(QString)));
-}
-
-
-void GooglePhoto::AppendUploadTokenList(QString token){
-    uploadTokenList.append(token);
-    qDebug() << "Upload Token List";
-    foreach(QString t, uploadTokenList){
-        qDebug() << t << endl;
-    }
 }
 
 
@@ -101,18 +77,18 @@ void GooglePhoto::UploadPicData(QString path){
         if (manager == nullptr) {
              manager = new QNetworkAccessManager(this);
          }
-        /* set to false at the beginning of every upload */
+        /* set to true at the beginning of every upload, prevent parallel uploads */
         Uploading = true;
 
+        /* Read binary data of the file */
         QFile file(path);
         fileName  = file.fileName();
         qDebug() << "File exists:" << file.exists();
-
         file.open(QIODevice::ReadOnly);
         QByteArray fileBytes = file.readAll();
         file.close();
 
-
+        /* build the API request */
         QNetworkRequest req (QUrl("https://photoslibrary.googleapis.com/v1/uploads"));
         req.setRawHeader("Authorization","Bearer "+ accessToken.toUtf8());
         req.setRawHeader("Content-Type","application/octet-stream");
@@ -123,10 +99,6 @@ void GooglePhoto::UploadPicData(QString path){
         manager->post(req, fileBytes);
         connect(this->manager, SIGNAL(finished(QNetworkReply*)),
                 this, SLOT(UploadReply(QNetworkReply*)));
-}
-
-bool GooglePhoto::isUploading(){
-    return Uploading;
 }
 
 void GooglePhoto::UploadReply(QNetworkReply *reply) {
@@ -142,6 +114,17 @@ void GooglePhoto::UploadReply(QNetworkReply *reply) {
 
      }
 }
+
+
+
+void GooglePhoto::AppendUploadTokenList(QString token){
+    uploadTokenList.append(token);
+    qDebug() << "Upload Token List";
+    foreach(QString t, uploadTokenList){
+        qDebug() << t << endl;
+    }
+}
+
 
 void GooglePhoto::CreateMultipleMediaInAlbum(){
     qDebug() << "Creating multiple medias in Album";
@@ -183,7 +166,7 @@ void GooglePhoto::CreateMultipleMediaInAlbum(){
 
     }
 
-    qDebug() << obj;
+//    qDebug() << obj;
 
     //to see the JSON output
     QJsonDocument doc (obj);
@@ -224,7 +207,7 @@ void GooglePhoto::CreateMediaInAlbum(QString token){
     QJsonObject obj;
     obj ["newMediaItems"] = arr;
 
-    /* Add media to provided album id if available */
+    /* Add media to provided album if id is available */
     if (albumID.isEmpty()){
         qDebug() << "album ID not available";
       }else{
@@ -232,9 +215,7 @@ void GooglePhoto::CreateMediaInAlbum(QString token){
         obj ["albumId"] = albumID;
 
     }
-    //to see the JSON output
     QJsonDocument doc (obj);
-
 
     QByteArray jsonRequest = doc.toJson(QJsonDocument::Compact);
     QByteArray postDataSize = QByteArray::number(jsonRequest.size());
@@ -308,7 +289,6 @@ void GooglePhoto::CreateAlbumReply(QNetworkReply * reply){
         albumURL = jsonObj["productUrl"].toString();
 //        qDebug() << "Album link:" << albumURL;
         manager->disconnect();
-        albumReady = true;
         emit albumCreated();
 
      }
@@ -357,6 +337,7 @@ void GooglePhoto::ShareAlbumReply(QNetworkReply * reply){
 
         albumURL =  jsonObj["shareInfo"].toObject()["shareableUrl"].toString();
 //        qDebug() << albumURL;
+        albumReady = true;
         manager->disconnect();
         emit albumShared(albumURL);
 

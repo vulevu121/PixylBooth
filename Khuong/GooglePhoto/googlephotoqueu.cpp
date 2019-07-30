@@ -17,7 +17,7 @@ GooglePhotoQueu::GooglePhotoQueu(QObject *parent) : QObject(parent)
     // Check directory every 15 second for new photo
     timer1 = new QTimer(this);
     connect(timer1,SIGNAL(timeout()),this,SLOT(CheckCameraFolder()));
-    timer1->start(5000);
+    timer1->start(4000);
 
     // Check the upload list every 1 second for photo to upload
     timer2 = new QTimer(this);
@@ -25,7 +25,7 @@ GooglePhotoQueu::GooglePhotoQueu(QObject *parent) : QObject(parent)
     timer2->start(1000);
 
 //    uploadedList = QStringList({"me1.jpg", "rdm1.jpg", "key1.jpg"});
-    QTimer::singleShot(90000,this,SLOT(CloseLog()));
+//    QTimer::singleShot(90000,this,SLOT(CloseLog()));
 
 
     // Email
@@ -107,9 +107,9 @@ void GooglePhotoQueu::CheckCameraFolder(){
 void GooglePhotoQueu::CheckUploadList(){
 //    qDebug() << "Checking upload list...";
     /* Upload 1 item from the upload list, and write the file name
-     * to the log and do nothing else */
+     * to the log and do nothing else until the next cycle */
 
-    if(!uploadList.isEmpty() && p->albumReady && !p->isUploading()){
+    if(!uploadList.isEmpty() && p->isAlbumReady() && !p->isUploading()){
 //        qDebug() << "album ready:"<< p->albumReady << "| uploading:" << p->isUploading();
         QString file = camera_folder_path + "/" + uploadList.takeFirst();
         qDebug() << "Uploading" << file;
