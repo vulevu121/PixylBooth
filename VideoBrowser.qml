@@ -64,7 +64,7 @@ Rectangle {
                 Image {
                     id: folderPicture
 
-                    source: folderListModel.isFolder(index) ? "qrc:/Images/folder_white_48dp.png" : "qrc:/Images/file_white_48dp.png"
+                    source: folderListModel.isFolder(index) ? "qrc:/icon/folder" : "qrc:/icon/file"
                     width: itemHeight * 0.9
                     height: itemHeight * 0.9
                     anchors.left: parent.left
@@ -117,7 +117,7 @@ Rectangle {
             Button {
                 text: "Back"
 
-                icon.source: "qrc:/Images/back_white_48dp.png"
+                icon.source: "qrc:/icon/back"
 
                 onClicked: {
                     folderListModel.folder = folderListModel.parentFolder
@@ -155,7 +155,7 @@ Rectangle {
 
             Button {
                 text: "Close"
-                icon.source: "qrc:/Images/close_white_48dp.png"
+                icon.source: "qrc:/icon/close"
 
                 onClicked: {
                     browserClosed()

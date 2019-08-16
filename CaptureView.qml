@@ -112,6 +112,11 @@ Item {
         endSessionTimer.restart()
         root.state = "endsession"
         liveView.stop()
+
+        if (settings.autoPrint) {
+//            console.log(lastCombinedPhoto, settings.autoPrintCopies)
+            imagePrint.printPhoto(lastCombinedPhoto, settings.autoPrintCopies)
+        }
     }
 
     function stopAllTimers() {
@@ -128,6 +133,7 @@ Item {
         countdownTimer.stop()
         countdown.count = settings.countdownTimer
     }
+
 
     function playStartVideos() {
         mediaPlayer.stop()
@@ -176,7 +182,7 @@ Item {
     // Sony API to initialize camera, take picture, etc.
     SonyAPI {
         id: sonyAPI
-        saveFolder: settings.saveFolder
+        saveFolder: settings.saveFolder + "/Camera"
         onActTakePictureCompleted: {
             actTakePictureTimer.stop()
             reviewImage.source = addFilePrefix(actTakePictureFilePath)
@@ -194,7 +200,7 @@ Item {
     // process the photos into template
     ProcessPhotos {
         id: processPhotos
-        saveFolder: settings.printFolder
+        saveFolder: settings.saveFolder + "/Prints"
 
         templatePath: settings.templateImagePath
         templateFormat: settings.templateFormat
@@ -351,24 +357,24 @@ Item {
 
     }
 
-    Timer {
-        id: autorunTimer
-        interval: 60000
-        repeat: true
-        running: autorunTimerSwitch.checked
+//    Timer {
+//        id: autorunTimer
+//        interval: 60000
+//        repeat: true
+//        running: autorunTimerSwitch.checked
 
-        triggeredOnStart: true
+//        triggeredOnStart: true
 
-        onTriggered: {
-            captureToolbar.playPauseButton.checked = true
-            captureToolbar.playPauseButton.clicked()
-        }
-    }
+//        onTriggered: {
+//            captureToolbar.playPauseButton.checked = true
+//            captureToolbar.playPauseButton.clicked()
+//        }
+//    }
 
-    Switch {
-        id: autorunTimerSwitch
-        z: 3
-    }
+//    Switch {
+//        id: autorunTimerSwitch
+//        z: 3
+//    }
 
     
     // ==== STATES ====
@@ -457,96 +463,28 @@ Item {
         }
     }
 
-    ImagePopup {
+    CanvasPopup {
         id: endSessionPopup
         anchors.centerIn: parent
-        width: mainWindow.width * 0.9
+        saveFolder: settings.saveFolder
+
+
+        width: mainWindow.width
         height: width / photoAspectRatio
 
-        Overlay.modal: GaussianBlur {
-            source: captureView
-            radius: 8
-            samples: 16
-            deviation: 3
-        }
+//        Overlay.modal: GaussianBlur {
+//            source: captureView
+//            radius: 8
+//            samples: 16
+//            deviation: 3
+//        }
     }
     
-    
-//    Button {
-//        id: playPauseButton
-//        text: "Play/Pause"
-//        Layout.alignment: Qt.AlignRight | Qt.AlignTop
-//        icon.source: checked ? "qrc:/Images/pause_white_48dp.png" : "qrc:/Images/play_arrow_white_48dp.png"
-//        icon.width: pixel(20)
-//        icon.height: pixel(20)
-//        anchors.centerIn: parent
-//        display: AbstractButton.IconOnly
-//        highlighted: false
-//        flat: false
-//        opacity: 0.8
-//        background: Rectangle {
-//            color: "transparent"
-//        }
-
-//        Material.accent: Material.color(Material.Green, Material.Shade700)
-//        checkable: true
-//        z: 10
-//        scale: 3
-//        smooth: true
-
-//        Behavior on icon.source {
-//            ParallelAnimation {
-//                id: playPauseButtonParallelAnimation
-
-//                NumberAnimation {
-//                    target: playPauseButton
-//                    property: "opacity";
-//                    from: 0.1;
-//                    to: 0.3;
-//                    duration: 800;
-//                    easing.type: Easing.InOutQuad;
-//                }
-
-//                NumberAnimation {
-//                    target: playPauseButton
-//                    property: "scale";
-//                    from: 2;
-//                    to: 3;
-//                    duration: 600;
-//                    easing.type: Easing.InOutQuad;
-//                }
-//            }
-//        }
-
-//        onClicked: {
-//            var playState = playPauseButton.checked
-
-//            if (root.state == "start") {
-//                beforeCaptureState()
-//            }
-
-//            if (root.state == "beforecapture") {
-//                beforeCaptureTimer.running = playState
-//            }
-
-//            if (root.state == "liveview") {
-//                countdownTimer.running = playState
-//            }
-
-//            if (root.state == "review") {
-//                reviewTimer.running = playState
-//            }
-
-//            if (root.state == "endsession") {
-//                endSessionTimer.running = playState
-//            }
-
-//        }
-//    }
     
     CaptureToolbar {
         id: captureToolbar
         opacity: 0.5
+        z: 10
     }
     
         
@@ -572,10 +510,6 @@ Item {
 //            liveView.scale = 1
 //        }
 //    }
-    
-    
-    
-
 
 //    Timer {
 //        interval: 3000
@@ -716,15 +650,24 @@ Item {
         opacity: 0
         scale: 0.1
 
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                captureToolbar.playPauseButton.checked = true
-                captureToolbar.playPauseButton.clicked()
-            }
-        }
-
     }
+
+//    Rectangle {
+//        id: touchArea
+//        anchors.fill: videoLoader
+//        z: 1
+//        color: "transparent"
+
+//        MouseArea {
+//            anchors.fill: parent
+
+//            onClicked: {
+//                captureToolbar.playPauseButton.checked = !captureToolbar.playPauseButton.checked;
+//                captureToolbar.playPauseButton.clicked()
+//            }
+
+//        }
+//    }
     
     MediaPlayer {
         id: mediaPlayer
@@ -774,12 +717,20 @@ Item {
         opacity: 0
         scale: 0.1
         
-        Gallery {
-            anchors.fill: parent
-            anchors.leftMargin: pixel(20)
-            model: photoList
-            cellWidth: mainWindow.width - pixel(40)
-        }
+//        Gallery {
+//            anchors.fill: parent
+//            anchors.leftMargin: pixel(20)
+//            model: photoList
+//            cellWidth: mainWindow.width - pixel(40)
+//        }
+
+//        PhotoCanvas {
+//            id: photoCanvas
+//            width: parent.width
+//            height: width / photoAspectRatio
+//            imageSource: addFilePrefix(lastCombinedPhoto)
+//        }
+
     }
     
 }

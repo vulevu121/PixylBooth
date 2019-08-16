@@ -2,8 +2,8 @@ QT += gui quick widgets multimedia network printsupport webview
 CONFIG += c++11
 
 TEMPLATE = app
-win32:VERSION = 1.1
-else:VERSION = 1.1
+win32:VERSION = 1.2
+else:VERSION = 1.2
 
 RC_ICONS = PixylBooth.ico
 
@@ -30,7 +30,7 @@ SOURCES += \
 RESOURCES += qml.qrc
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH = "C:\Qt\5.12.2\msvc2017_64\qml"
+QML_IMPORT_PATH =
 
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =

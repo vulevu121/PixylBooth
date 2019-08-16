@@ -19,6 +19,8 @@ ColumnLayout {
     spacing: pixel(6)
     property real iconSize: pixel(16)
     property alias playPauseButton: playPauseButton
+    property alias lockButton: lockButton
+
 //    property alias exposureButton: exposureButton
 
 
@@ -54,7 +56,7 @@ ColumnLayout {
         id: undoLastButton
         text: "Undo Last"
         Layout.alignment: Qt.AlignRight | Qt.AlignTop
-        icon.source: "qrc:/Images/settings_backup_restore_white_48dp.png"
+        icon.source: "qrc:/icon/undo_one"
         icon.width: mainButtonsLayout.iconSize
         icon.height: mainButtonsLayout.iconSize
         display: AbstractButton.IconOnly
@@ -100,7 +102,7 @@ ColumnLayout {
         id: undoAllButton
         text: "Undo All"
         Layout.alignment: Qt.AlignRight | Qt.AlignTop
-        icon.source: "qrc:/Images/cached_white_48dp.png"
+        icon.source: "qrc:/icon/refresh"
         icon.width: mainButtonsLayout.iconSize
         icon.height: mainButtonsLayout.iconSize
         display: AbstractButton.IconOnly
@@ -139,7 +141,7 @@ ColumnLayout {
         id: playPauseButton
         text: "Play/Pause"
         Layout.alignment: Qt.AlignRight | Qt.AlignTop
-        icon.source: checked ? "qrc:/Images/pause_white_48dp.png" : "qrc:/Images/play_arrow_white_48dp.png"
+        icon.source: checked ? "qrc:/icon/pause" : "qrc:/icon/play"
         icon.width: mainButtonsLayout.iconSize
         icon.height: mainButtonsLayout.iconSize
         display: AbstractButton.IconOnly
@@ -203,8 +205,9 @@ ColumnLayout {
     Button {
         id: fullScreenButton
         text: "Full Screen"
+        visible: lockButton.checked
         Layout.alignment: Qt.AlignRight | Qt.AlignTop
-        icon.source: mainWindow.visibility === Window.FullScreen ? "qrc:/Images/fullscreen_exit_white_48dp.png" : "qrc:/Images/fullscreen_white_48dp.png"
+        icon.source: mainWindow.visibility === Window.FullScreen ? "qrc:/icon/fullscreen_exit" : "qrc:/icon/fullscreen"
         icon.width: mainButtonsLayout.iconSize
         icon.height: mainButtonsLayout.iconSize
         display: AbstractButton.IconOnly
@@ -245,23 +248,34 @@ ColumnLayout {
         }
     }
 
+//    Button {
+//        text: "Exit"
+//        flat: false
+//        Layout.alignment: Qt.AlignRight | Qt.AlignTop
+//        icon.source: "qrc:/Images/cancel_white_48dp.png"
+//        icon.width: mainButtonsLayout.iconSize
+//        icon.height: mainButtonsLayout.iconSize
+//        display: AbstractButton.IconOnly
+//        highlighted: true
+//        Material.accent: Material.color(Material.Grey, Material.Shade700)
+//        onClicked: {
+//            mainWindow.close()
+//        }
+//    }
+
     Button {
-        text: "Exit"
+        id: lockButton
+        text: "Lock"
         flat: false
         Layout.alignment: Qt.AlignRight | Qt.AlignTop
-        icon.source: "qrc:/Images/cancel_white_48dp.png"
+        icon.source: checked ? "qrc:/icon/unlock" : "qrc:/icon/lock"
         icon.width: mainButtonsLayout.iconSize
         icon.height: mainButtonsLayout.iconSize
         display: AbstractButton.IconOnly
         highlighted: true
         Material.accent: Material.color(Material.Grey, Material.Shade700)
-        onClicked: {
-            mainWindow.close()
-        }
+        checkable: true
     }
-
-
-
 
     ColumnLayout { }
 

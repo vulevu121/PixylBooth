@@ -12,7 +12,7 @@ import QtMultimedia 5.9
 import QtGraphicalEffects 1.0
 import Qt.labs.folderlistmodel 2.0
 //import QtWebView 1.1
-import Process 1.0
+//import Process 1.0
 import SonyAPI 1.0
 import SonyLiveview 1.0
 import ProcessPhotos 1.0
@@ -53,16 +53,13 @@ Window {
         id: mainSettings
         property alias x: mainWindow.x
         property alias y: mainWindow.y
-        property alias lastCombinedPhoto: mainWindow.lastCombinedPhoto
+//        property alias lastCombinedPhoto: mainWindow.lastCombinedPhoto
 //        property alias username: mainWindow.username
 //        property alias password: mainWindow.password
 //        property alias rememberMe: rememberMeCheckBox.checked
         property alias idToken: mainWindow.idToken
         property alias refreshToken: mainWindow.refreshToken
     }
-
-
-
 
     // function to assist in scaling with different resolutions and dpi
     function toPixels(percentage) {
@@ -72,7 +69,6 @@ Window {
     function pixel(pixel) {
         return pixel * 4
     }
-
 
     function getFileName(path) {
         var pathstring = String(path)
@@ -98,10 +94,9 @@ Window {
         return filePrefix.concat(path)
     }
 
-    Process {
-        id: process
-    }
-
+//    Process {
+//        id: process
+//    }
 
     Firebase {
         id: firebase
@@ -128,18 +123,10 @@ Window {
 
     }
 
-
     CSVFile {
         id: csvFile
-        saveFolder: settings.emailFolder
+        saveFolder: settings.saveFolder
     }
-
-
-//    Text {
-//        text: Screen.pixelDensity
-//        color: "white"
-//    }
-
 
 
     // email list
@@ -154,15 +141,11 @@ Window {
 
     }
 
-
     // print class to print photos
     PrintPhotos {
         id: imagePrint
         printerName: settings.printerName
     }
-
-
-
 
 
 //    Timer {
@@ -336,17 +319,34 @@ Window {
 //    }
 
 
+
+
     // ==== SWIPEVIEW ====
     SwipeView {
         id: swipeview
         currentIndex: 1
         anchors.fill: parent
+        interactive: captureView.captureToolbar.lockButton.checked
+
+
+        onCurrentIndexChanged: {
+            if (swipeview.currentIndex == 1) {
+                if (captureView.mediaPlayer.playbackState == MediaPlayer.PausedState) {
+                    captureView.mediaPlayer.play()
+                }
+            }
+            else {
+                if (captureView.mediaPlayer.playbackState == MediaPlayer.PlayingState) {
+                    captureView.mediaPlayer.pause()
+                }
+            }
+        }
 
         Item {
             Gallery {
                 id: gallery
                 anchors.fill: parent
-                folder: addFilePrefix(settings.printFolder)
+                folder: addFilePrefix(settings.saveFolder + "/Prints")
             }
         }
 
@@ -410,6 +410,8 @@ Window {
         anchors.horizontalCenter: parent.horizontalCenter
         Material.elevation: 1
         opacity: 1
+        z: 5
+        enabled: captureView.captureToolbar.lockButton.checked
         background: Rectangle {
             color: Material.background
             radius: pixel(3)
@@ -417,10 +419,11 @@ Window {
 
         property real iconSize: pixel(10)
 
+
         TabButton {
             text: "Gallery"
             width: implicitWidth
-            icon.source: "qrc:/Images/play_circle_filled_white_white_48dp.png"
+            icon.source: "qrc:/icon/photo_library"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly
@@ -433,19 +436,20 @@ Window {
         TabButton {
             text: "Capture"
             width: implicitWidth
-            icon.source: "qrc:/Images/camera_white_48dp.png"
+            icon.source: "qrc:/icon/capture"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly
 
             onClicked: {
                 swipeview.currentIndex = 1
+
             }
         }
         TabButton {
             text: "Settings"
             width: implicitWidth
-            icon.source: "qrc:/Images/settings_white_48dp.png"
+            icon.source: "qrc:/icon/settings"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly

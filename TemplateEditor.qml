@@ -165,7 +165,7 @@ Window {
 
         Button {
             text: "Add Photo"
-            icon.source: "qrc:/Images/add_white_48dp.png"
+            icon.source: "qrc:/icon/add"
             icon.width: iconSize
             icon.height: iconSize
             width: height
@@ -182,7 +182,7 @@ Window {
 
         Button {
             text: "Close"
-            icon.source: "qrc:/Images/close_white_48dp.png"
+            icon.source: "qrc:/icon/close"
             icon.width: iconSize
             icon.height: iconSize
             width: height
@@ -241,7 +241,7 @@ Window {
                 Button {
                     text: "Delete"
                     display: Button.IconOnly
-                    icon.source: "qrc:/Images/delete_forever_white_48dp.png"
+                    icon.source: "qrc:/icon/delete"
                     icon.width: iconSize
                     icon.height: iconSize
                     flat: true
@@ -254,7 +254,7 @@ Window {
                 Button {
                     text: "Scale up"
                     display: Button.IconOnly
-                    icon.source: "qrc:/Images/zoom_in_white_48dp.png"
+                    icon.source: "qrc:/icon/zoom_in"
                     icon.width: iconSize
                     icon.height: iconSize
                     flat: true
@@ -271,7 +271,7 @@ Window {
                 Button {
                     text: "Scale down"
                     display: Button.IconOnly
-                    icon.source: "qrc:/Images/zoom_out_white_48dp.png"
+                    icon.source: "qrc:/icon/zoom_out"
                     icon.width: iconSize
                     icon.height: iconSize
                     flat: true

@@ -52,22 +52,23 @@ Rectangle {
         }
     }
 
-    ImagePopup {
+    CanvasPopup {
         id: imagePopup
         anchors.centerIn: parent
-        width: root.width * 0.9
-        height: width * 0.75
+        width: root.width * 0.98
+//        height: width * 0.75
+        saveFolder: settings.saveFolder
 
         onClosed: {
             blurRect.opacity = 0
         }
 
-        Overlay.modal: GaussianBlur {
-            source: root
-            radius: 8
-            samples: 16
-            deviation: 3
-        }
+//        Overlay.modal: GaussianBlur {
+//            source: root
+//            radius: 8
+//            samples: 16
+//            deviation: 3
+//        }
 
     }
 
@@ -130,7 +131,7 @@ Rectangle {
 //            radius: pixel(2)
 //        }
         focus: true
-        cacheBuffer: 40
+        cacheBuffer: 1
 
     }
 }

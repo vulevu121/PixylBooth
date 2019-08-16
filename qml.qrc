@@ -1,44 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>qtquickcontrols2.conf</file>
-        <file>Images/folder_white_48dp.png</file>
-        <file>Images/back_white_48dp.png</file>
-        <file>Images/file_white_48dp.png</file>
-        <file>Images/camera_alt_white_48dp.png</file>
-        <file>Images/camera_white_48dp.png</file>
-        <file>Images/settings_white_48dp.png</file>
-        <file>Images/apps_white_48dp.png</file>
-        <file>Images/video_library_white_48dp.png</file>
-        <file>Images/color_lens_white_48dp.png</file>
-        <file>Images/fullscreen_white_48dp.png</file>
-        <file>Images/exit_to_app_white_48dp.png</file>
-        <file>Images/fullscreen_exit_white_48dp.png</file>
-        <file>Images/cancel_white_48dp.png</file>
-        <file>Images/print_white_48dp.png</file>
-        <file>Images/sms_white_48dp.png</file>
-        <file>Images/email_white_48dp.png</file>
-        <file>Images/play_circle_filled_white_white_48dp.png</file>
-        <file>Images/box-shadow.png</file>
-        <file>Images/settings_backup_restore_white_48dp.png</file>
-        <file>Images/corner.png</file>
-        <file>Images/add_white_48dp.png</file>
-        <file>Images/remove_white_48dp.png</file>
-        <file>Images/clear_white_48dp.png</file>
-        <file>Images/pause_white_48dp.png</file>
-        <file>Images/play_arrow_white_48dp.png</file>
-        <file>Images/pause_circle_outline_white_48dp.png</file>
-        <file>Images/close_white_48dp.png</file>
-        <file>Images/folder_special_white_48dp.png</file>
-        <file>Images/folder_shared_white_48dp.png</file>
-        <file>Images/send_white_48dp.png</file>
-        <file>Images/transparent_48dp.png</file>
-        <file>Images/cached_white_48dp.png</file>
-        <file>Images/drag_indicator_white_48dp.png</file>
-        <file>Images/open_with_white_48dp.png</file>
-        <file>Images/pan_tool_white_48dp.png</file>
-        <file>Images/zoom_in_white_48dp.png</file>
-        <file>Images/zoom_out_white_48dp.png</file>
-        <file>Images/delete_forever_white_48dp.png</file>
+        <file alias="shadow">Images/box-shadow.png</file>
+        <file alias="corner">Images/corner.png</file>
         <file>CameraDummy.qml</file>
         <file>CameraItem.qml</file>
         <file>CaptureFrame.qml</file>
@@ -66,5 +30,42 @@
         <file>VideoBrowser.qml</file>
         <file>VideoList.qml</file>
         <file>Webcamera.qml</file>
+        <file>CanvasPopup.qml</file>
     </qresource>
+    <qresource prefix="/icon">
+        <file alias="add">Images/1x/outline_add_white_48dp.png</file>
+        <file alias="capture">Images/1x/outline_camera_white_48dp.png</file>
+        <file alias="close">Images/1x/outline_clear_white_48dp.png</file>
+        <file alias="color">Images/1x/outline_color_lens_white_48dp.png</file>
+        <file alias="delete">Images/1x/outline_delete_forever_white_48dp.png</file>
+        <file alias="email">Images/1x/outline_email_white_48dp.png</file>
+        <file alias="profile">Images/1x/outline_folder_shared_white_48dp.png</file>
+        <file alias="fullscreen_exit">Images/1x/outline_fullscreen_exit_white_48dp.png</file>
+        <file alias="fullscreen">Images/1x/outline_fullscreen_white_48dp.png</file>
+        <file alias="unlock">Images/1x/outline_lock_open_white_48dp.png</file>
+        <file alias="lock">Images/1x/outline_lock_white_48dp.png</file>
+        <file alias="move">Images/1x/outline_open_with_white_48dp.png</file>
+        <file alias="camera">Images/1x/outline_photo_camera_white_48dp.png</file>
+        <file alias="play">Images/1x/outline_play_arrow_white_48dp.png</file>
+        <file alias="print">Images/1x/outline_print_white_48dp.png</file>
+        <file alias="refresh">Images/1x/outline_refresh_white_48dp.png</file>
+        <file alias="remove">Images/1x/outline_remove_white_48dp.png</file>
+        <file alias="send">Images/1x/outline_send_white_48dp.png</file>
+        <file alias="undo_one">Images/1x/outline_settings_backup_restore_white_48dp.png</file>
+        <file alias="sms">Images/1x/outline_textsms_white_48dp.png</file>
+        <file alias="settings">Images/1x/outline_tune_white_48dp.png</file>
+        <file alias="video_library">Images/1x/outline_video_library_white_48dp.png</file>
+        <file alias="zoom_in">Images/1x/outline_zoom_in_white_48dp.png</file>
+        <file alias="zoom_out">Images/1x/outline_zoom_out_white_48dp.png</file>
+        <file alias="photo_library">Images/1x/outline_photo_library_white_48dp.png</file>
+        <file alias="pause">Images/1x/outline_pause_white_48dp.png</file>
+        <file alias="folder">Images/1x/outline_folder_open_white_48dp.png</file>
+        <file alias="file">Images/1x/outline_insert_drive_file_white_48dp.png</file>
+        <file alias="back">Images/1x/outline_arrow_back_ios_white_48dp.png</file>
+        <file alias="clear_all">Images/1x/outline_clear_all_white_48dp.png</file>
+        <file alias="light">Images/1x/outline_highlight_white_48dp.png</file>
+        <file alias="paint">Images/1x/outline_format_paint_white_48dp.png</file>
+        <file alias="save">Images/1x/outline_save_white_48dp.png</file>
+    </qresource>
+    <qresource prefix="/img"/>
 </RCC>
