@@ -5,15 +5,30 @@ import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.3
 import Qt.labs.folderlistmodel 2.13
+import QtQuick.VirtualKeyboard 2.13
+import QtQuick.VirtualKeyboard.Styles 2.13
+import QtQuick.VirtualKeyboard.Settings 2.13
 
 Popup {
     id: canvasPopup
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
     modal: true
-    padding: 2
+    padding: pixel(2)
+
+//    margins: 0
+
+    //    background: Rectangle {
+    //        color: Material.background
+    //        opacity: 1
+    //        radius: pixel(2)
+    //    }
 
     property string saveFolder
     property real iconSize: pixel(20)
+    property string smsFileURL: addFilePrefix(settings.saveFolder + "/SMS.txt")
+    property string emailFileURL: addFilePrefix(settings.saveFolder + "/Email.txt")
+    property real autoCompleteRowHeight: pixel(6)
+
 
     Overlay.modal: Rectangle {
             color: "#A0101010"
@@ -23,28 +38,61 @@ Popup {
         var canvasURL = getCanvasURL()
         canvas.lastCanvasLoaded = false
         canvas.loadImage(canvasURL)
+
+        loadModelFromJson(openFile(smsFileURL), smsModel)
+        loadModelFromJson(openFile(emailFileURL), emailModel)
     }
 
     onClosed: {
         var canvasURL = getCanvasURL()
-//                    console.log(canvasURL)
         canvas.save(stripFilePrefix(canvasURL))
         console.log(canvasURL, "saved")
+
+        saveFile(smsFileURL, getJsonFromModel(smsModel))
+        saveFile(emailFileURL, getJsonFromModel(emailModel))
+
     }
 
-
-//    margins: 0
-//    background: Rectangle {
-//        color: Material.background
-//        opacity: 1
-//        radius: pixel(2)
-//    }
     property alias source: image.source
 
     function getCanvasURL() {
         var fileURL = String(image.source)
         var canvasURL = fileURL.replace(".jpg", ".png")
         return canvasURL.replace("/Prints/", "/Canvas/")
+    }
+
+    function loadModelFromJson(json, model) {
+        model.clear()
+        var data = JSON.parse(json)
+        for (var i = 0 ; i < data.length ; i++) model.append(data[i])
+    }
+
+    function getJsonFromModel(model) {
+        var data = []
+        for (var i = 0 ; i < model.count ; i++) data.push(model.get(i))
+        return JSON.stringify(data)
+    }
+
+    function openFile(fileUrl) {
+        var request = new XMLHttpRequest();
+        request.open("GET", fileUrl, false);
+        request.send(null);
+        return request.responseText;
+    }
+
+    function saveFile(fileUrl, text) {
+        var request = new XMLHttpRequest();
+        request.open("PUT", fileUrl, false);
+        request.send(text);
+        return request.status;
+    }
+
+    ListModel {
+        id: smsModel
+    }
+
+    ListModel {
+        id: emailModel
     }
 
     ListModel {
@@ -90,7 +138,7 @@ Popup {
     FolderListModel {
         id: emojisModel
         folder: addFilePrefix(settings.emojiFolder)
-        nameFilters: ["*.png"]
+        nameFilters: ["*.png", "*.PNG"]
     }
 
     Component {
@@ -136,7 +184,7 @@ Popup {
     }
 
     Popup {
-        id: printPopup
+        id: emailPopup
         modal: true
         anchors.centerIn: parent
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
@@ -145,11 +193,129 @@ Popup {
                 color: "#A0101010"
         }
 
-//        background: Rectangle {
-//            color: Material.background
-//            radius: pixel(3)
-//            Material.elevation: 4
-//        }
+        onOpened: {
+            emailTextField.forceActiveFocus()
+        }
+
+        onClosed: {
+            emailTextField.clear()
+        }
+
+        Column {
+            anchors.fill: parent
+
+            RowLayout {
+                spacing: pixel(5)
+                width: parent.width
+
+                TextField {
+                    id: emailTextField
+                    width: root.width * 0.8
+                    placeholderText: "Enter your email"
+                    inputMethodHints: Qt.ImhLowercaseOnly
+                    focus: true
+                    Layout.fillWidth: true
+                    font.pixelSize: pixel(10)
+
+                    Keys.onReturnPressed: {
+                        emailSendButton.clicked()
+                    }
+
+                    onTextChanged: {
+                        autoCompleteListModel.clear()
+
+                        if (emailTextField.text.length > 2) {
+                            for (var i = 0 ; i < emailModel.count ; i++) {
+                                var email = String(emailModel.get(i).Email.toLowerCase())
+                                var input = String(emailTextField.text.toLowerCase())
+                                if (email.search(input) >= 0) {
+                                    autoCompleteListModel.append({"email" : email.toLowerCase()});
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                Button {
+                    id: emailSendButton
+                    text: "Send"
+                    icon.source: "qrc:/icon/send"
+                    icon.width: iconSize
+                    icon.height: iconSize
+                    display: AbstractButton.TextBesideIcon
+                    Layout.alignment: Qt.AlignRight
+                    Material.accent: Material.color(Material.Orange, Material.Shade700)
+                    highlighted: true
+                    onClicked: {
+                        if (emailTextField.text.length > 0) {
+                            var photoPath = String(image.source)
+                            var inputEmail = emailTextField.text.toLowerCase()
+                            emailModel.append({"PhotoPath": photoPath, "Email": inputEmail})
+//                            emailTextField.clear()
+                            emailPopup.close()
+                        }
+
+                    }
+                }
+            }
+
+
+            Rectangle {
+                id: autoCompleteRect
+                width: parent.width
+                height: autoCompleteRowHeight * 2
+                color: Material.background
+                clip: true
+
+                ListModel {
+                    id: autoCompleteListModel
+                }
+
+                ListView {
+                    anchors.fill: parent
+                    anchors.margins: pixel(3)
+                    id: autoCompleteListView
+                    model: autoCompleteListModel
+
+                    delegate: Item {
+                        height: autoCompleteRowHeight
+                        Text {
+                            text: email
+                            color: Material.foreground
+                            font.pixelSize: autoCompleteRowHeight
+
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    emailTextField.text = email
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            InputPanel {
+                width: mainWindow.width * 0.9
+            }
+
+        }
+
+
+    }
+
+    Popup {
+        id: printPopup
+        modal: true
+        anchors.centerIn: parent
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        Overlay.modal: Rectangle {
+                color: "#A0101010"
+        }
 
         ColumnLayout {
             anchors.horizontalCenter: parent.horizontalCenter
@@ -180,7 +346,7 @@ Popup {
 //                    console.log(printCopyCountButton.value)
 //                    console.log(root.source)
 
-                    imagePrint.printPhoto(stripFilePrefix(imageView.source), printCopyCountButton.value)
+                    imagePrint.printPhoto(stripFilePrefix(image.source), printCopyCountButton.value)
                     toast.show("Printing " + printCopyCountButton.value + " copies")
                     printPopup.close()
                 }
@@ -195,6 +361,72 @@ Popup {
 
     }
 
+    Popup {
+        id: smsPopup
+        modal: true
+        anchors.centerIn: parent
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        Overlay.modal: Rectangle {
+            color: "#A0101010"
+        }
+
+        onOpened: {
+            phoneNumber.forceActiveFocus()
+        }
+
+        onClosed: {
+            phoneNumber.clear()
+        }
+
+
+        ColumnLayout {
+            ComboBox {
+                id: carrierCombo
+                Layout.fillWidth: true
+                model: ["ATT", "T-Mobile", "Verizon", "Sprint", "Metro PCS", "Boost Mobile", "Cricket"]
+                displayText: "Service Carrier: " + currentText
+            }
+            RowLayout {
+                TextField {
+                    id: phoneNumber
+                    focus: true
+                    placeholderText: "Phone number"
+                    inputMask: "999-999-9999"
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    font.pixelSize: pixel(10)
+                    Layout.fillWidth: true
+                    horizontalAlignment: TextInput.AlignHCenter
+
+                }
+
+                Button {
+                    text: qsTr("Send SMS")
+                    icon.source: "qrc:/icon/sms"
+                    icon.width: iconSize
+                    icon.height: iconSize
+                    display: AbstractButton.TextUnderIcon
+                    Layout.alignment: Qt.AlignHCenter
+                    Material.accent: Material.color(Material.Yellow, Material.Shade700)
+                    highlighted: true
+                    onClicked: {
+                        var photoPath = String(image.source)
+                        smsModel.append({ "PhotoPath": photoPath, "Phone": phoneNumber.text, "Carrier": carrierCombo.currentText })
+    //                    console.log(getJsonFromModel(smsModel))
+                        smsPopup.close()
+                    }
+                }
+            }
+
+
+
+            InputPanel {
+                implicitWidth: mainWindow.width * 0.9
+//                implicitHeight: mainWindow.height * 0.5
+            }
+        }
+    }
+
     Column {
         spacing: 4
         anchors.fill: parent
@@ -204,9 +436,9 @@ Popup {
                 left: parent.left
                 right: parent.right
             }
-//            spacing: 4
+            RowLayout {}
 
-            Button {
+            RoundButton {
                 text: "Save"
                 icon.source: "qrc:/icon/save"
                 icon.width: iconSize
@@ -214,7 +446,9 @@ Popup {
                 display: AbstractButton.TextUnderIcon
                 Layout.alignment: Qt.AlignHCenter
                 highlighted: true
+                radius: pixel(2)
                 Material.accent: Material.color(Material.Green, Material.Shade700)
+
                 onClicked: {
                     var canvasURL = getCanvasURL()
 //                    console.log(canvasURL)
@@ -222,7 +456,7 @@ Popup {
                 }
             }
 
-            Button {
+            RoundButton {
                 text: "Clear"
                 icon.source: "qrc:/icon/clear_all"
                 icon.width: iconSize
@@ -231,13 +465,14 @@ Popup {
                 Layout.alignment: Qt.AlignHCenter
                 highlighted: true
                 Material.accent: Material.color(Material.Red, Material.Shade700)
+                radius: pixel(2)
                 onClicked: {
                     canvas.clearRect = true
 
                 }
             }
 
-            Button {
+            RoundButton {
                 id: printButton
                 text: qsTr("Print")
                 icon.source: "qrc:/icon/print"
@@ -246,6 +481,7 @@ Popup {
                 display: AbstractButton.TextUnderIcon
                 Layout.alignment: Qt.AlignHCenter
                 Material.accent: Material.color(Material.Cyan, Material.Shade700)
+                radius: pixel(2)
                 highlighted: true
                 onClicked: {
                     printCopyCountButton.value = 1
@@ -253,7 +489,7 @@ Popup {
                 }
             }
 
-            Button {
+            RoundButton {
                 text: qsTr("Email")
                 icon.source: "qrc:/icon/email"
                 icon.width: iconSize
@@ -261,6 +497,7 @@ Popup {
                 display: AbstractButton.TextUnderIcon
                 Layout.alignment: Qt.AlignHCenter
                 Material.accent: Material.color(Material.Orange, Material.Shade700)
+                radius: pixel(2)
                 highlighted: true
                 onClicked: {
                     console.log("Email!")
@@ -269,7 +506,7 @@ Popup {
                 }
             }
 
-            Button {
+            RoundButton {
                 text: qsTr("SMS")
                 icon.source: "qrc:/icon/sms"
                 icon.width: iconSize
@@ -277,14 +514,14 @@ Popup {
                 display: AbstractButton.TextUnderIcon
                 Layout.alignment: Qt.AlignHCenter
                 Material.accent: Material.color(Material.Yellow, Material.Shade700)
+                radius: pixel(2)
                 highlighted: true
                 onClicked: {
-                    console.log("SMS!")
-
+                    smsPopup.open()
                 }
             }
 
-            Button {
+            RoundButton {
                 id: closeButton
                 text: "Close"
                 icon.source: "qrc:/icon/close"
@@ -293,11 +530,14 @@ Popup {
                 display: AbstractButton.TextUnderIcon
                 Layout.alignment: Qt.AlignHCenter
                 Material.accent: Material.color(Material.Grey, Material.Shade700)
+                radius: pixel(2)
                 highlighted: true
                 onClicked: {
                     canvasPopup.close()
                 }
             }
+
+            RowLayout {}
 
         }
 
@@ -377,8 +617,8 @@ Popup {
                 property bool pressed
                 property bool released
                 property bool changed
-                property int paletteSize: 50
-                property int emojiSize: 72
+                property int paletteSize: pixel(20)
+                property int emojiSize: pixel(20)
                 color: "transparent"
 
                 Canvas {
@@ -503,6 +743,7 @@ Popup {
                         anchors.fill: parent
 
                         onPressed: {
+                            captureView.stopAllTimers()
                             canrect.pressed = true;
                             canrect.lastX = mouseX;
                             canrect.lastY = mouseY;

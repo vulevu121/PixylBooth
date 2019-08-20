@@ -90,11 +90,19 @@ void PrintThread::run() {
 //    photoPath = "c:/Users/Vu/Pictures/PixylBooth/Prints/DSC05785_DSC05786_DSC05787.jpg";
 
     QImage photo(photoPath);
+    QString canvasPath(photoPath.replace("/Prints/", "/Canvas/").replace(".jpg", ".png"));
+
 
     qDebug() << photoPath;
+    qDebug() << canvasPath;
 
+    QImage canvasImage(canvasPath);
+
+    QImage canvasImageScaled = canvasImage.scaled(1820, 1230);
     QImage photoScaled = photo.scaled(1820, 1230);
     printerPainter.drawImage(0, 0, photoScaled);
+    printerPainter.drawImage(0, 0, canvasImageScaled);
+
 
     printerPainter.end();
 }

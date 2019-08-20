@@ -63,6 +63,7 @@ private:
     QString m_saveFolder;
     QString m_fileName;
     bool m_readyFlag = true;
+    QString urlString = "";
     QNetworkAccessManager *manager = nullptr;
     QNetworkAccessManager *downloadManager = nullptr;
 };

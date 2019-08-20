@@ -282,9 +282,7 @@ void SonyAPI::actTakePictureReply (QNetworkReply *reply)
         else {
             QJsonDocument jsonDoc = QJsonDocument::fromJson(response);
             QJsonObject jsonObject = jsonDoc.object();
-            QString urlString = jsonObject["result"].toArray()[0].toArray()[0].toString();
-
-//            qDebug() << urlString;
+            urlString = jsonObject["result"].toArray()[0].toArray()[0].toString();
 
             QUrl picUrl(urlString);
 
@@ -313,8 +311,20 @@ void SonyAPI::downloadPicture(QNetworkReply *reply)
 
     file.open(QIODevice::WriteOnly | QIODevice::Truncate);
 
+    QByteArray imageData = reply->readAll();
+
+    if (imageData.length() < 100) {
+        qDebug() << imageData.length();
+        QUrl picUrl(urlString);
+//        m_fileName = picUrl.fileName();
+        QNetworkRequest req(picUrl);
+        downloadManager->get(req);
+        return;
+    }
+
+
     if(file.exists()) {
-        file.write(reply->readAll());
+        file.write(imageData);
         file.flush();
         file.close();
     }

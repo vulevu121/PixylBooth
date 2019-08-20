@@ -17,10 +17,12 @@ import SonyAPI 1.0
 import SonyLiveview 1.0
 import ProcessPhotos 1.0
 import PrintPhotos 1.0
-import CSVFile 1.0
+//import CSVFile 1.0
 import Firebase 1.0
 //import MoveMouse 1.0
-
+import QtQuick.VirtualKeyboard 2.13
+import QtQuick.VirtualKeyboard.Styles 2.13
+import QtQuick.VirtualKeyboard.Settings 2.13
 
 Window {
     id: mainWindow
@@ -48,6 +50,7 @@ Window {
     property string idToken
     property string refreshToken
     property real photoAspectRatio: 3/2
+
 
     Settings {
         id: mainSettings
@@ -123,17 +126,13 @@ Window {
 
     }
 
-    CSVFile {
-        id: csvFile
-        saveFolder: settings.saveFolder
-    }
+//    CSVFile {
+//        id: csvFile
+//        saveFolder: settings.saveFolder
+//    }
 
 
-    // email list
-    ListModel {
-        id: emailList
 
-    }
 
     // a list model for storing photo paths
     ListModel {
@@ -396,6 +395,14 @@ Window {
 //        }
 //    }
 
+//    InputPanel {
+//        id: inputPanel
+//        z: 9999999
+//        y: Qt.inputMethod.visible ? 0 : 0 - inputPanel.height
+//        anchors.left: parent.left
+//        anchors.right: parent.right
+//    }
+
     ToastManager {
         id: toast
     }
@@ -404,9 +411,10 @@ Window {
     // ==== TAB BAR STUFF ====
     TabBar {
         id: tabBar
+        y: captureView.captureToolbar.lockButton.checked ? 0 : -height
         position: TabBar.Footer
         currentIndex: swipeview.currentIndex
-        anchors.top: parent.top
+//        anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         Material.elevation: 1
         opacity: 1
@@ -418,6 +426,18 @@ Window {
          }
 
         property real iconSize: pixel(10)
+
+        Behavior on x {
+            NumberAnimation {
+                duration: 200
+            }
+        }
+
+        Behavior on y {
+            NumberAnimation {
+                duration: 200
+            }
+        }
 
 
         TabButton {

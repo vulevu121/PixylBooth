@@ -54,9 +54,11 @@ Rectangle {
 
     CanvasPopup {
         id: imagePopup
-        anchors.centerIn: parent
         width: root.width * 0.98
-//        height: width * 0.75
+        y: pixel(2)
+        x: (mainWindow.width - width)/2
+
+//        anchors.centerIn: parent
         saveFolder: settings.saveFolder
 
         onClosed: {

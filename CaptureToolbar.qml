@@ -9,53 +9,26 @@ import Qt.labs.platform 1.1
 import QtQuick.Dialogs 1.3
 import Qt.labs.settings 1.1
 
-ColumnLayout {
+Rectangle {
     id: mainButtonsLayout
-
-    anchors.verticalCenter: parent.verticalCenter
-    anchors.right: parent.right
-    z: 5
-    opacity: 0.8
-    spacing: pixel(6)
+    width: iconSize
+    height: iconSize*6 + iconSpacing*5
+    color: "transparent"
+//    spacing: pixel(6)
     property real iconSize: pixel(16)
     property alias playPauseButton: playPauseButton
     property alias lockButton: lockButton
+    property int numberButtons: 6
+    property real iconSpacing: pixel(2)
 
-//    property alias exposureButton: exposureButton
-
-
-//    UpDownButton {
-//        id: exposureButton
-//        min: -15
-//        max: 15
-//        value: 0
-//        height: pixel(12)
-
-//        Layout.alignment: Qt.AlignTop
-
-//        onValueChanged: {
-//            sonyAPI.setExposureCompensation(exposureButton.value)
-//            toast.show("Camera exposure set to " + exposureButton.value)
-//        }
-
-//        Timer {
-//            id: getExposureTimer
-//            interval: 3000
-//            repeat: false
-//            running: true
-
-//            onTriggered: {
-//                sonyAPI.getExposureCompensation()
-//            }
-
-//        }
-
-//    }
+//    RowLayout {}
 
     Button {
         id: undoLastButton
+        x: 0
+        y: 0
         text: "Undo Last"
-        Layout.alignment: Qt.AlignRight | Qt.AlignTop
+//        Layout.alignment: Qt.AlignRight | Qt.AlignTop
         icon.source: "qrc:/icon/undo_one"
         icon.width: mainButtonsLayout.iconSize
         icon.height: mainButtonsLayout.iconSize
@@ -63,32 +36,8 @@ ColumnLayout {
         highlighted: true
         Material.accent: Material.color(Material.Orange, Material.Shade700)
 
-
-        ParallelAnimation {
-            id: undoLastButtonAnimation
-            NumberAnimation {
-                target: undoLastButton
-                property: "opacity";
-                from: 0.5;
-                to: 1;
-                duration: 800;
-                easing.type: Easing.InOutQuad;
-            }
-
-            NumberAnimation {
-                target: undoLastButton
-                property: "scale";
-                from: 0.8;
-                to: 1;
-                duration: 600;
-                easing.type: Easing.InOutQuad;
-            }
-
-        }
-
-
         onClicked: {
-            undoLastButtonAnimation.start()
+//            undoLastButtonAnimation.start()
             if (captureView.state != "start") {
                 if (photoList.count > 0) {
                     photoList.remove(photoList.count-1, 1)
@@ -100,8 +49,10 @@ ColumnLayout {
 
     Button {
         id: undoAllButton
+        x: 0
+        y: undoLastButton.y + iconSize + iconSpacing
         text: "Undo All"
-        Layout.alignment: Qt.AlignRight | Qt.AlignTop
+//        Layout.alignment: Qt.AlignRight | Qt.AlignTop
         icon.source: "qrc:/icon/refresh"
         icon.width: mainButtonsLayout.iconSize
         icon.height: mainButtonsLayout.iconSize
@@ -109,38 +60,18 @@ ColumnLayout {
         highlighted: true
         Material.accent: Material.color(Material.Cyan, Material.Shade700)
 
-        ParallelAnimation {
-            id: undoAllButtonAnimation
-            NumberAnimation {
-                target: undoAllButton
-                property: "opacity";
-                from: 0.5;
-                to: 1;
-                duration: 800;
-                easing.type: Easing.InOutQuad;
-            }
-
-            NumberAnimation {
-                target: undoAllButton
-                property: "scale";
-                from: 0.8;
-                to: 1;
-                duration: 600;
-                easing.type: Easing.InOutQuad;
-            }
-
-        }
-
         onClicked: {
-            undoAllButtonAnimation.start()
+//            undoAllButtonAnimation.start()
             startState()
         }
     }
 
     Button {
         id: playPauseButton
+        x: 0
+        y: undoAllButton.y + iconSize + iconSpacing
         text: "Play/Pause"
-        Layout.alignment: Qt.AlignRight | Qt.AlignTop
+//        Layout.alignment: Qt.AlignRight | Qt.AlignTop
         icon.source: checked ? "qrc:/icon/pause" : "qrc:/icon/play"
         icon.width: mainButtonsLayout.iconSize
         icon.height: mainButtonsLayout.iconSize
@@ -151,50 +82,32 @@ ColumnLayout {
 
         onClicked: {
 
-            playPauseButtonAnimation.start()
+//            playPauseButtonAnimation.start()
             var playState = playPauseButton.checked
 
-            if (root.state === "start") {
+            if (root.state == "start") {
                 liveView.start()
                 beforeCaptureState()
             }
 
-            if (root.state === "beforecapture") {
+            if (root.state == "beforecapture") {
                 beforeCaptureTimer.running = playState
             }
 
-            if (root.state === "liveview") {
+            if (root.state == "liveview") {
                 countdownTimer.running = playState
             }
 
-            if (root.state === "review") {
+            if (root.state == "aftercapture") {
+                afterCaptureTimer.running = playState
+            }
+
+            if (root.state == "review") {
                 reviewTimer.running = playState
             }
 
-            if (root.state === "endsession") {
+            if (root.state == "endsession") {
                 endSessionTimer.running = playState
-            }
-
-        }
-
-        ParallelAnimation {
-            id: playPauseButtonAnimation
-            NumberAnimation {
-                target: playPauseButton
-                property: "opacity";
-                from: 0.5;
-                to: 1;
-                duration: 800;
-                easing.type: Easing.InOutQuad;
-            }
-
-            NumberAnimation {
-                target: playPauseButton
-                property: "scale";
-                from: 0.8;
-                to: 1;
-                duration: 600;
-                easing.type: Easing.InOutQuad;
             }
 
         }
@@ -204,9 +117,10 @@ ColumnLayout {
 
     Button {
         id: fullScreenButton
+        x: lockButton.checked ? 0 : iconSize * 2
+        y: playPauseButton.y + iconSize + iconSpacing
         text: "Full Screen"
-        visible: lockButton.checked
-        Layout.alignment: Qt.AlignRight | Qt.AlignTop
+//        Layout.alignment: Qt.AlignRight
         icon.source: mainWindow.visibility === Window.FullScreen ? "qrc:/icon/fullscreen_exit" : "qrc:/icon/fullscreen"
         icon.width: mainButtonsLayout.iconSize
         icon.height: mainButtonsLayout.iconSize
@@ -223,51 +137,59 @@ ColumnLayout {
             }
         }
 
-        Behavior on icon.source {
-            ParallelAnimation {
-                NumberAnimation {
-                    target: fullScreenButton
-                    property: "opacity";
-                    from: 0.5;
-                    to: 1;
-                    duration: 800;
-                    easing.type: Easing.InOutQuad;
-                }
-
-                NumberAnimation {
-                    target: fullScreenButton
-                    property: "scale";
-                    from: 0.5;
-                    to: 1;
-                    duration: 600;
-                    easing.type: Easing.InOutQuad;
-                }
-
+        Behavior on x {
+            NumberAnimation {
+                duration: 200
             }
+        }
 
+        Behavior on y {
+            NumberAnimation {
+                duration: 200
+            }
+        }
+
+    }
+
+    Button {
+        id: exitButton
+        text: "Exit"
+        flat: false
+        x: lockButton.checked ? 0 : iconSize * 2
+        y: fullScreenButton.y + iconSize + iconSpacing
+//        Layout.alignment: Qt.AlignRight
+        icon.source: "qrc:/icon/close"
+        icon.width: mainButtonsLayout.iconSize
+        icon.height: mainButtonsLayout.iconSize
+        display: AbstractButton.IconOnly
+        highlighted: true
+        Material.accent: Material.color(Material.Grey, Material.Shade700)
+
+        Behavior on x {
+            NumberAnimation {
+                duration: 200
+            }
+        }
+
+        Behavior on y {
+            NumberAnimation {
+                duration: 200
+            }
+        }
+
+        onClicked: {
+            mainWindow.close()
         }
     }
 
-//    Button {
-//        text: "Exit"
-//        flat: false
-//        Layout.alignment: Qt.AlignRight | Qt.AlignTop
-//        icon.source: "qrc:/Images/cancel_white_48dp.png"
-//        icon.width: mainButtonsLayout.iconSize
-//        icon.height: mainButtonsLayout.iconSize
-//        display: AbstractButton.IconOnly
-//        highlighted: true
-//        Material.accent: Material.color(Material.Grey, Material.Shade700)
-//        onClicked: {
-//            mainWindow.close()
-//        }
-//    }
-
     Button {
         id: lockButton
+        x: 0
+        y: checked? exitButton.y + iconSize + iconSpacing : playPauseButton.y + iconSize + iconSpacing
         text: "Lock"
         flat: false
-        Layout.alignment: Qt.AlignRight | Qt.AlignTop
+        checked: true
+//        Layout.alignment: Qt.AlignRight | Qt.AlignTop
         icon.source: checked ? "qrc:/icon/unlock" : "qrc:/icon/lock"
         icon.width: mainButtonsLayout.iconSize
         icon.height: mainButtonsLayout.iconSize
@@ -275,8 +197,20 @@ ColumnLayout {
         highlighted: true
         Material.accent: Material.color(Material.Grey, Material.Shade700)
         checkable: true
+
+        Behavior on x {
+            NumberAnimation {
+                duration: 200
+            }
+        }
+
+        Behavior on y {
+            NumberAnimation {
+                duration: 200
+            }
+        }
     }
 
-    ColumnLayout { }
+//    RowLayout {}
 
 }

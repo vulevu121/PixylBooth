@@ -196,6 +196,7 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             height: pixel(12)
+            clip: true
 
             Row {
                 anchors.margins: pixel(5)

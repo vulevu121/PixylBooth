@@ -96,7 +96,7 @@ Item {
     function afterCaptureState() {
         playAfterCaptureVideos()
         afterCaptureTimer.restart()
-        root.state = "afterCapture"
+        root.state = "aftercapture"
 
     }
 
@@ -126,6 +126,7 @@ Item {
         endSessionTimer.stop()
         countdownTimer.stop()
         actTakePictureTimer.stop()
+        console.log("All timers stopped")
     }
 
     function resetCountdownTimer() {
@@ -357,24 +358,24 @@ Item {
 
     }
 
-//    Timer {
-//        id: autorunTimer
-//        interval: 60000
-//        repeat: true
-//        running: autorunTimerSwitch.checked
+    Timer {
+        id: autorunTimer
+        interval: 60000
+        repeat: true
+        running: autorunTimerSwitch.checked
 
-//        triggeredOnStart: true
+        triggeredOnStart: true
 
-//        onTriggered: {
-//            captureToolbar.playPauseButton.checked = true
-//            captureToolbar.playPauseButton.clicked()
-//        }
-//    }
+        onTriggered: {
+            captureToolbar.playPauseButton.checked = true
+            captureToolbar.playPauseButton.clicked()
+        }
+    }
 
-//    Switch {
-//        id: autorunTimerSwitch
-//        z: 3
-//    }
+    Switch {
+        id: autorunTimerSwitch
+        z: 3
+    }
 
     
     // ==== STATES ====
@@ -425,7 +426,7 @@ Item {
 
         // ==== after capture state ====
         State {
-            name: "afterCapture"
+            name: "aftercapture"
             PropertyChanges {
                 target: videoLoader
                 opacity: 1
@@ -465,12 +466,13 @@ Item {
 
     CanvasPopup {
         id: endSessionPopup
-        anchors.centerIn: parent
-        saveFolder: settings.saveFolder
-
-
         width: mainWindow.width
-        height: width / photoAspectRatio
+        y: 0
+
+        saveFolder: settings.saveFolder
+        onClosed: {
+            startState()
+        }
 
 //        Overlay.modal: GaussianBlur {
 //            source: captureView
@@ -483,8 +485,20 @@ Item {
     
     CaptureToolbar {
         id: captureToolbar
-        opacity: 0.5
+        opacity: 0.8
         z: 10
+
+        anchors {
+            verticalCenter: parent.verticalCenter
+//            top: parent.top
+//            topMargin: pixel(40)
+//            bottom: parent.bottom
+            right: parent.right
+        }
+
+//        anchors.verticalCenter: parent.verticalCenter
+//        anchors.right: parent.right
+
     }
     
         
@@ -652,22 +666,22 @@ Item {
 
     }
 
-//    Rectangle {
-//        id: touchArea
-//        anchors.fill: videoLoader
-//        z: 1
-//        color: "transparent"
+    Rectangle {
+        id: touchArea
+        anchors.fill: videoLoader
+        z: 1
+        color: "transparent"
 
-//        MouseArea {
-//            anchors.fill: parent
+        MouseArea {
+            anchors.fill: parent
 
-//            onClicked: {
-//                captureToolbar.playPauseButton.checked = !captureToolbar.playPauseButton.checked;
-//                captureToolbar.playPauseButton.clicked()
-//            }
+            onClicked: {
+                captureToolbar.playPauseButton.checked = !captureToolbar.playPauseButton.checked;
+                captureToolbar.playPauseButton.clicked()
+            }
 
-//        }
-//    }
+        }
+    }
     
     MediaPlayer {
         id: mediaPlayer
