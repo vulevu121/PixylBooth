@@ -66,6 +66,8 @@ private:
     QString urlString = "";
     QNetworkAccessManager *manager = nullptr;
     QNetworkAccessManager *downloadManager = nullptr;
+    int maxRetries = 3;
+    int currentRetry = 0;
 };
 
 #endif // SONYAPI_H
