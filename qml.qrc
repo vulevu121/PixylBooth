@@ -31,6 +31,7 @@
         <file>VideoList.qml</file>
         <file>Webcamera.qml</file>
         <file>CanvasPopup.qml</file>
+        <file>PathField.qml</file>
     </qresource>
     <qresource prefix="/icon">
         <file alias="add">Images/1x/outline_add_white_48dp.png</file>
@@ -66,6 +67,13 @@
         <file alias="light">Images/1x/outline_highlight_white_48dp.png</file>
         <file alias="paint">Images/1x/outline_format_paint_white_48dp.png</file>
         <file alias="save">Images/1x/outline_save_white_48dp.png</file>
+        <file alias="forward">Images/1x/outline_arrow_forward_ios_white_48dp.png</file>
+        <file alias="check">Images/1x/outline_check_white_48dp.png</file>
+        <file alias="paste">Images/1x/outline_ballot_white_48dp.png</file>
+        <file alias="copy">Images/1x/outline_file_copy_white_48dp.png</file>
+        <file alias="paste_black">Images/1x/outline_ballot_black_48dp.png</file>
+        <file alias="copy_black">Images/1x/outline_file_copy_black_48dp.png</file>
+        <file alias="clear_black">Images/1x/outline_clear_black_48dp.png</file>
     </qresource>
     <qresource prefix="/img"/>
 </RCC>

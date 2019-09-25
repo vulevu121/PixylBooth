@@ -10,6 +10,12 @@
 #include <QDebug>
 //#include <QThread>
 #include <QImage>
+#include <QPixmap>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QTimer>
+#include <QProcess>
+
 
 class SonyLiveview : public QQuickPaintedItem
 {
@@ -34,6 +40,7 @@ public slots:
     bool isHostConnected();
     bool flipHorizontally();
     void setFlipHorizontally(bool hFlip);
+    void getRemoteWid();
 
 
 private:
@@ -44,6 +51,10 @@ private:
     QImage *currentImage2 = nullptr;
     bool m_hostConnected = false;
     bool m_flipHorizontally = false;
+    QPixmap originalPixmap;
+    WId liveviewWid;
+    QProcess *remoteProc;
+    QTimer *liveviewUpdateTimer;
 };
 
 #endif // SONYLIVEVIEW_H

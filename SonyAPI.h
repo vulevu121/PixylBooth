@@ -13,6 +13,8 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 
+#include "Windows.h"
+
 class SonyAPI : public QObject
 {
     Q_OBJECT

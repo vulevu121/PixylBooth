@@ -69,8 +69,8 @@ void SonyAPI::start() {
 void SonyAPI::startReply(QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "[Start] Error";
-        qDebug() << "[Start]" << reply->errorString();
+        qDebug() << "[startReply] Error";
+        qDebug() << "[startReply]" << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
 
@@ -124,6 +124,7 @@ void SonyAPI::startRecMode() {
         m_readyFlag = false;
         QUrl serviceURL("http://192.168.122.1:8080/sony/camera");
         QNetworkRequest req(serviceURL);
+
         req.setRawHeader("Content-Type","application/json");
 
         QJsonArray param = {};
@@ -152,8 +153,8 @@ void SonyAPI::startRecMode() {
 void SonyAPI::startRecModeReply(QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "[startRecMode] Error";
-        qDebug() << reply->errorString();
+        qDebug() << "[startRecModeReply] Error";
+        qDebug() << "[startRecModeReply]" << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
 
@@ -166,7 +167,7 @@ void SonyAPI::startRecModeReply(QNetworkReply *reply)
             int result = jsonObject["result"].toInt();
 
             if (result == 0) {
-                qDebug() << "[startRecMode] OK!";
+                qDebug() << "[startRecModeReply] OK!";
             }
         }
 
@@ -213,8 +214,8 @@ void SonyAPI::startLiveview() {
 void SonyAPI::startLiveviewReply(QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "[startLiveview] Error";
-        qDebug() << "[startLiveview]" << reply->errorString();
+        qDebug() << "[startLiveviewReply] Error";
+        qDebug() << "[startLiveviewReply]" << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
 
@@ -225,7 +226,7 @@ void SonyAPI::startLiveviewReply(QNetworkReply *reply)
         int result = jsonObject["result"].toInt();
 
         if (result == 0) {
-            qDebug() << "[startLiveView] OK!";
+            qDebug() << "[startLiveviewReply] OK!";
         }
 
 
@@ -262,8 +263,8 @@ void SonyAPI::actTakePicture()
 void SonyAPI::actTakePictureReply (QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "[actTakePicture] Error";
-        qDebug() << "[actTakePicture]" << reply->errorString();
+        qDebug() << "[actTakePictureReply] Error";
+        qDebug() << "[actTakePictureReply]" << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
 
@@ -276,7 +277,7 @@ void SonyAPI::actTakePictureReply (QNetworkReply *reply)
 
             QString errorString = jsonObject["error"].toArray()[1].toString();
 
-            qDebug() << "[actTakePicture]" << errorString;
+            qDebug() << "[actTakePictureReply]" << errorString;
 
         }
         else {
@@ -326,7 +327,7 @@ void SonyAPI::downloadPicture(QNetworkReply *reply)
             reply->deleteLater();
 
             m_actTakePictureFilePath = filePath;
-            qDebug() << "[actTakePicture]" << m_actTakePictureFilePath;
+            qDebug() << "[downloadPicture] Downloading" << m_actTakePictureFilePath;
             emit actTakePictureCompleted();
 
             m_readyFlag = true;
@@ -336,7 +337,7 @@ void SonyAPI::downloadPicture(QNetworkReply *reply)
     } else {
 //        this->downloadManager->disconnect();
         if (currentRetry < maxRetries) {
-            qDebug() << "[actTakePicture] Current retry is " << currentRetry;
+            qDebug() << "[downloadPicture] Current retry is " << currentRetry;
             QUrl picUrl(urlString);
             QNetworkRequest req(picUrl);
             downloadManager->get(req);
@@ -376,8 +377,8 @@ void SonyAPI::actHalfPressShutter() {
 void SonyAPI::actHalfPressShutterReply(QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "[actHalfPressShutter] Error";
-        qDebug() << "[actHalfPressShutter]" << reply->errorString();
+        qDebug() << "[actHalfPressShutterReply] Error";
+        qDebug() << "[actHalfPressShutterReply]" << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
 
@@ -388,7 +389,7 @@ void SonyAPI::actHalfPressShutterReply(QNetworkReply *reply)
         QJsonObject jsonObject = jsonDoc.object();
 
         if (jsonObject["result"].toArray().isEmpty()) {
-            qDebug() << "[actHalfPressShutter] OK!";
+            qDebug() << "[actHalfPressShutterReply] OK!";
         }
 
 
@@ -423,8 +424,8 @@ void SonyAPI::cancelHalfPressShutter() {
 void SonyAPI::cancelHalfPressShutterReply(QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "[cancelHalfPressShutter] Error";
-        qDebug() << "[cancelHalfPressShutter]" << reply->errorString();
+        qDebug() << "[cancelHalfPressShutterReply] Error";
+        qDebug() << "[cancelHalfPressShutterReply]" << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
 
@@ -435,7 +436,7 @@ void SonyAPI::cancelHalfPressShutterReply(QNetworkReply *reply)
         QJsonObject jsonObject = jsonDoc.object();
 
         if (jsonObject["result"].toArray().isEmpty()) {
-            qDebug() << "[cancelHalfPressShutter] OK!";
+            qDebug() << "[cancelHalfPressShutterReply] OK!";
         }
 
     }
@@ -481,7 +482,7 @@ void SonyAPI::setExposureCompensation(int exposure) {
 void SonyAPI::setExposureCompensationReply(QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "[setExposureCompensation] Error";
+        qDebug() << "[setExposureCompensationReply] Error";
         qDebug() << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
@@ -494,11 +495,11 @@ void SonyAPI::setExposureCompensationReply(QNetworkReply *reply)
 //        qDebug() << jsonObject;
 
         if (jsonObject.contains("error")) {
-            qDebug() << "[setExposureCompensation]" << jsonObject["error"].toArray()[1];
+            qDebug() << "[setExposureCompensationReply]" << jsonObject["error"].toArray()[1];
         }
         else if (jsonObject.contains("result")) {
             if (jsonObject["result"].toInt() == 0) {
-                qDebug() << "[setExposureCompensation] OK!";
+                qDebug() << "[setExposureCompensationReply] OK!";
 
             }
 
@@ -551,8 +552,8 @@ void SonyAPI::getExposureCompensation() {
 void SonyAPI::getExposureCompensationReply(QNetworkReply *reply)
 {
     if(reply->error()) {
-        qDebug() << "[getExposureCompensation] Error";
-        qDebug() << reply->errorString();
+        qDebug() << "[getExposureCompensationReply] Error";
+        qDebug() << "[getExposureCompensationReply]" << reply->errorString();
     } else {
         QByteArray response = reply->readAll();
 
@@ -564,7 +565,7 @@ void SonyAPI::getExposureCompensationReply(QNetworkReply *reply)
         if (jsonObject.contains("result")) {
             int exposure = jsonObject["result"].toArray()[0].toInt();
             emit exposureSignal(exposure);
-            qDebug() << exposure;
+            qDebug() << "[getExposureCompensationReply] Exposure number:" << exposure;
         }
 
 

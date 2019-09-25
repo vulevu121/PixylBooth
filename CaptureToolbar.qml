@@ -10,207 +10,361 @@ import QtQuick.Dialogs 1.3
 import Qt.labs.settings 1.1
 
 Rectangle {
-    id: mainButtonsLayout
-    width: iconSize
-    height: iconSize*6 + iconSpacing*5
+    id: captureRect
     color: "transparent"
-//    spacing: pixel(6)
-    property real iconSize: pixel(16)
-    property alias playPauseButton: playPauseButton
+
+    property real iconSize: pixel(24)
+    property real fontSize: pixel(10)
+//    property alias playPauseButton: playPauseButton
     property alias lockButton: lockButton
-    property int numberButtons: 6
+//    property int numberButtons: 6
     property real iconSpacing: pixel(2)
+    property bool playing: false
+    property bool locked: false
 
-//    RowLayout {}
+    function playPause() {
+        playing = !playing
 
-    Button {
-        id: undoLastButton
-        x: 0
-        y: 0
-        text: "Undo Last"
-//        Layout.alignment: Qt.AlignRight | Qt.AlignTop
-        icon.source: "qrc:/icon/undo_one"
-        icon.width: mainButtonsLayout.iconSize
-        icon.height: mainButtonsLayout.iconSize
-        display: AbstractButton.IconOnly
-        highlighted: true
-        Material.accent: Material.color(Material.Orange, Material.Shade700)
+        if (captureView.state == "start") {
+//                liveView.start()
+            sonyRemote.start()
+            beforeCaptureState()
+            console.log("[PlayPauseButton] Goto before capture")
+        }
 
-        onClicked: {
-//            undoLastButtonAnimation.start()
-            if (captureView.state != "start") {
-                if (photoList.count > 0) {
-                    photoList.remove(photoList.count-1, 1)
+        if (captureView.state == "beforecapture") {
+            beforeCaptureTimer.running = playing
+            console.log("[PlayPauseButton] beforeCaptureTimer", playing)
+        }
+
+        if (captureView.state == "liveview") {
+            countdownTimer.running = playing
+            console.log("[PlayPauseButton] countdownTimer", playing)
+        }
+
+        if (captureView.state == "aftercapture") {
+            afterCaptureTimer.running = playing
+            console.log("[PlayPauseButton] afterCaptureTimer", playing)
+        }
+
+        if (captureView.state == "review") {
+            reviewTimer.running = playing
+            console.log("[PlayPauseButton] reviewTimer", playing)
+        }
+
+        if (captureView.state == "endsession") {
+            endSessionTimer.running = playing
+            console.log("[PlayPauseButton] endSessionTimer", playing)
+        }
+    }
+
+    function restart() {
+        playing = false
+        photoList.clear()
+        startState()
+    }
+
+    // Popup user buttons
+    Column {
+        id: userColumn
+        width: pixel(100)
+
+        scale: captureView.state in {"review": 0, "aftercapture": 1} ? 1 : 0
+        visible: scale > 0.1 ? true : false
+
+        anchors {
+            horizontalCenter: parent.horizontalCenter
+            verticalCenter: parent.verticalCenter
+        }
+
+        Behavior on scale {
+            NumberAnimation {
+                duration: 400
+                easing.type: captureView.state in {"review": 0, "aftercapture": 1} ? Easing.OutQuad :  Easing.OutElastic
+            }
+        }
+
+
+//        add: Transition {
+//            NumberAnimation {
+//                properties: "scale, opacity"
+//                easing.type: Easing.OutElastic
+//                from: 0
+//                to: 1
+//                duration: 800
+//            }
+//        }
+
+        Button {
+            id: playPauseButton
+            text: playing ? qsTr("Pause") : qsTr("Resume")
+//            visible: captureView.state in {"review": 0, "aftercapture": 1} ? true : false
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
+            font.capitalization: Font.MixedCase
+            font.pixelSize: captureRect.fontSize
+            icon.source: playing ? "qrc:/icon/pause" : "qrc:/icon/play"
+            icon.width: height
+            icon.height: height
+            display: AbstractButton.TextBesideIcon
+            highlighted: true
+            Material.accent: Material.color(Material.Green, Material.Shade700)
+            checkable: true
+
+            onClicked: {
+                playPause()
+            }
+        }
+
+        Button {
+            id: undoLastButton
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
+            font.pixelSize: captureRect.fontSize
+            font.capitalization: Font.MixedCase
+//            visible: captureView.state in {"review": 0, "aftercapture": 1} ? true : false
+            text: qsTr("Redo Last Photo")
+            icon.source: "qrc:/icon/undo_one"
+            icon.width: height
+            icon.height: height
+            display: captureView.state in {"review": 0, "aftercapture": 1} ? AbstractButton.TextBesideIcon : AbstractButton.IconOnly
+            highlighted: true
+            Material.accent: Material.color(Material.Orange, Material.Shade700)
+
+            onClicked: {
+    //            undoLastButtonAnimation.start()
+                if (captureView.state != "start") {
+                    if (photoList.count > 0) {
+                        photoList.remove(photoList.count-1, 1)
+                    }
+                    beforeCaptureState()
                 }
-                beforeCaptureState()
+            }
+
+        }
+
+        Button {
+            id: restartButton
+//            visible: captureView.state in {"review": 0, "aftercapture": 1} ? true : false
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
+            font.pixelSize: captureRect.fontSize
+            font.capitalization: Font.MixedCase
+            text: qsTr("Restart")
+            icon.source: "qrc:/icon/refresh"
+            icon.width: height
+            icon.height: height
+
+            display: AbstractButton.TextBesideIcon
+            highlighted: true
+            Material.accent: Material.color(Material.Cyan, Material.Shade700)
+
+            onClicked: {
+    //            restartButtonAnimation.start()
+                restart()
             }
         }
     }
 
-    Button {
-        id: undoAllButton
-        x: 0
-        y: undoLastButton.y + iconSize + iconSpacing
-        text: "Undo All"
-//        Layout.alignment: Qt.AlignRight | Qt.AlignTop
-        icon.source: "qrc:/icon/refresh"
-        icon.width: mainButtonsLayout.iconSize
-        icon.height: mainButtonsLayout.iconSize
-        display: AbstractButton.IconOnly
-        highlighted: true
-        Material.accent: Material.color(Material.Cyan, Material.Shade700)
 
-        onClicked: {
-//            undoAllButtonAnimation.start()
-            startState()
-        }
-    }
 
-    Button {
-        id: playPauseButton
-        x: 0
-        y: undoAllButton.y + iconSize + iconSpacing
-        text: "Play/Pause"
-//        Layout.alignment: Qt.AlignRight | Qt.AlignTop
-        icon.source: checked ? "qrc:/icon/pause" : "qrc:/icon/play"
-        icon.width: mainButtonsLayout.iconSize
-        icon.height: mainButtonsLayout.iconSize
-        display: AbstractButton.IconOnly
-        highlighted: true
-        Material.accent: Material.color(Material.Green, Material.Shade700)
-        checkable: true
 
-        onClicked: {
-
-//            playPauseButtonAnimation.start()
-            var playState = playPauseButton.checked
-
-            if (root.state == "start") {
-                liveView.start()
-                beforeCaptureState()
-            }
-
-            if (root.state == "beforecapture") {
-                beforeCaptureTimer.running = playState
-            }
-
-            if (root.state == "liveview") {
-                countdownTimer.running = playState
-            }
-
-            if (root.state == "aftercapture") {
-                afterCaptureTimer.running = playState
-            }
-
-            if (root.state == "review") {
-                reviewTimer.running = playState
-            }
-
-            if (root.state == "endsession") {
-                endSessionTimer.running = playState
-            }
-
+    // Capture toolbar
+    Column {
+        y: parent.height/2 - height/2
+        anchors {
+//            fill: parent
+//            verticalCenter: parent.verticalCenter
+            left: parent.left
+            right: parent.right
         }
 
-    }
-
-
-    Button {
-        id: fullScreenButton
-        x: lockButton.checked ? 0 : iconSize * 2
-        y: playPauseButton.y + iconSize + iconSpacing
-        text: "Full Screen"
-//        Layout.alignment: Qt.AlignRight
-        icon.source: mainWindow.visibility === Window.FullScreen ? "qrc:/icon/fullscreen_exit" : "qrc:/icon/fullscreen"
-        icon.width: mainButtonsLayout.iconSize
-        icon.height: mainButtonsLayout.iconSize
-        display: AbstractButton.IconOnly
-        highlighted: true
-        Material.accent: Material.color(Material.Yellow, Material.Shade700)
-
-        onClicked: {
-            if (mainWindow.visibility === Window.FullScreen) {
-                mainWindow.showNormal();
-            }
-            else {
-                mainWindow.showFullScreen();
-            }
-        }
-
-        Behavior on x {
+        move: Transition {
             NumberAnimation {
-                duration: 200
+                properties: "x,y"
+                duration: 400
+                easing.type: Easing.OutQuart
             }
         }
 
         Behavior on y {
             NumberAnimation {
-                duration: 200
+                duration: 400
+                easing.type: Easing.OutQuart
+            }
+        }
+
+
+        Button {
+            id: playPauseButton2
+            text: playing ? "Pause" : "Resume"
+            width: captureRect.iconSize
+            height: captureRect.iconSize
+            icon.source: playing ? "qrc:/icon/pause" : "qrc:/icon/play"
+            icon.width: height
+            icon.height: height
+            display: AbstractButton.IconOnly
+            highlighted: true
+            Material.accent: Material.color(Material.Green, Material.Shade700)
+            checkable: true
+
+            onClicked: {
+                playPause()
+            }
+        }
+
+        Button {
+            id: restartButton2
+            text: "Restart from beginning?"
+            width: captureRect.iconSize
+            height: captureRect.iconSize
+            icon.source: "qrc:/icon/refresh"
+            icon.width: height
+            icon.height: height
+            display: AbstractButton.IconOnly
+            highlighted: true
+            Material.accent: Material.color(Material.Cyan, Material.Shade700)
+
+            onClicked: {
+                restart()
+            }
+        }
+
+        Button {
+            id: fullScreenButton
+            text: "Full Screen"
+            width: captureRect.iconSize
+            visible: !locked
+            height: captureRect.iconSize
+            icon.source: mainWindow.visibility === Window.FullScreen ? "qrc:/icon/fullscreen_exit" : "qrc:/icon/fullscreen"
+            icon.width: height
+            icon.height: height
+            display: AbstractButton.IconOnly
+            highlighted: true
+            Material.accent: Material.color(Material.Yellow, Material.Shade700)
+
+            onClicked: {
+                if (mainWindow.visibility === Window.FullScreen) {
+                    mainWindow.showNormal();
+                }
+                else {
+                    mainWindow.showFullScreen();
+                }
+            }
+        }
+
+        Button {
+            id: exitButton
+            text: "Exit"
+            flat: false
+            visible: !locked
+            width: captureRect.iconSize
+            height: captureRect.iconSize
+            icon.source: "qrc:/icon/close"
+            icon.width: height
+            icon.height: height
+            display: AbstractButton.IconOnly
+            highlighted: true
+            Material.accent: Material.color(Material.Grey, Material.Shade700)
+
+            MessageDialog {
+                id: confirmExitDialog
+                title: "Quit"
+                text: "Do you want to exit?"
+                standardButtons: StandardButton.Yes | StandardButton.No
+                onAccepted: {
+                    Qt.quit()
+                }
+            }
+
+            onClicked: {
+                confirmExitDialog.open()
+    //            mainWindow.close()
+            }
+        }
+
+        Button {
+            id: lockButton
+            text: locked ? "Unlock" : "Lock"
+            flat: false
+            width: captureRect.iconSize
+            height: captureRect.iconSize
+            icon.source: locked ? "qrc:/icon/unlock":  "qrc:/icon/lock"
+            icon.width: height
+            icon.height: height
+            display: AbstractButton.IconOnly
+            highlighted: true
+            Material.accent: Material.color(Material.Grey, Material.Shade700)
+
+            onClicked: {
+                if (locked) {
+                    lockPinPopup.open()
+                }
+                else {
+                    locked = true
+                }
+
             }
         }
 
     }
 
-    Button {
-        id: exitButton
-        text: "Exit"
-        flat: false
-        x: lockButton.checked ? 0 : iconSize * 2
-        y: fullScreenButton.y + iconSize + iconSpacing
-//        Layout.alignment: Qt.AlignRight
-        icon.source: "qrc:/icon/close"
-        icon.width: mainButtonsLayout.iconSize
-        icon.height: mainButtonsLayout.iconSize
-        display: AbstractButton.IconOnly
-        highlighted: true
-        Material.accent: Material.color(Material.Grey, Material.Shade700)
+    Popup {
+        id: lockPinPopup
+        anchors.centerIn: parent
+        modal: true
+        closePolicy: Popup.NoAutoClose
 
-        Behavior on x {
-            NumberAnimation {
-                duration: 200
+        onOpened: {
+            lockPinTextFieldEntry.forceActiveFocus()
+        }
+
+        Column {
+            TextField {
+                id: lockPinTextFieldEntry
+                width: mainWindow.width * 0.9
+                placeholderText: "Enter a PIN"
+                echoMode: TextInput.Password
+                inputMethodHints: Qt.ImhDigitsOnly
+                focus: true
+                horizontalAlignment: TextInput.AlignHCenter
+
+                function checkPin() {
+                    if (lockPinTextFieldEntry.text == settings.lockPin) {
+                        captureToolbar.locked = false
+                        lockPinPopup.close()
+                        lockPinTextFieldEntry.clear()
+
+                        return true
+                    }
+                    return false
+                }
+
+                onTextChanged: {
+                    checkPin()
+                }
+
+
+            }
+
+            InputPanel {
+                id: keypadEntry
+                visible: true
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                }
+
             }
         }
 
-        Behavior on y {
-            NumberAnimation {
-                duration: 200
-            }
-        }
 
-        onClicked: {
-            mainWindow.close()
-        }
     }
-
-    Button {
-        id: lockButton
-        x: 0
-        y: checked? exitButton.y + iconSize + iconSpacing : playPauseButton.y + iconSize + iconSpacing
-        text: "Lock"
-        flat: false
-        checked: true
-//        Layout.alignment: Qt.AlignRight | Qt.AlignTop
-        icon.source: checked ? "qrc:/icon/unlock" : "qrc:/icon/lock"
-        icon.width: mainButtonsLayout.iconSize
-        icon.height: mainButtonsLayout.iconSize
-        display: AbstractButton.IconOnly
-        highlighted: true
-        Material.accent: Material.color(Material.Grey, Material.Shade700)
-        checkable: true
-
-        Behavior on x {
-            NumberAnimation {
-                duration: 200
-            }
-        }
-
-        Behavior on y {
-            NumberAnimation {
-                duration: 200
-            }
-        }
-    }
-
-//    RowLayout {}
 
 }

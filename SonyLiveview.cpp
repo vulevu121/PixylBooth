@@ -1,4 +1,5 @@
 #include "SonyLiveview.h"
+#include "Windows.h"
 
 SonyLiveview::SonyLiveview(QQuickItem *parent) : QQuickPaintedItem(parent)
 {
@@ -8,15 +9,22 @@ SonyLiveview::SonyLiveview(QQuickItem *parent) : QQuickPaintedItem(parent)
 
 void SonyLiveview::paint(QPainter *painter)
 {
-    if (currentImage.isNull()) return;
-//    if (currentImage2->isNull()) return;
+    QScreen *screen = QGuiApplication::primaryScreen();
+
+    originalPixmap = screen->grabWindow(liveviewWid);
 
     QRectF bounding_rect = boundingRect();
-    QImage scaled = currentImage.scaledToHeight(int(bounding_rect.height())).mirrored(m_flipHorizontally, false);
-
-//    QImage scaled = currentImage2->scaledToHeight(int(bounding_rect.height())).mirrored(m_flipHorizontally, false);
+    QImage scaled = originalPixmap.toImage().scaledToHeight(int(bounding_rect.height())).mirrored(m_flipHorizontally, false);
 
     painter->drawImage(bounding_rect, scaled);
+
+
+//    if (currentImage.isNull()) return;
+
+//    QRectF bounding_rect = boundingRect();
+//    QImage scaled = currentImage.scaledToHeight(int(bounding_rect.height())).mirrored(m_flipHorizontally, false);
+
+//    painter->drawImage(bounding_rect, scaled);
 }
 
 //void SonyLiveview::setImage(const QImage &image)
@@ -27,35 +35,74 @@ void SonyLiveview::paint(QPainter *painter)
 
 void SonyLiveview::stop() {
     if (m_hostConnected) {
-        socket->disconnectFromHost();
-        socket->disconnect();
-        m_hostConnected = false;
-        qDebug() << "Liveview stop!";
+
+        qDebug() << "[SonyLiveview] Terminating remote process";
+        remoteProc->terminate();
+        remoteProc->waitForFinished(5000);
+        qDebug() << "[SonyLiveview] Terminating remote process...done";
     }
+//    if (m_hostConnected) {
+//        socket->disconnectFromHost();
+//        socket->disconnect();
+//        m_hostConnected = false;
+//        qDebug() << "[Liveview] Stop!";
+//    }
 }
 
 void SonyLiveview::start() {
     if (!m_hostConnected) {
-        qDebug() << "Connecting to liveview...";
 
-        if (socket == nullptr) {
-            socket = new QTcpSocket(this);
-        }
+        qDebug() << "[SonyLiveview] Starting remote process";
+        QString remotePath = "/Program Files/Sony/Imaging Edge/Remote.exe";
+        remoteProc = new QProcess(this);
+        QStringList arguments;
 
+    //    connect(remoteProc, SIGNAL(started()), this, SLOT(getRemoteWid()));
 
-        QString url("http://192.168.122.1:8080/liveview/liveviewstream");
-        QUrl qurl(url);
+        remoteProc->start(remotePath, arguments);
 
-
-        socket->connectToHost(qurl.host(), quint16(qurl.port()));
-
-        connect(socket, SIGNAL(connected()), this, SLOT(connected()));
-        connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-        connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+        QTimer *delay = new QTimer(this);
+        delay->singleShot(2000, this, SLOT(getRemoteWid()));
 
     }
 
 
+//    if (!m_hostConnected) {
+//        qDebug() << "[Liveview] Connecting...";
+
+//        if (socket == nullptr) {
+//            socket = new QTcpSocket(this);
+//        }
+
+
+//        QString url("http://192.168.122.1:8080/liveview/liveviewstream");
+//        QUrl qurl(url);
+
+
+//        socket->connectToHost(qurl.host(), quint16(qurl.port()));
+
+//        connect(socket, SIGNAL(connected()), this, SLOT(connected()));
+//        connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
+//        connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+
+//    }
+
+
+}
+
+void SonyLiveview::getRemoteWid() {
+    qDebug() << "[getRemoteWid] Finding Remote Window";
+    HWND remoteHwnd = FindWindow(L"#32770", L"Remote");
+    HWND liveviewContainerHwnd = FindWindowExW(remoteHwnd, NULL, L"#32770", L"");
+    HWND liveviewHwnd = FindWindowExW(liveviewContainerHwnd, NULL, L"Static", L"");
+    qDebug() << remoteHwnd << liveviewHwnd << liveviewHwnd;
+    liveviewWid = WId(liveviewHwnd);
+
+    liveviewUpdateTimer = new QTimer(this);
+    connect(liveviewUpdateTimer, SIGNAL(timeout()), this, SLOT(update()));
+    liveviewUpdateTimer->start(50);
+
+    m_hostConnected = true;
 }
 
 bool SonyLiveview::isHostConnected() {
@@ -64,24 +111,24 @@ bool SonyLiveview::isHostConnected() {
 
 
 void SonyLiveview::connected() {
-    qDebug() << "Liveview connection successful!";
+    qDebug() << "[Liveview] Connection successful!";
     socket->write("GET /liveview/liveviewstream HTTP/1.1\r\n");
     socket->write("Host: 192.168.122.1:8080\r\n");
     socket->write("User-Agent: curl/7.64.1\r\n");
     socket->write("Accept: */*\r\n\r\n");
-    qDebug() << "Liveview GET request sent!";
+    qDebug() << "[Liveview] GET request sent!";
 
     m_hostConnected = true;
 
 }
 
 void SonyLiveview::disconnected() {
-    qDebug() << "Liveview disconnected!";
+    qDebug() << "[Liveview] Disconnected!";
     m_hostConnected = false;
 }
 
 void SonyLiveview::error() {
-    qDebug() << "Liveview error!";
+    qDebug() << "[Liveview] Error!";
 }
 
 

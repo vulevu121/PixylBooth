@@ -11,6 +11,8 @@
 #include "CSVFile.h"
 //#include "MoveMouse.h"
 #include "Firebase.h"
+#include "SonyRemote.h"
+#include "QRGenerator.h"
 
 int main(int argc, char *argv[])
 {
@@ -21,6 +23,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<PrintPhotos>("PrintPhotos", 1, 0, "PrintPhotos");
     qmlRegisterType<CSVFile>("CSVFile", 1, 0, "CSVFile");
     qmlRegisterType<Firebase>("Firebase", 1, 0, "Firebase");
+    qmlRegisterType<SonyRemote>("SonyRemote", 1, 0, "SonyRemote");
+//    qmlRegisterType<QRGenerator>("QRGenerator", 1, 0, "QRGenerator");
 
 //    qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
 //    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

@@ -6,8 +6,7 @@ ProcessPhotos::ProcessPhotos(QObject *parent) :
 }
 
 
-QString ProcessPhotos::saveFolder() {
-
+QString ProcessPhotos::getSaveFolder() {
     return m_saveFolder;
 }
 
@@ -15,10 +14,15 @@ void ProcessPhotos::setSaveFolder(const QString &saveFolder) {
     if (saveFolder == m_saveFolder)
         return;
     m_saveFolder = saveFolder;
+
+    QDir saveDir(m_saveFolder);
+
+    if (!saveDir.exists()) {
+        saveDir.mkdir(m_saveFolder);
+    }
 }
 
-QString ProcessPhotos::templateFormat() {
-
+QString ProcessPhotos::getTemplateFormat() {
     return m_templateFormat;
 }
 
@@ -32,8 +36,7 @@ void ProcessPhotos::setTemplateFormat(const QString &templateFormat) {
 
 }
 
-QString ProcessPhotos::templatePath() {
-
+QString ProcessPhotos::getTemplatePath() {
     return m_templatePath;
 }
 
@@ -43,97 +46,84 @@ void ProcessPhotos::setTemplatePath(const QString &templatePath) {
     m_templatePath = templatePath;
 }
 
-
-void ProcessPhotos::testTemplate() {
-
-    qDebug() << m_templatePath;
+QAbstractItemModel* ProcessPhotos::getModel() {
+    return m_model;
 }
 
+void ProcessPhotos::setModel(QAbstractItemModel *model) {
+    if (model != m_model) {
+        m_model = model;
+    }
+}
 
-QString ProcessPhotos::combine(const QString &photoPaths) {
-    photoPathsList = photoPaths.split(";");
-    qDebug() << photoPathsList;
+void ProcessPhotos::emitCombineFinished(const QString &outputPath) {
+    emit combineFinished(outputPath);
+}
 
-//    QDir templateDir(photoPathsList[0]);
-//    QDir image1Dir(photoPathsList[1]);
-//    QDir image2Dir(photoPathsList[2]);
-//    QDir image3Dir(photoPathsList[3]);
-//    QDir image4Dir(photoPathsList[4]);
+void ProcessPhotos::combine() {
+    CombineThread *thread = new CombineThread(this);
+    thread->m_saveFolder = m_saveFolder;
+    thread->m_templatePath = m_templatePath;
+    thread->m_templateFormat = m_templateFormat;
+    thread->templateJsonArray = templateJsonArray;
+    thread->m_model = m_model;
+    connect(thread, &CombineThread::finished, thread, &CombineThread::deleteLater);
+    connect(thread, &CombineThread::combineFinished, this, &ProcessPhotos::emitCombineFinished);
+    thread->start();
+}
 
-    // define paths for images
-//    QDir templateDir(m_templatePath);
-    qDebug() << m_templatePath;
+// ==================================================================
+
+CombineThread::CombineThread(QObject *parent)
+    : QThread(parent)
+{
+
+}
+
+void CombineThread::run() {
+    // get template image
     QImage templateImage(m_templatePath);
-
-//    QImage image1(image1Dir.absolutePath());
-//    QImage image2(image2Dir.absolutePath());
-//    QImage image3(image3Dir.absolutePath());
-//    QImage image4(image4Dir.absolutePath());
-
-    // resize photos to fit template
-//    QImage image1Scaled = image1.scaledToWidth(1137);
-//    QImage image2Scaled = image2.scaledToWidth(1137);
-//    QImage image3Scaled = image3.scaledToWidth(1137);
-//    QImage image4Scaled = image4.scaledToWidth(1713);
-
-//    QImage image1Scaled = image1.scaledToWidth(1563);
-//    QImage image2Scaled = image2.scaledToWidth(1563);
-//    QImage image3Scaled = image3.scaledToWidth(1563);
-
+    qDebug() << "[ProcessPhotos] Template" << m_templatePath;
     // create an empty 3600x2400 canvas
     QImage output(3600, 2400, QImage::Format_RGB32);
-
-    // paint on output imagePainter
+    // prepare painting
     QPainter imagePainter(&output);
 
-    // draw photos
-//    imagePainter.drawImage(117, 240, image1Scaled);
-//    imagePainter.drawImage(1248, 249, image2Scaled);
-//    imagePainter.drawImage(2349, 246, image3Scaled);
-//    imagePainter.drawImage(129, 1011, image4Scaled);
+    for (int i = 0 ; i < templateJsonArray.count() ; i++) {
+        int ax = templateJsonArray[i].toObject()["ax"].toInt();
+        int ay = templateJsonArray[i].toObject()["ay"].toInt();
+        int awidth = templateJsonArray[i].toObject()["awidth"].toInt();
 
-//    imagePainter.drawImage(237, 147, image1Scaled);
-//    imagePainter.drawImage(1809, 168, image2Scaled);
-//    imagePainter.drawImage(1803, 1215, image3Scaled);
+        QString filePath = m_model->data(m_model->index(i, 0), 0).toString();
+        qDebug() << "[ProcessPhotos] Processing" << filePath;
 
-    if (photoPathsList.length() == templateJsonArray.count()) {
+        QDir imageDir(filePath);
+        QImage image(imageDir.absolutePath());
+        QImage imageScaled = image.scaledToWidth(awidth);
 
-        for (int i = 0 ; i < templateJsonArray.count() ; i++) {
-            int ax = templateJsonArray[i].toObject()["ax"].toInt();
-            int ay = templateJsonArray[i].toObject()["ay"].toInt();
-            int awidth = templateJsonArray[i].toObject()["awidth"].toInt();
-
-            QDir imageDir(photoPathsList[i]);
-            QImage image(imageDir.absolutePath());
-            QImage imageScaled = image.scaledToWidth(awidth);
-
-            imagePainter.drawImage(ax, ay, imageScaled);
-        }
+        // draw each photo onto canvas
+        imagePainter.drawImage(ax, ay, imageScaled);
     }
 
-
-
-    // draw template on top
+    // draw template image after photos
     imagePainter.drawImage(0, 0, templateImage);
 
-    // save output
-
+    // combine filenames and save
     QStringList fileNameList;
 
-    for (int i = 0 ; i < photoPathsList.count() ; i++) {
-        QDir dir = photoPathsList[i];
+    for (int i = 0 ; i < m_model->rowCount() ; i++) {
+        QDir dir = m_model->data(m_model->index(i, 0), 0).toString();
         QString fileName = dir.dirName().split(".")[0];
         fileNameList.append(fileName);
     }
 
     QString combinedName = fileNameList.join("_");
 
-    QString saveOutputPath = QString("%1/%2.jpg")
-            .arg(saveFolder())
+    QString outputPath = QString("%1/%2.jpg")
+            .arg(m_saveFolder)
             .arg(combinedName);
 
-    output.save(saveOutputPath);
-    return saveOutputPath;
-
+    qDebug() << "[ProcessPhotos]" << "Combined" << outputPath;
+    output.save(outputPath);
+    emit combineFinished(outputPath);
 }
-

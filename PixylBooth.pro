@@ -21,13 +21,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     CSVFile.cpp \
     Firebase.cpp \
+    QRGenerator.cpp \
+    SonyAPI.cpp \
+    SonyRemote.cpp \
     main.cpp \
     ProcessPhotos.cpp \
     PrintPhotos.cpp \
-    SonyLiveview.cpp \
-    SonyAPI.cpp
+    SonyLiveview.cpp
 
 RESOURCES += qml.qrc
+
+LIBS += -lUser32
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -44,11 +48,13 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     CSVFile.h \
     Firebase.h \
+    QRGenerator.h \
+    SonyAPI.h \
+    SonyRemote.h \
     process.h \
     ProcessPhotos.h \
     PrintPhotos.h \
-    SonyLiveview.h \
-    SonyAPI.h
+    SonyLiveview.h
 
 DISTFILES += \
 

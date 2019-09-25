@@ -20,7 +20,7 @@ Popup {
     //    background: Rectangle {
     //        color: Material.background
     //        opacity: 1
-    //        radius: pixel(2)
+    //        radius: canvasPopup.buttonRadius
     //    }
 
     property string saveFolder
@@ -28,7 +28,7 @@ Popup {
     property string smsFileURL: addFilePrefix(settings.saveFolder + "/SMS.txt")
     property string emailFileURL: addFilePrefix(settings.saveFolder + "/Email.txt")
     property real autoCompleteRowHeight: pixel(6)
-
+    property real buttonRadius: pixel(2)
 
     Overlay.modal: Rectangle {
             color: "#A0101010"
@@ -41,12 +41,12 @@ Popup {
 
         loadModelFromJson(openFile(smsFileURL), smsModel)
         loadModelFromJson(openFile(emailFileURL), emailModel)
+
+//        printPopup.open()
     }
 
     onClosed: {
-        var canvasURL = getCanvasURL()
-        canvas.save(stripFilePrefix(canvasURL))
-        console.log(canvasURL, "saved")
+        saveCanvas()
 
         saveFile(smsFileURL, getJsonFromModel(smsModel))
         saveFile(emailFileURL, getJsonFromModel(emailModel))
@@ -59,6 +59,12 @@ Popup {
         var fileURL = String(image.source)
         var canvasURL = fileURL.replace(".jpg", ".png")
         return canvasURL.replace("/Prints/", "/Canvas/")
+    }
+
+    function saveCanvas() {
+        var canvasURL = getCanvasURL()
+        canvas.save(stripFilePrefix(canvasURL))
+        console.log("[CanvasPopup]", canvasURL, "saved")
     }
 
     function loadModelFromJson(json, model) {
@@ -165,6 +171,7 @@ Popup {
                     onClicked: {
                         brushPalette.currentIndex = index
 
+
                         if (index == 0) {
                             canvas.rainbowColor = false
                         }
@@ -210,7 +217,7 @@ Popup {
 
                 TextField {
                     id: emailTextField
-                    width: root.width * 0.8
+                    width: captureView.width * 0.8
                     placeholderText: "Enter your email"
                     inputMethodHints: Qt.ImhLowercaseOnly
                     focus: true
@@ -241,6 +248,7 @@ Popup {
                 Button {
                     id: emailSendButton
                     text: "Send"
+                    focusPolicy: Qt.NoFocus
                     icon.source: "qrc:/icon/send"
                     icon.width: iconSize
                     icon.height: iconSize
@@ -269,6 +277,7 @@ Popup {
                 color: Material.background
                 clip: true
 
+
                 ListModel {
                     id: autoCompleteListModel
                 }
@@ -278,6 +287,7 @@ Popup {
                     anchors.margins: pixel(3)
                     id: autoCompleteListView
                     model: autoCompleteListModel
+
 
                     delegate: Item {
                         height: autoCompleteRowHeight
@@ -324,8 +334,6 @@ Popup {
 
             ColumnLayout {}
 
-
-
             UpDownButton {
                 id: printCopyCountButton
                 min: 1
@@ -336,26 +344,43 @@ Popup {
                 Layout.alignment: Qt.AlignCenter
             }
 
-            Button {
+            RoundButton {
                 text: qsTr("Print")
                 font.pixelSize: iconSize
+                font.capitalization: Font.MixedCase
                 Layout.alignment: Qt.AlignCenter
+                radius: canvasPopup.buttonRadius
                 Material.accent: Material.color(Material.Cyan, Material.Shade700)
                 highlighted: true
                 onClicked: {
 //                    console.log(printCopyCountButton.value)
 //                    console.log(root.source)
-
-                    imagePrint.printPhoto(stripFilePrefix(image.source), printCopyCountButton.value)
+                    toast.show("Printing photo")
+                    imagePrint.printPhoto(stripFilePrefix(image.source), printCopyCountButton.value, false)
                     toast.show("Printing " + printCopyCountButton.value + " copies")
                     printPopup.close()
                 }
             }
 
-
+            RoundButton {
+                text: qsTr("Print + Paint")
+                radius: canvasPopup.buttonRadius
+                font.pixelSize: iconSize*0.8
+                font.capitalization: Font.MixedCase
+                Layout.alignment: Qt.AlignCenter
+                Material.accent: Material.color(Material.Cyan, Material.Shade900)
+                highlighted: true
+                onClicked: {
+//                    console.log(printCopyCountButton.value)
+//                    console.log(root.source)
+                    toast.show("Printing photo with paint")
+                    imagePrint.printPhoto(stripFilePrefix(image.source), printCopyCountButton.value, true)
+                    toast.show("Printing " + printCopyCountButton.value + " copies")
+                    printPopup.close()
+                }
+            }
 
             ColumnLayout {}
-
 
         }
 
@@ -384,8 +409,9 @@ Popup {
             ComboBox {
                 id: carrierCombo
                 Layout.fillWidth: true
-                model: ["ATT", "T-Mobile", "Verizon", "Sprint", "Metro PCS", "Boost Mobile", "Cricket"]
+                model: ["Select your Service Carrier", "ATT", "T-Mobile", "Verizon", "Sprint", "Metro PCS", "Boost Mobile", "Cricket"]
                 displayText: "Service Carrier: " + currentText
+                focusPolicy: Qt.NoFocus
             }
             RowLayout {
                 TextField {
@@ -403,6 +429,7 @@ Popup {
                 Button {
                     text: qsTr("Send SMS")
                     icon.source: "qrc:/icon/sms"
+                    focusPolicy: Qt.NoFocus
                     icon.width: iconSize
                     icon.height: iconSize
                     display: AbstractButton.TextUnderIcon
@@ -431,28 +458,28 @@ Popup {
         spacing: 4
         anchors.fill: parent
 
+
         RowLayout {
             anchors {
                 left: parent.left
                 right: parent.right
             }
-            RowLayout {}
 
             RoundButton {
                 text: "Save"
                 icon.source: "qrc:/icon/save"
                 icon.width: iconSize
                 icon.height: iconSize
+                font.capitalization: Font.MixedCase
                 display: AbstractButton.TextUnderIcon
                 Layout.alignment: Qt.AlignHCenter
+                Layout.fillWidth: true
                 highlighted: true
-                radius: pixel(2)
+                radius: canvasPopup.buttonRadius
                 Material.accent: Material.color(Material.Green, Material.Shade700)
 
                 onClicked: {
-                    var canvasURL = getCanvasURL()
-//                    console.log(canvasURL)
-                    canvas.save(stripFilePrefix(canvasURL))
+                    saveCanvas()
                 }
             }
 
@@ -461,11 +488,13 @@ Popup {
                 icon.source: "qrc:/icon/clear_all"
                 icon.width: iconSize
                 icon.height: iconSize
+                font.capitalization: Font.MixedCase
                 display: AbstractButton.TextUnderIcon
                 Layout.alignment: Qt.AlignHCenter
+                Layout.fillWidth: true
                 highlighted: true
                 Material.accent: Material.color(Material.Red, Material.Shade700)
-                radius: pixel(2)
+                radius: canvasPopup.buttonRadius
                 onClicked: {
                     canvas.clearRect = true
 
@@ -478,12 +507,16 @@ Popup {
                 icon.source: "qrc:/icon/print"
                 icon.width: iconSize
                 icon.height: iconSize
+                font.capitalization: Font.MixedCase
                 display: AbstractButton.TextUnderIcon
                 Layout.alignment: Qt.AlignHCenter
+                Layout.fillWidth: true
                 Material.accent: Material.color(Material.Cyan, Material.Shade700)
-                radius: pixel(2)
+                radius: canvasPopup.buttonRadius
                 highlighted: true
                 onClicked: {
+                    saveCanvas()
+
                     printCopyCountButton.value = 1
                     printPopup.open()
                 }
@@ -494,13 +527,15 @@ Popup {
                 icon.source: "qrc:/icon/email"
                 icon.width: iconSize
                 icon.height: iconSize
+                font.capitalization: Font.MixedCase
                 display: AbstractButton.TextUnderIcon
                 Layout.alignment: Qt.AlignHCenter
+                Layout.fillWidth: true
                 Material.accent: Material.color(Material.Orange, Material.Shade700)
-                radius: pixel(2)
+                radius: canvasPopup.buttonRadius
                 highlighted: true
                 onClicked: {
-                    console.log("Email!")
+                    console.log("[CanvasPopup]", "Email button pressed")
                     emailPopup.open()
                     emailTextField.forceActiveFocus()
                 }
@@ -511,10 +546,12 @@ Popup {
                 icon.source: "qrc:/icon/sms"
                 icon.width: iconSize
                 icon.height: iconSize
+                font.capitalization: Font.MixedCase
                 display: AbstractButton.TextUnderIcon
                 Layout.alignment: Qt.AlignHCenter
+                Layout.fillWidth: true
                 Material.accent: Material.color(Material.Yellow, Material.Shade700)
-                radius: pixel(2)
+                radius: canvasPopup.buttonRadius
                 highlighted: true
                 onClicked: {
                     smsPopup.open()
@@ -527,18 +564,17 @@ Popup {
                 icon.source: "qrc:/icon/close"
                 icon.width: iconSize
                 icon.height: iconSize
+                font.capitalization: Font.MixedCase
                 display: AbstractButton.TextUnderIcon
                 Layout.alignment: Qt.AlignHCenter
+                Layout.fillWidth: true
                 Material.accent: Material.color(Material.Grey, Material.Shade700)
-                radius: pixel(2)
+                radius: canvasPopup.buttonRadius
                 highlighted: true
                 onClicked: {
                     canvasPopup.close()
                 }
             }
-
-            RowLayout {}
-
         }
 
         Rectangle {
@@ -552,23 +588,48 @@ Popup {
 //            border.width: 1
 //            border.color: "white"
 
-            ListView {
+            RowLayout {
                 anchors.fill: parent
-                id: colorPalette
-                model: colorModel
-                delegate: colorDelegate
-                spacing: 0
-                highlightFollowsCurrentItem: true
-                orientation: ListView.Horizontal
-
-                highlight: Rectangle {
-                    color: "red"
+                Image {
+                    source: "qrc:/icon/back"
+                    height: canrect.paletteSize
+                    width: height
+                    Layout.alignment: Qt.AlignLeft
+                    z: 1
                 }
 
-                highlightMoveDuration: 100
+                ListView {
+//                    anchors.fill: parent
+                    id: colorPalette
+                    model: colorModel
+                    delegate: colorDelegate
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignHCenter
+                    implicitHeight: canrect.paletteSize
+
+                    spacing: 0
+                    highlightFollowsCurrentItem: true
+                    orientation: ListView.Horizontal
+
+                    highlight: Rectangle {
+                        color: "red"
+                    }
+
+                    highlightMoveDuration: 100
 
 
+                }
+
+                Image {
+                    source: "qrc:/icon/forward"
+                    height: canrect.paletteSize
+                    width: height
+                    Layout.alignment: Qt.AlignRight
+                    z: 1
+                }
             }
+
+
         }
 
         Rectangle {
@@ -582,20 +643,78 @@ Popup {
 //            border.color: "white"
             clip: true
 
-            ListView {
-                id: brushPalette
+            RowLayout {
                 anchors.fill: parent
-                model: emojisModel
-                delegate: brushDelegate
-                spacing: 0
-                highlightFollowsCurrentItem: true
-                orientation: ListView.Horizontal
-
-                highlight: Rectangle {
-                    color: "red"
+                Image {
+                    source: "qrc:/icon/back"
+                    height: canrect.paletteSize
+                    width: height
+                    Layout.alignment: Qt.AlignLeft
+                    z: 1
                 }
 
-                highlightMoveDuration: 100
+
+                ListView {
+                    id: brushPalette
+//                    anchors.fill: parent
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignHCenter
+                    implicitHeight: canrect.paletteSize
+                    model: emojisModel
+                    delegate: brushDelegate
+                    spacing: 0
+                    highlightFollowsCurrentItem: true
+                    orientation: ListView.Horizontal
+
+                    highlight: Rectangle {
+                        color: "red"
+                    }
+
+                    highlightMoveDuration: 100
+                }
+
+                Image {
+                    source: "qrc:/icon/forward"
+                    height: canrect.paletteSize
+                    width: height
+                    Layout.alignment: Qt.AlignRight
+                    z: 1
+                }
+            }
+
+
+        }
+
+        Text {
+            id: signText
+            width: parent.width
+            height: canrect.paletteSize
+            text: "Sign or Draw on Photo\nThen Press Print!"
+            color: "white"
+            font.pointSize: pixel(3)
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+
+            SequentialAnimation {
+                loops: Animation.Infinite
+                running: true
+                NumberAnimation {
+                    target: signText
+                    properties: "scale"
+                    easing.type: Easing.OutElastic
+                    from: 1
+                    to: 1.5
+                    duration: 600
+//                    loops: Animation.Infinite
+                }
+                NumberAnimation {
+                    target: signText
+                    properties: "scale"
+//                    easing.type: Easing.OutQuad
+                    to: 1
+                    duration: 400
+//                    loops: Animation.Infinite
+                }
             }
 
         }
@@ -626,9 +745,9 @@ Popup {
                     anchors.fill: parent
 
                     onImageLoaded: {
-                        console.log("loaded")
+                        console.log("[CanvasPopup]", "Canvas loaded")
                         if (canvas.lastCanvasLoaded == false) {
-                            console.log("loaded", "requestPaint")
+                            console.log("[CanvasPopup]", "Paint requested")
                             canvas.requestPaint()
                         }
                     }
@@ -696,8 +815,10 @@ Popup {
 //                        var lastY = canrect.lastY
 
                         var size = canrect.emojiSize
-                        ct.drawImage(img, mouseX-size/2, mouseY-size/2, size, size)
-
+                        ct.save();
+                        ct.shadowColor = 'transparent'
+                        ct.drawImage(img, mouseX-size/2, mouseY-size/2, size, size);
+                        ct.restore();
                     }
 
                     onPaint: {
@@ -708,12 +829,12 @@ Popup {
                         if (canvas.lastCanvasLoaded == false) {
                             if (canvas.isImageLoaded(canvasURL)) {
                                 ctx.drawImage(canvasURL, 0, 0, ctx.canvas.width, ctx.canvas.height)
-                                console.log(canvasURL, "drawn")
+                                console.log("[CanvasPopup]", canvasURL, "drawn")
                                 canvas.lastCanvasLoaded = true
                                 canvas.requestPaint()
 
                                 canvas.unloadImage(canvasURL)
-                                console.log(canvasURL, "unloaded")
+                                console.log("[CanvasPopup]", canvasURL, "unloaded")
                             }
                             else {
                                 canvas.loadImage(canvasURL)

@@ -1,8 +1,8 @@
 import QtQuick 2.12
-import QtQuick.Window 2.2
+import QtQuick.Window 2.12
 import QtQuick.VirtualKeyboard 2.2
-import QtQuick.Controls.Styles 1.4
-import QtQuick.Controls 2.5
+import QtQuick.Controls 2.12
+import QtQuick.Controls.Styles 1.2
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1
@@ -20,6 +20,9 @@ Item {
     property alias saveFolder: saveFolderField.text
 //    property alias emailFolder: emailFolderField.text
     property alias displayScale: displayScalingButton.value
+    property alias lockPin: lockPinTextField.text
+    property alias qrImagePath: qrField.text
+    property alias albumUrl: albumUrlField.text
 
     property alias bgColor: bgColorRectangle.color
     property alias countDownColor: countDownColorRectangle.color
@@ -42,6 +45,9 @@ Item {
     property alias startVideoPlaylist: startVideoPlaylist
     property alias beforeCaptureVideoPlaylist: beforeCapturePlaylist
     property alias afterCaptureVideoPlaylist: afterCaptureVideoPlaylist
+    property alias processingVideosPlaylist: processingVideoPlaylist
+    property alias printingVideosPlaylist: printingVideoPlaylist
+    property alias signingVideosPlaylist: signingVideosPlaylist
 
     property real rowHeight: pixel(6)
     property real textSize: pixel(4)
@@ -56,6 +62,7 @@ Item {
 //    property alias canvasSaveFolder: canvasSaveFolderField.text
 
     function loadPlaylist(playlist, playlistString) {
+        if (String(playlistString).length == 0) return;
         playlist.clear()
         var datamodel = JSON.parse(playlistString)
         for (var i = 0 ; i < datamodel.length ; i++) playlist.addItem(datamodel[i])
@@ -77,6 +84,7 @@ Item {
         property alias reviewTimer: reviewTimerButton.value
         property alias endSessionTimer: endSessionTimerButton.value
         property alias displayScale: displayScalingButton.value
+        property alias lockPin: lockPinTextField.text
 
     }
 
@@ -90,6 +98,8 @@ Item {
         property alias templateFormat: root.templateFormat
         property alias numberPhotos: root.numberPhotos
         property alias emojiFolder: emojiFolderField.text
+        property alias qrImagePath: qrField.text
+        property alias albumUrl: albumUrlField.text
     }
 
 
@@ -129,6 +139,7 @@ Item {
         property string startVideos
         property string beforeCaptureVideos
         property string afterCaptureVideos
+        property string processingVideos
         property string printingVideos
         property string signingVideos
     }
@@ -196,7 +207,7 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             height: pixel(12)
-            clip: true
+//            clip: true
 
             Row {
                 anchors.margins: pixel(5)
@@ -219,6 +230,7 @@ Item {
             }
             MouseArea {
                 anchors.fill: parent
+                z: 5
                 onClicked: {
                     var viewList = [generalView, profileView, cameraView, colorView, printerView, videoView, lightingView, canvasView]
                     stackView.replace(viewList[index])
@@ -498,6 +510,38 @@ Item {
                     }
 
 
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: qsTr("Lock PIN")
+                        subtitle: qsTr("Password to unlock main screen (unencrypted)")
+                    }
+
+                    TextField {
+                        id: lockPinTextField
+                        font.pixelSize: root.textSize
+                        Layout.fillWidth: true
+                        placeholderText: "Enter a PIN"
+                        echoMode: TextInput.Password
+                        inputMethodHints: Qt.ImhDigitsOnly
+
+                        onEditingFinished: {
+                            keypad.visible = false
+                        }
+
+                        onPressed: {
+                            keypad.visible = true
+                        }
+                    }
+
+                    InputPanel {
+                        id: keypad
+                        visible: false
+                        Layout.fillWidth: true
+//                        implicitWidth: mainWindow.width * 0.9
+        //                implicitHeight: mainWindow.height * 0.5
+                    }
+
 
                     RowLayout {}
                 }
@@ -516,30 +560,17 @@ Item {
                         height: root.rowHeight
                         Layout.fillWidth: true
                         text: qsTr("Template Image")
-                        subtitle: "Location of template PNG image"
+                        subtitle: "Path of template image for photos"
                     }
 
-                    TextField {
+                    PathField {
                         id: templateImageField
                         font.pixelSize: root.textSize
                         Layout.fillWidth: true
                         placeholderText: "Choose a template..."
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                templateImageFileDialog.open()
-                            }
-                        }
-
-                        FileDialog {
-                            id: templateImageFileDialog
-                            title: "Please select a template"
-                            nameFilters: ["PNG Image Files (*.png)"]
-                            onAccepted: {
-                                templateImageField.text = stripFilePrefix(String(fileUrl))
-                            }
-                        }
+                        title: "Please select a template"
+                        nameFilters: ["PNG Image Files (*.png)"]
+                        isFile: true
                     }
 
                     Button {
@@ -554,128 +585,162 @@ Item {
                     CustomLabel {
                         height: root.rowHeight
                         Layout.fillWidth: true
-                        text: qsTr("Save Folder")
-                        subtitle: "Location to save current session"
+                        text: qsTr("QR Image")
+                        subtitle: "Path of QR Image"
                     }
 
-                    TextField {
-                        id: saveFolderField
+                    PathField {
+                        id: qrField
                         font.pixelSize: root.textSize
+                        placeholderText: "Select QR image"
+                        title: "Select QR image"
+                        nameFilters: ["PNG Image Files (*.png)"]
+                        isFile: true
                         Layout.fillWidth: true
-                        placeholderText: "Choose a save folder..."
+                    }
 
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                folderDialog.open()
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: qsTr("Album Link")
+                        subtitle: "Album URL for QR code generation"
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        TextField {
+                            id: albumUrlField
+                            font.pixelSize: root.textSize
+                            Layout.fillWidth: true
+
+                            placeholderText: "Enter album URL"
+                            selectByMouse: true
+
+                            onReleased: {
+                                contextMenu.open()
+                            }
+
+                            Menu {
+                                id: contextMenu
+
+                                MenuItem {
+                                    text: "Cut"
+
+                                    iconSource: "qrc:/icon/clear_black"
+                                    onTriggered: {
+                                        albumUrlField.cut()
+                                    }
+                                }
+
+                                MenuItem {
+                                    text: "Clear"
+
+                                    iconSource: "qrc:/icon/clear_black"
+                                    onTriggered: {
+                                        albumUrlField.clear()
+                                    }
+                                }
+                                MenuItem {
+                                    text: "Copy"
+                                    iconSource: "qrc:/icon/copy_black"
+                                    onTriggered: {
+                                        albumUrlField.selectAll()
+                                        albumUrlField.copy()
+                                    }
+                                }
+                                MenuItem {
+                                    text: "Clear 'n' Paste"
+                                    iconSource: "qrc:/icon/paste_black"
+                                    onTriggered: {
+                                        albumUrlField.clear()
+                                        albumUrlField.paste()
+                                    }
+                                }
                             }
                         }
-
-                        FolderDialog {
-                            id: folderDialog
-                            title: "Please select save directory"
-                            onAccepted: {
-                                saveFolderField.text = stripFilePrefix(String(folder))
+                        Button {
+                            icon.source: "qrc:/icon/check"
+                            onClicked: {
+                                getQrImage()
                             }
                         }
                     }
 
 
 
-//                    CustomLabel {
-//                        height: root.rowHeight
-//                        Layout.fillWidth: true
-//                        text: qsTr("Print Folder")
-//                        subtitle: "Location to save prints"
-//                    }
-
-//                    TextField {
-//                        id: printFolderField
-//                        font.pixelSize: root.textSize
-//                        Layout.fillWidth: true
-//                        placeholderText: "Choose a print folder..."
-
-//                        MouseArea {
-//                            anchors.fill: parent
-//                            onClicked: {
-//                                printFolderDialog.open()
-//                            }
-//                        }
-
-//                        FolderDialog {
-//                            id: printFolderDialog
-//                            title: "Please select print directory"
-//                            onAccepted: {
-//                                printFolderField.text = stripFilePrefix(String(folder))
-//                            }
-//                        }
-//                    }
-
-//                    CustomLabel {
-//                        height: root.rowHeight
-//                        Layout.fillWidth: true
-//                        text: qsTr("Email Folder")
-//                        subtitle: "Location to save email list"
-//                    }
-
-//                    TextField {
-//                        id: emailFolderField
-//                        font.pixelSize: root.textSize
-//                        Layout.fillWidth: true
-//                        placeholderText: "Choose a email folder..."
-
-//                        MouseArea {
-//                            anchors.fill: parent
-//                            onClicked: {
-//                                emailFolderDialog.open()
-//                            }
-//                        }
-
-//                        FolderDialog {
-//                            id: emailFolderDialog
-//                            title: "Please select email directory"
-//                            onAccepted: {
-//                                emailFolderField.text = stripFilePrefix(String(folder))
-//                            }
-//                        }
-//                    }
 
 
 
                     CustomLabel {
                         height: root.rowHeight
                         Layout.fillWidth: true
-                        text: qsTr("Emojis Folder")
-                        subtitle: "Location of emojis"
+                        text: qsTr("Save Folder")
+                        subtitle: "Folder to save current session"
                     }
 
-                    TextField {
+                    PathField {
+                        id: saveFolderField
+                        font.pixelSize: root.textSize
+                        Layout.fillWidth: true
+                        placeholderText: "Choose a save folder..."
+                        title: "Please select save directory"
+                        isFile: false
+
+                        onDialogOk: {
+                            captureView.sonyRemote.saveFolder = saveFolderField.text + "/Camera"
+//                            captureView.sonyRemote.restart()
+                        }
+
+                    }
+
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: qsTr("Emojis Folder")
+                        subtitle: "Folder of emojis"
+                    }
+
+                    PathField {
                         id: emojiFolderField
                         font.pixelSize: root.textSize
                         Layout.fillWidth: true
                         placeholderText: "Choose an emoji folder..."
+                        title: "Please select emoji folder"
+                        isFile: false
 
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                emojiFolderFolderDialog.open()
-                            }
-                        }
-
-                        FolderDialog {
-                            id: emojiFolderFolderDialog
-                            title: "Please select directory"
-                            onAccepted: {
-                                emojiFolderField.text = stripFilePrefix(String(folder))
-                            }
-                        }
                     }
+
+
+
+
+
+//                    TextField {
+//                        id: emojiFolderField
+//                        font.pixelSize: root.textSize
+//                        Layout.fillWidth: true
+//                        placeholderText: "Choose an emoji folder..."
+
+//                        MouseArea {
+//                            anchors.fill: parent
+//                            onClicked: {
+//                                emojiFolderFolderDialog.open()
+//                            }
+//                        }
+
+//                        FolderDialog {
+//                            id: emojiFolderFolderDialog
+//                            title: "Please select directory"
+//                            onAccepted: {
+//                                emojiFolderField.text = stripFilePrefix(String(folder))
+//                            }
+//                        }
+//                    }
 
 //                    CustomLabel {
 //                        height: root.rowHeight
 //                        Layout.fillWidth: true
 //                        text: qsTr("Canvas Save Folder")
-//                        subtitle: "Location to save guest's canvas"
+//                        subtitle: "Folder to save guest's canvas"
 //                    }
 
 //                    TextField {
@@ -719,9 +784,11 @@ Item {
                         subtitle: "Shows live video on start screen"
                         height: root.rowHeight
                         Layout.fillWidth: true
+                        visible: false
                     }
                     Switch {
                         id: showLiveVideoOnStartSwitch
+                        visible: false
                     }
 
                     CustomLabel {
@@ -729,9 +796,11 @@ Item {
                         subtitle: "Shows live video during countdown"
                         height: root.rowHeight
                         Layout.fillWidth: true
+                        visible: false
                     }
                     Switch {
                         id: showLiveVideoOnCountdownSwitch
+                        visible: false
                     }
 
                     CustomLabel {
@@ -739,9 +808,11 @@ Item {
                         subtitle: "Trigger camera shutter automatically"
                         height: root.rowHeight
                         Layout.fillWidth: true
+                        visible: false
                     }
                     Switch {
                         id: autoTriggerSwitch
+                        visible: false
                     }
 
                     CustomLabel {
@@ -968,6 +1039,11 @@ Item {
                 }
 
                 Playlist {
+                    id: processingVideoPlaylist
+                    playbackMode: Playlist.Random
+                }
+
+                Playlist {
                     id: printingVideoPlaylist
                     playbackMode: Playlist.Random
                 }
@@ -1031,6 +1107,21 @@ Item {
 
                     VideoList {
                         Layout.fillWidth: true
+                        title: "Processing Videos"
+                        playlist: processingVideoPlaylist
+
+                        onSaveRequest: {
+                            videoSettings.processingVideos = getPlaylistString(processingVideoPlaylist)
+                        }
+
+                        Component.onCompleted: {
+                            loadPlaylist(processingVideoPlaylist, videoSettings.processingVideos)
+                        }
+
+                    }
+
+                    VideoList {
+                        Layout.fillWidth: true
                         title: "Printing Videos"
                         playlist: printingVideoPlaylist
 
@@ -1067,29 +1158,29 @@ Item {
                 id: lightingView
                 visible: false
 
-                ColumnLayout {
-                    anchors.fill: parent
-                    spacing: root.spacing
-                    anchors.margins: root.columnMargins
+//                ColumnLayout {
+//                    anchors.fill: parent
+//                    spacing: root.spacing
+//                    anchors.margins: root.columnMargins
 
-                    CustomLabel {
-                        text: "Serial COM Port"
-                        subtitle: "COM port number for serial communication"
-                        height: root.rowHeight
-                        Layout.fillWidth: true
-                    }
+//                    CustomLabel {
+//                        text: "Serial COM Port"
+//                        subtitle: "COM port number for serial communication"
+//                        height: root.rowHeight
+//                        Layout.fillWidth: true
+//                    }
 
-                    ComboBox {
-                        model: ListModel {
-                            ListElement { text: "COM1" }
-                            ListElement { text: "COM2" }
-                            ListElement { text: "COM3" }
-                        }
-                    }
+//                    ComboBox {
+//                        model: ListModel {
+//                            ListElement { text: "COM1" }
+//                            ListElement { text: "COM2" }
+//                            ListElement { text: "COM3" }
+//                        }
+//                    }
 
 
-                    RowLayout {}
-                }
+//                    RowLayout {}
+//                }
 
 
 

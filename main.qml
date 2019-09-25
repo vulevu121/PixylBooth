@@ -13,8 +13,8 @@ import QtGraphicalEffects 1.0
 import Qt.labs.folderlistmodel 2.0
 //import QtWebView 1.1
 //import Process 1.0
-import SonyAPI 1.0
-import SonyLiveview 1.0
+//import SonyAPI 1.0
+//import SonyLiveview 1.0
 import ProcessPhotos 1.0
 import PrintPhotos 1.0
 //import CSVFile 1.0
@@ -23,6 +23,7 @@ import Firebase 1.0
 import QtQuick.VirtualKeyboard 2.13
 import QtQuick.VirtualKeyboard.Styles 2.13
 import QtQuick.VirtualKeyboard.Settings 2.13
+//import QRGenerator 1.0
 
 Window {
     id: mainWindow
@@ -62,6 +63,7 @@ Window {
 //        property alias rememberMe: rememberMeCheckBox.checked
         property alias idToken: mainWindow.idToken
         property alias refreshToken: mainWindow.refreshToken
+        property alias visibility: mainWindow.visibility
     }
 
     // function to assist in scaling with different resolutions and dpi
@@ -95,6 +97,10 @@ Window {
             filePrefix += "/"
 
         return filePrefix.concat(path)
+    }
+
+    function getQrImage() {
+        qrImage.source = "https://api.qrserver.com/v1/create-qr-code/?margin=5&size=150x150&data=" + settings.albumUrl
     }
 
 //    Process {
@@ -147,17 +153,16 @@ Window {
     }
 
 
-//    Timer {
-//        id: initialTimer2
-//        interval: 1000
-//        running: false
-//        repeat: false
+    Timer {
+        id: initialTimer2
+        interval: 2000
+        running: true
+        repeat: false
 
-//        onTriggered: {
-////            liveView.start()
-//            liveView.visible = settings.showLiveVideoOnCountdownSwitch
-//        }
-//    }
+        onTriggered: {
+            getQrImage()
+        }
+    }
 
 
 
@@ -317,15 +322,68 @@ Window {
 //        visible: true
 //    }
 
+//    QRGenerator {
+//        id: qrGenerator
+
+//        onReceivedQrCode: {
+//            console.log(imgPath)
+//            qrImage.source = addFilePrefix(imgPath)
+//        }
+//    }
+
+    Image {
+        id: qrImage
+        source: ""
+        x: pixel(5)
+        y: pixel(5)
+        width: pixel(30)
+        height: pixel(30)
+        fillMode: Image.PreserveAspectFit
+        z: 1
+        visible: scale > 0.1 ? true : false
+        scale: swipeview.currentIndex in [0, 1] ? 1 : 0
+//        PinchArea {
+//            id: imagePinchArea
+//            anchors.fill: parent
+//            pinch.target: qrImage
+////            pinch.minimumRotation: -360
+////            pinch.maximumRotation: 360
+//            pinch.minimumScale: 1
+//            pinch.maximumScale: 4
+//            pinch.dragAxis: Pinch.XAndYAxis
+//        }
+
+        MouseArea {
+            id: imageMouseArea
+            anchors.fill: parent
+            hoverEnabled: true
+            drag.target: qrImage
+            visible: qrImage.visible
+        }
 
 
+
+
+        Behavior on scale {
+            NumberAnimation{
+                duration: 400
+                easing.type: Easing.OutQuad
+            }
+        }
+
+//        anchors {
+//            left: parent.left
+//            top: parent.top
+//            margins: pixel(5)
+//        }
+    }
 
     // ==== SWIPEVIEW ====
     SwipeView {
         id: swipeview
         currentIndex: 1
         anchors.fill: parent
-        interactive: captureView.captureToolbar.lockButton.checked
+        interactive: !captureView.captureToolbar.locked
 
 
         onCurrentIndexChanged: {
@@ -365,80 +423,155 @@ Window {
 
     }
 
-    //==== VIRTUAL KEYBOARD ====
-//    InputPanel {
-//        id: inputPanel
-//        z: 99
-//        x: 0
-//        y: root.height
-//        width: root.width
 
-//        states: State {
-//            name: "visible"
-//            when: inputPanel.active
-//            PropertyChanges {
-//                target: inputPanel
-//                y: root.height - inputPanel.height
-//            }
-//        }
-//        transitions: Transition {
-//            from: ""
-//            to: "visible"
-//            reversible: true
-//            ParallelAnimation {
-//                NumberAnimation {
-//                    properties: "y"
-//                    duration: 250
-//                    easing.type: Easing.InOutQuad
-//                }
-//            }
-//        }
-//    }
+    Component {
+        id: toastDelegate
 
-//    InputPanel {
-//        id: inputPanel
-//        z: 9999999
-//        y: Qt.inputMethod.visible ? 0 : 0 - inputPanel.height
-//        anchors.left: parent.left
-//        anchors.right: parent.right
-//    }
+        Button {
+            id: button
+            text: msg
+            width: parent.width
+            font.pixelSize: pixel(10)
+            font.capitalization: Font.MixedCase
+            icon.width: height
+            icon.height: height
+            icon.source: "qrc:/icon/capture"
+            display: Button.TextBesideIcon
 
-    ToastManager {
-        id: toast
+            anchors {
+                horizontalCenter: parent.horizontalCenter
+            }
+
+            Timer {
+                id: buttonTimer
+                interval: toast.showTime
+                repeat: false
+                running: true
+                onTriggered: {
+//                    console.log("Removing " + index)
+                    toastList.remove(index)
+                }
+            }
+
+
+            NumberAnimation {
+                target: button
+                running: true
+                loops: 1
+                properties: "opacity, scale"
+                from: 0.5
+                to: 1.0
+                duration: 100
+                easing.type: Easing.OutQuad
+            }
+
+        }
     }
+
+    // toast
+    ListView {
+        id: toast
+        z: 10
+        model: toastList
+        delegate: toastDelegate
+        width: pixel(140)
+        height: pixel(100)
+//        visible: toastList.count > 0
+
+        ListModel {
+            id: toastList
+        }
+
+
+        property real iconSize: pixel(10)
+        property int showTime: 3000
+
+        function show(msg) {
+            toastList.append({"msg": msg})
+        }
+
+        anchors {
+            verticalCenter: parent.verticalCenter
+            verticalCenterOffset: pixel(100)
+            horizontalCenter: parent.horizontalCenter
+        }
+
+        populate: Transition {
+            NumberAnimation {
+                properties: "x, y"
+                duration: 400
+                easing.type: Easing.OutQuad
+            }
+        }
+
+//        add: Transition {
+//            PropertyAnimation {
+//                properties: "opacity, scale"
+//                from: 0.8
+//                to: 1.1
+//                duration: 200
+//                easing.type: Easing.OutQuad
+//            }
+
+//        }
+
+        addDisplaced: Transition {
+            NumberAnimation {
+                properties: "x, y"
+                duration: 400
+                easing.type: Easing.OutQuad
+            }
+        }
+
+        remove: Transition {
+            NumberAnimation {
+                properties: "opacity"
+                from: 1
+                to: 0
+                duration: 400
+                easing.type: Easing.OutQuad
+            }
+        }
+
+        removeDisplaced: Transition {
+            NumberAnimation {
+                properties: "x, y"
+                duration: 400
+                easing.type: Easing.OutQuad
+            }
+        }
+
+        move: Transition {
+            NumberAnimation {
+                properties: "x, y"
+                duration: 400
+                easing.type: Easing.OutQuad
+            }
+        }
+
+
+
+
+    }
+
 
 
     // ==== TAB BAR STUFF ====
     TabBar {
         id: tabBar
-        y: captureView.captureToolbar.lockButton.checked ? 0 : -height
         position: TabBar.Footer
         currentIndex: swipeview.currentIndex
-//        anchors.top: parent.top
+        anchors.top: parent.top
         anchors.horizontalCenter: parent.horizontalCenter
         Material.elevation: 1
         opacity: 1
         z: 5
-        enabled: captureView.captureToolbar.lockButton.checked
         background: Rectangle {
             color: Material.background
             radius: pixel(3)
          }
 
         property real iconSize: pixel(10)
-
-        Behavior on x {
-            NumberAnimation {
-                duration: 200
-            }
-        }
-
-        Behavior on y {
-            NumberAnimation {
-                duration: 200
-            }
-        }
-
 
         TabButton {
             text: "Gallery"
@@ -469,6 +602,7 @@ Window {
         TabButton {
             text: "Settings"
             width: implicitWidth
+            enabled: captureView.captureToolbar.locked? false : true
             icon.source: "qrc:/icon/settings"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
@@ -478,10 +612,6 @@ Window {
                 swipeview.currentIndex = 2
             }
         }
-
-
-
-
     }
 
 }
