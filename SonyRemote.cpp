@@ -1,5 +1,10 @@
 #include "SonyRemote.h"
 
+enum Id { liveview, batteryPercent, ev, statusMsg, saveDir, photoButton, halfPressButton, IdCount };
+static BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM lParam);
+const int remoteHwndArrayLen = IdCount;
+static HWND remoteHwndArray[remoteHwndArrayLen];
+
 SonyRemote::SonyRemote(QQuickItem *parent) : QQuickPaintedItem(parent)
 {
 
@@ -172,11 +177,12 @@ void SonyRemote::actTakePicture() {
     if (!m_readyFlag) return;
 
     qDebug() << "[SonyRemote] actTakePicture Requested!" << remoteHwnd;
-    keycode = 0x31;
-    PostMessageW(remoteHwnd, WM_KEYDOWN, keycode, 0);
-    QTimer::singleShot(300, this, SLOT(releaseKey()));
+//    keycode = 0x31;
+//    PostMessageW(remoteHwnd, WM_KEYDOWN, keycode, 0);
+//    QTimer::singleShot(300, this, SLOT(releaseKey()));
 //    PostMessageW(remoteHwnd, WM_KEYUP, keycode, 0);
-    QTimer::singleShot(4000, this, SLOT(actTakePictureReply()));
+    SendMessageW(remoteHwndArray[photoButton], BM_CLICK, NULL, NULL);
+    QTimer::singleShot(5000, this, SLOT(actTakePictureReply()));
 }
 
 void SonyRemote::releaseKey() {
@@ -236,9 +242,11 @@ void SonyRemote::actTakePictureReply() {
 void SonyRemote::actHalfPressShutter() {
     if (!m_readyFlag) return;
     qDebug() << "[SonyRemote] actHalfPressShutter Requested!";
-    uint keycode = 0x47;
-    PostMessageW(remoteHwnd, WM_KEYDOWN, keycode, 0);
-    PostMessageW(remoteHwnd, WM_KEYUP, keycode, 0);
+//    uint keycode = 0x47;
+//    PostMessageW(remoteHwnd, WM_KEYDOWN, keycode, 0);
+//    PostMessageW(remoteHwnd, WM_KEYUP, keycode, 0);
+
+    SendMessageW(remoteHwndArray[halfPressButton], BM_CLICK, NULL, NULL);
 }
 
 void SonyRemote::cancelHalfPressShutter() {
@@ -257,6 +265,8 @@ static BOOL CALLBACK ::EnumChildProc(HWND hwnd, LPARAM lParam) {
         case 0x456: remoteHwndArray[ev] = hwnd; break;
         case 0x57A: remoteHwndArray[saveDir] = hwnd; break;
         case 0xFFFF: remoteHwndArray[statusMsg] = hwnd; break;
+        case 0x3E9: remoteHwndArray[photoButton] = hwnd; break;
+        case 0x3EC: remoteHwndArray[halfPressButton] = hwnd; break;
     }
 
 //    char textBuffer[2048];

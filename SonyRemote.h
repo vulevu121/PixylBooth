@@ -24,11 +24,7 @@
 
 #include "Windows.h"
 
-enum Id { liveview, batteryPercent, ev, statusMsg, saveDir };
 
-static BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM lParam);
-const int remoteHwndArrayLen = 5;
-static HWND remoteHwndArray[remoteHwndArrayLen];
 
 class SonyRemote : public QQuickPaintedItem
 {

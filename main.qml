@@ -18,7 +18,7 @@ import Qt.labs.folderlistmodel 2.0
 import ProcessPhotos 1.0
 import PrintPhotos 1.0
 //import CSVFile 1.0
-import Firebase 1.0
+//import Firebase 1.0
 //import MoveMouse 1.0
 import QtQuick.VirtualKeyboard 2.13
 import QtQuick.VirtualKeyboard.Styles 2.13
@@ -107,30 +107,30 @@ Window {
 //        id: process
 //    }
 
-    Firebase {
-        id: firebase
+//    Firebase {
+//        id: firebase
 
-        idToken: mainWindow.idToken
-        refreshToken: mainWindow.refreshToken
+//        idToken: mainWindow.idToken
+//        refreshToken: mainWindow.refreshToken
 
-        onUserAuthenticated: {
-            mainWindow.idToken = idToken
-            mainWindow.refreshToken = refreshToken
-        }
+//        onUserAuthenticated: {
+//            mainWindow.idToken = idToken
+//            mainWindow.refreshToken = refreshToken
+//        }
 
-        onUserNotAuthenticated: {
-            toast.show(msg)
-        }
+//        onUserNotAuthenticated: {
+//            toast.show(msg)
+//        }
 
-        onUserInfoReceived: {
-            toast.show("Login successful")
-            loadingBar.running = false
-            loginPopup.close()
+//        onUserInfoReceived: {
+//            toast.show("Login successful")
+//            loadingBar.running = false
+//            loginPopup.close()
 
 
-        }
+//        }
 
-    }
+//    }
 
 //    CSVFile {
 //        id: csvFile

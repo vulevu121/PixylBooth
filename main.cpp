@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<ProcessPhotos>("ProcessPhotos", 1, 0, "ProcessPhotos");
     qmlRegisterType<PrintPhotos>("PrintPhotos", 1, 0, "PrintPhotos");
     qmlRegisterType<CSVFile>("CSVFile", 1, 0, "CSVFile");
-    qmlRegisterType<Firebase>("Firebase", 1, 0, "Firebase");
+//    qmlRegisterType<Firebase>("Firebase", 1, 0, "Firebase");
     qmlRegisterType<SonyRemote>("SonyRemote", 1, 0, "SonyRemote");
 //    qmlRegisterType<QRGenerator>("QRGenerator", 1, 0, "QRGenerator");
 

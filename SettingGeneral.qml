@@ -524,6 +524,34 @@ Item {
                         placeholderText: "Enter a PIN"
                         echoMode: TextInput.Password
                         inputMethodHints: Qt.ImhDigitsOnly
+                        enabled: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
                         onEditingFinished: {
                             keypad.visible = false

@@ -69,7 +69,7 @@ Rectangle {
         id: userColumn
         width: pixel(100)
 
-        scale: captureView.state in {"review": 0, "aftercapture": 1} ? 1 : 0
+        scale: captureView.state in {"review": 0} ? 1 : 0
         visible: scale > 0.1 ? true : false
 
         anchors {
@@ -80,7 +80,7 @@ Rectangle {
         Behavior on scale {
             NumberAnimation {
                 duration: 400
-                easing.type: captureView.state in {"review": 0, "aftercapture": 1} ? Easing.OutQuad :  Easing.OutElastic
+                easing.type: captureView.state in {"review": 0} ? Easing.OutQuad :  Easing.OutElastic
             }
         }
 
@@ -304,7 +304,13 @@ Rectangle {
 
             onClicked: {
                 if (locked) {
-                    lockPinPopup.open()
+                    if (settings.lockPin.length > 0) {
+                        lockPinPopup.open()
+                        return
+                    }
+                    locked = false
+//                    lockPinPopup.open()
+
                 }
                 else {
                     locked = true

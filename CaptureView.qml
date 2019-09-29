@@ -77,7 +77,7 @@ Item {
 //        toast.show("After Capture State")
         console.log("[CaptureView] After capture state")
         playAfterCaptureVideos()
-        afterCaptureTimer.restart()
+//        afterCaptureTimer.restart()
         captureView.state = "aftercapture"
     }
 
@@ -260,6 +260,7 @@ Item {
 
             if (captureView.countdown.count <= 0) {
                 capturePhoto()
+                afterCaptureState()
                 resetCountdownTimer()
 //                sonyAPI.actTakePicture()
                 actTakePictureTimer.restart()
@@ -292,8 +293,8 @@ Item {
 
         onTriggered: {
             if (photoList.count < settings.numberPhotos) {
-//                beforeCaptureState()
-                afterCaptureState()
+                beforeCaptureState()
+//                afterCaptureState()
             } else {
                 combinePhotos()
 //                afterCaptureState()
