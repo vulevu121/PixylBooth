@@ -19,8 +19,8 @@ QString PrintPhotos::getPrinterName(QString const &printerName) {
 }
 
 // print in a new thread to prevent gui lag
-void PrintPhotos::printPhoto(const QString &photoPath, int copyCount) {
-    PrintThread *thread = new PrintThread(photoPath, printerName(), copyCount, this);
+void PrintPhotos::printPhoto(const QString &photoPath, int copyCount, bool printCanvas) {
+    PrintThread *thread = new PrintThread(photoPath, printerName(), copyCount, printCanvas, this);
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     thread->start();
 }
@@ -51,8 +51,8 @@ void PrintPhotos::setPrinterName(const QString &printerName) {
 // ==================================================================
 
 
-PrintThread::PrintThread(const QString &photoPath, const QString &printerName, int copyCount, QObject *parent)
-    : QThread(parent), photoPath(photoPath), printerName(printerName), copyCount(copyCount)
+PrintThread::PrintThread(const QString &photoPath, const QString &printerName, int copyCount, bool printCanvas, QObject *parent)
+    : QThread(parent), photoPath(photoPath), printerName(printerName), copyCount(copyCount), printCanvas(printCanvas)
 {
 
 }
@@ -77,10 +77,10 @@ void PrintThread::run() {
     printer.setResolution(res);
 
     // debug prints
-    qDebug() << qsize;
+    qDebug() << "[PrintPhotos] Size:" << qsize;
 //    qDebug() << printer.pageLayout().margins().top();
 //    qDebug() << printer.pageLayout().margins().left();
-    qDebug() << printer.supportedResolutions();
+    qDebug() << "[PrintPhotos] Resolution:" << printer.supportedResolutions();
 
 //    qDebug() << photoPaths;
 //    qDebug() << printerName;
@@ -90,11 +90,21 @@ void PrintThread::run() {
 //    photoPath = "c:/Users/Vu/Pictures/PixylBooth/Prints/DSC05785_DSC05786_DSC05787.jpg";
 
     QImage photo(photoPath);
+    QString canvasPath(photoPath.replace("/Prints/", "/Canvas/").replace(".jpg", ".png"));
 
-    qDebug() << photoPath;
+
+    qDebug() << "[PrintPhotos] Printing" << photoPath;
+    qDebug() << "[PrintPhotos] Copies:" << copyCount;
+    qDebug() << "[PrintPhotos] Canvas:" << canvasPath;
 
     QImage photoScaled = photo.scaled(1820, 1230);
     printerPainter.drawImage(0, 0, photoScaled);
+
+    if (printCanvas) {
+        QImage canvasImage(canvasPath);
+        QImage canvasImageScaled = canvasImage.scaled(1820, 1230);
+        printerPainter.drawImage(0, 0, canvasImageScaled);
+    }
 
     printerPainter.end();
 }

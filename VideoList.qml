@@ -3,29 +3,58 @@ import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.3
 import Qt.labs.folderlistmodel 2.0
+import QtQuick.Dialogs 1.3
 
 Rectangle {
     id: root
     color: "#151515"
-    radius: pixel(3)
-    property alias model: listView.model
+    radius: pixel(1)
+    property alias playlist: listView.model
     property alias addButton: addButton
     property alias deleteButton: deleteButton
     property alias clearButton: clearButton
     property alias title: label.text
-
+    property bool hide: true
     property real rowHeight: pixel(4)
+    signal saveRequest
 
-    Layout.minimumHeight: pixel(70)
+    Layout.minimumHeight: topBar.height
+
+    Behavior on implicitHeight {
+        NumberAnimation {
+            duration: 100
+        }
+    }
+
+    FileDialog {
+        id: fileDialog
+        title: "Please choose videos"
+        folder: shortcuts.home
+        selectMultiple: true
+        nameFilters: [ "Video files (*.avi *.mp4)", "All files (*)" ]
+
+        onAccepted: {
+            playlist.addItems(fileUrls)
+            root.saveRequest()
+        }
+    }
 
 
     Rectangle {
         id: topBar
-        height: pixel(8)
+        height: pixel(10)
         radius: pixel(1)
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.left: parent.left
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                hide = !hide
+                root.implicitHeight = hide ? topBar.height : pixel(80)
+            }
+        }
 
         gradient: Gradient {
             GradientStop {
@@ -51,12 +80,66 @@ Rectangle {
             
         }
 
+        RowLayout {
+            anchors.fill: parent
+
+            RowLayout {}
+
+            Button {
+                id: addButton
+                text: "Add"
+                icon.source: "qrc:/icon/add"
+                display: AbstractButton.IconOnly
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                implicitWidth: pixel(10)
+                implicitHeight: pixel(10)
+
+                onClicked: {
+                    fileDialog.open()
+                }
+
+            }
+
+            Button {
+                id: clearButton
+                text: "Clear"
+                icon.source: "qrc:/icon/clear_all"
+                display: AbstractButton.IconOnly
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                implicitWidth: pixel(10)
+                implicitHeight: pixel(10)
+
+                onClicked: {
+                    playlist.clear()
+                    root.saveRequest()
+                }
+            }
+
+
+            Button {
+                id: deleteButton
+                text: "Remove"
+                icon.source: "qrc:/icon/remove"
+                display: AbstractButton.IconOnly
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                implicitWidth: pixel(10)
+                implicitHeight: pixel(10)
+                onClicked: {
+                    playlist.removeItem(listView.currentIndex)
+                    root.saveRequest()
+                }
+            }
+
+
+        }
+
 
         Label {
             id: label
             text: "Videos"
             anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.left: parent.left
+            anchors.leftMargin: pixel(2)
         }
     }
 
@@ -73,7 +156,7 @@ Rectangle {
 
                 Image {
                     id: folderPicture
-                    source: "qrc:/Images/file_white_48dp.png"
+                    source: "qrc:/icon/video_library"
                     width: root.rowHeight
                     height: root.rowHeight
                     anchors.verticalCenter: parent.verticalCenter
@@ -112,10 +195,11 @@ Rectangle {
     Rectangle {
         anchors.top: topBar.bottom
         anchors.right: parent.right
-        anchors.bottom: bottomBar.top
+        anchors.bottom: parent.bottom
         anchors.left: parent.left
         clip: true
         color: "#151515"
+        radius: pixel(1)
 
         ListView {
             id: listView
@@ -124,82 +208,21 @@ Rectangle {
             spacing: pixel(2)
             delegate: fileDelegate
 
+            ScrollBar.vertical: ScrollBar {}
+
             highlight: Rectangle {
-                color: Material.accent
+                color: Material.color(Material.Cyan, Material.Shade800)
             }
 
-            highlightMoveVelocity: 3000
-            pressDelay: 100
-            focus: true
+            highlightMoveDuration: 100
+//            pressDelay: 100
+//            focus: true
 
         }
     }
 
     
-    Rectangle {
-        id: bottomBar
-        height: addButton.height
-        radius: pixel(1)
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        anchors.left: parent.left
 
-        gradient: Gradient {
-            GradientStop {
-                position: 0
-                color: "#151515"
-            }
-            
-            GradientStop {
-                position: 0.05
-                color: "#151515"
-            }
-            
-            GradientStop {
-                position: 0.051
-                color: "#333"
-            }
-
-            GradientStop {
-                position: 1
-                color: "#151515"
-            }
-        }
-
-
-        RowLayout {
-            anchors.fill: parent
-            
-            RowLayout {}
-
-            Button {
-                id: addButton
-                text: qsTr("+")
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                font.pointSize: 14
-
-            }
-
-            Button {
-                id: clearButton
-                text: qsTr("Clear")
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                font.pointSize: 14
-            }
-            
-
-            Button {
-                id: deleteButton
-                text: "-"
-                onClicked: {
-                    model.removeItem(listView.currentIndex)
-                }
-            }
-            
-            RowLayout {}
-
-        }
-    }
 }
 
 

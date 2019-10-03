@@ -12,15 +12,18 @@ import QtMultimedia 5.9
 import QtGraphicalEffects 1.0
 import Qt.labs.folderlistmodel 2.0
 //import QtWebView 1.1
-import Process 1.0
-import SonyAPI 1.0
-import SonyLiveview 1.0
+//import Process 1.0
+//import SonyAPI 1.0
+//import SonyLiveview 1.0
 import ProcessPhotos 1.0
 import PrintPhotos 1.0
-import CSVFile 1.0
-import Firebase 1.0
+//import CSVFile 1.0
+//import Firebase 1.0
 //import MoveMouse 1.0
-
+import QtQuick.VirtualKeyboard 2.13
+import QtQuick.VirtualKeyboard.Styles 2.13
+import QtQuick.VirtualKeyboard.Settings 2.13
+//import QRGenerator 1.0
 
 Window {
     id: mainWindow
@@ -49,20 +52,19 @@ Window {
     property string refreshToken
     property real photoAspectRatio: 3/2
 
+
     Settings {
         id: mainSettings
         property alias x: mainWindow.x
         property alias y: mainWindow.y
-        property alias lastCombinedPhoto: mainWindow.lastCombinedPhoto
+//        property alias lastCombinedPhoto: mainWindow.lastCombinedPhoto
 //        property alias username: mainWindow.username
 //        property alias password: mainWindow.password
 //        property alias rememberMe: rememberMeCheckBox.checked
         property alias idToken: mainWindow.idToken
         property alias refreshToken: mainWindow.refreshToken
+        property alias visibility: mainWindow.visibility
     }
-
-
-
 
     // function to assist in scaling with different resolutions and dpi
     function toPixels(percentage) {
@@ -72,7 +74,6 @@ Window {
     function pixel(pixel) {
         return pixel * 4
     }
-
 
     function getFileName(path) {
         var pathstring = String(path)
@@ -98,62 +99,52 @@ Window {
         return filePrefix.concat(path)
     }
 
-    Process {
-        id: process
+    function getQrImage() {
+        qrImage.source = "https://api.qrserver.com/v1/create-qr-code/?margin=5&size=150x150&data=" + settings.albumUrl
     }
 
+//    Process {
+//        id: process
+//    }
 
-    Firebase {
-        id: firebase
+//    Firebase {
+//        id: firebase
 
-        idToken: mainWindow.idToken
-        refreshToken: mainWindow.refreshToken
+//        idToken: mainWindow.idToken
+//        refreshToken: mainWindow.refreshToken
 
-        onUserAuthenticated: {
-            mainWindow.idToken = idToken
-            mainWindow.refreshToken = refreshToken
-        }
+//        onUserAuthenticated: {
+//            mainWindow.idToken = idToken
+//            mainWindow.refreshToken = refreshToken
+//        }
 
-        onUserNotAuthenticated: {
-            toast.show(msg)
-        }
+//        onUserNotAuthenticated: {
+//            toast.show(msg)
+//        }
 
-        onUserInfoReceived: {
-            toast.show("Login successful")
-            loadingBar.running = false
-            loginPopup.close()
-
-
-        }
-
-    }
+//        onUserInfoReceived: {
+//            toast.show("Login successful")
+//            loadingBar.running = false
+//            loginPopup.close()
 
 
-    CSVFile {
-        id: csvFile
-        saveFolder: settings.emailFolder
-    }
+//        }
 
+//    }
 
-//    Text {
-//        text: Screen.pixelDensity
-//        color: "white"
+//    CSVFile {
+//        id: csvFile
+//        saveFolder: settings.saveFolder
 //    }
 
 
 
-    // email list
-    ListModel {
-        id: emailList
-
-    }
 
     // a list model for storing photo paths
     ListModel {
         id: photoList
 
     }
-
 
     // print class to print photos
     PrintPhotos {
@@ -162,20 +153,16 @@ Window {
     }
 
 
+    Timer {
+        id: initialTimer2
+        interval: 2000
+        running: true
+        repeat: false
 
-
-
-//    Timer {
-//        id: initialTimer2
-//        interval: 1000
-//        running: false
-//        repeat: false
-
-//        onTriggered: {
-////            liveView.start()
-//            liveView.visible = settings.showLiveVideoOnCountdownSwitch
-//        }
-//    }
+        onTriggered: {
+            getQrImage()
+        }
+    }
 
 
 
@@ -335,18 +322,88 @@ Window {
 //        visible: true
 //    }
 
+//    QRGenerator {
+//        id: qrGenerator
+
+//        onReceivedQrCode: {
+//            console.log(imgPath)
+//            qrImage.source = addFilePrefix(imgPath)
+//        }
+//    }
+
+    Image {
+        id: qrImage
+        source: ""
+        x: pixel(5)
+        y: pixel(5)
+        width: pixel(30)
+        height: pixel(30)
+        fillMode: Image.PreserveAspectFit
+        z: 1
+        visible: scale > 0.1 ? true : false
+        scale: swipeview.currentIndex in [0, 1] ? 1 : 0
+//        PinchArea {
+//            id: imagePinchArea
+//            anchors.fill: parent
+//            pinch.target: qrImage
+////            pinch.minimumRotation: -360
+////            pinch.maximumRotation: 360
+//            pinch.minimumScale: 1
+//            pinch.maximumScale: 4
+//            pinch.dragAxis: Pinch.XAndYAxis
+//        }
+
+        MouseArea {
+            id: imageMouseArea
+            anchors.fill: parent
+            hoverEnabled: true
+            drag.target: qrImage
+            visible: qrImage.visible
+        }
+
+
+
+
+        Behavior on scale {
+            NumberAnimation{
+                duration: 400
+                easing.type: Easing.OutQuad
+            }
+        }
+
+//        anchors {
+//            left: parent.left
+//            top: parent.top
+//            margins: pixel(5)
+//        }
+    }
 
     // ==== SWIPEVIEW ====
     SwipeView {
         id: swipeview
         currentIndex: 1
         anchors.fill: parent
+        interactive: !captureView.captureToolbar.locked
+
+
+        onCurrentIndexChanged: {
+            if (swipeview.currentIndex == 1) {
+                if (captureView.mediaPlayer.playbackState == MediaPlayer.PausedState) {
+                    captureView.mediaPlayer.play()
+                }
+            }
+            else {
+                if (captureView.mediaPlayer.playbackState == MediaPlayer.PlayingState) {
+                    captureView.mediaPlayer.pause()
+                }
+            }
+        }
 
         Item {
             Gallery {
                 id: gallery
                 anchors.fill: parent
-                folder: addFilePrefix(settings.printFolder)
+                folder: addFilePrefix(settings.saveFolder + "/Prints")
             }
         }
 
@@ -366,39 +423,137 @@ Window {
 
     }
 
-    //==== VIRTUAL KEYBOARD ====
-//    InputPanel {
-//        id: inputPanel
-//        z: 99
-//        x: 0
-//        y: root.height
-//        width: root.width
 
-//        states: State {
-//            name: "visible"
-//            when: inputPanel.active
-//            PropertyChanges {
-//                target: inputPanel
-//                y: root.height - inputPanel.height
-//            }
-//        }
-//        transitions: Transition {
-//            from: ""
-//            to: "visible"
-//            reversible: true
-//            ParallelAnimation {
-//                NumberAnimation {
-//                    properties: "y"
-//                    duration: 250
-//                    easing.type: Easing.InOutQuad
-//                }
-//            }
-//        }
-//    }
+    Component {
+        id: toastDelegate
 
-    ToastManager {
-        id: toast
+        Button {
+            id: button
+            text: msg
+            width: parent.width
+            font.pixelSize: pixel(10)
+            font.capitalization: Font.MixedCase
+            icon.width: height
+            icon.height: height
+            icon.source: "qrc:/icon/capture"
+            display: Button.TextBesideIcon
+
+            anchors {
+                horizontalCenter: parent.horizontalCenter
+            }
+
+            Timer {
+                id: buttonTimer
+                interval: toast.showTime
+                repeat: false
+                running: true
+                onTriggered: {
+//                    console.log("Removing " + index)
+                    toastList.remove(index)
+                }
+            }
+
+
+            NumberAnimation {
+                target: button
+                running: true
+                loops: 1
+                properties: "opacity, scale"
+                from: 0.5
+                to: 1.0
+                duration: 100
+                easing.type: Easing.OutQuad
+            }
+
+        }
     }
+
+    // toast
+    ListView {
+        id: toast
+        z: 10
+        model: toastList
+        delegate: toastDelegate
+        width: pixel(140)
+        height: pixel(100)
+//        visible: toastList.count > 0
+
+        ListModel {
+            id: toastList
+        }
+
+
+        property real iconSize: pixel(10)
+        property int showTime: 3000
+
+        function show(msg) {
+            toastList.append({"msg": msg})
+        }
+
+        anchors {
+            verticalCenter: parent.verticalCenter
+            verticalCenterOffset: pixel(100)
+            horizontalCenter: parent.horizontalCenter
+        }
+
+        populate: Transition {
+            NumberAnimation {
+                properties: "x, y"
+                duration: 400
+                easing.type: Easing.OutQuad
+            }
+        }
+
+//        add: Transition {
+//            PropertyAnimation {
+//                properties: "opacity, scale"
+//                from: 0.8
+//                to: 1.1
+//                duration: 200
+//                easing.type: Easing.OutQuad
+//            }
+
+//        }
+
+        addDisplaced: Transition {
+            NumberAnimation {
+                properties: "x, y"
+                duration: 400
+                easing.type: Easing.OutQuad
+            }
+        }
+
+        remove: Transition {
+            NumberAnimation {
+                properties: "opacity"
+                from: 1
+                to: 0
+                duration: 400
+                easing.type: Easing.OutQuad
+            }
+        }
+
+        removeDisplaced: Transition {
+            NumberAnimation {
+                properties: "x, y"
+                duration: 400
+                easing.type: Easing.OutQuad
+            }
+        }
+
+        move: Transition {
+            NumberAnimation {
+                properties: "x, y"
+                duration: 400
+                easing.type: Easing.OutQuad
+            }
+        }
+
+
+
+
+    }
+
 
 
     // ==== TAB BAR STUFF ====
@@ -410,6 +565,7 @@ Window {
         anchors.horizontalCenter: parent.horizontalCenter
         Material.elevation: 1
         opacity: 1
+        z: 5
         background: Rectangle {
             color: Material.background
             radius: pixel(3)
@@ -420,7 +576,7 @@ Window {
         TabButton {
             text: "Gallery"
             width: implicitWidth
-            icon.source: "qrc:/Images/play_circle_filled_white_white_48dp.png"
+            icon.source: "qrc:/icon/photo_library"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly
@@ -433,19 +589,21 @@ Window {
         TabButton {
             text: "Capture"
             width: implicitWidth
-            icon.source: "qrc:/Images/camera_white_48dp.png"
+            icon.source: "qrc:/icon/capture"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly
 
             onClicked: {
                 swipeview.currentIndex = 1
+
             }
         }
         TabButton {
             text: "Settings"
             width: implicitWidth
-            icon.source: "qrc:/Images/settings_white_48dp.png"
+            enabled: captureView.captureToolbar.locked? false : true
+            icon.source: "qrc:/icon/settings"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly
@@ -454,10 +612,6 @@ Window {
                 swipeview.currentIndex = 2
             }
         }
-
-
-
-
     }
 
 }

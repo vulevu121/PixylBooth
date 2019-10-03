@@ -11,39 +11,75 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QStringList>
+#include <QAbstractItemModel>
+#include <QThread>
 
 class ProcessPhotos : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString saveFolder READ saveFolder WRITE setSaveFolder)
-    Q_PROPERTY(QString templateFormat READ templateFormat WRITE setTemplateFormat)
-    Q_PROPERTY(QString templatePath READ templatePath WRITE setTemplatePath)
+    Q_PROPERTY(QString saveFolder READ getSaveFolder WRITE setSaveFolder)
+    Q_PROPERTY(QString templateFormat READ getTemplateFormat WRITE setTemplateFormat)
+    Q_PROPERTY(QString templatePath READ getTemplatePath WRITE setTemplatePath)
+    Q_PROPERTY(QAbstractItemModel *model READ getModel WRITE setModel)
 
 public:
     explicit ProcessPhotos(QObject *parent = nullptr);
 
-    QString saveFolder();
+    QString getSaveFolder();
     void setSaveFolder(const QString &saveFolder);
 
-    QString templateFormat();
+    QString getTemplateFormat();
     void setTemplateFormat(const QString &templateFormat);
 
-    QString templatePath();
+    QString getTemplatePath();
     void setTemplatePath(const QString &templatePath);
 
+    QAbstractItemModel *getModel();
+    void setModel(QAbstractItemModel *model);
+
 signals:
+    void combineFinished(const QString &outputPath);
+    void operate();
 
 public slots:
-    QString combine(const QString &photoPaths);
-    void testTemplate();
+    void combine();
+    void emitCombineFinished(const QString &outputPath);
 
 private:
     QString m_saveFolder;
     QString m_templateFormat;
     QString m_templatePath;
     QJsonArray templateJsonArray;
-    QStringList photoPathsList;
+    QAbstractItemModel *m_model;
+};
+
+
+// ==================================================================
+
+class CombineThread : public QThread
+{
+    Q_OBJECT
+
+public:
+    CombineThread(QObject *parent = nullptr);
+    void run() override;
+
+    QString m_saveFolder;
+    QString m_templateFormat;
+    QString m_templatePath;
+    QJsonArray templateJsonArray;
+    QAbstractItemModel *m_model;
+
+signals:
+    void combineFinished(const QString &outputPath);
+
+public slots:
+
+
+private:
 
 };
+
+
 
 #endif // PROCESSPHOTOS_H

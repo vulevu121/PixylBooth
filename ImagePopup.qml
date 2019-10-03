@@ -52,7 +52,7 @@ Popup {
         Button {
             id: printButton
             text: qsTr("Print")
-            icon.source: "qrc:/Images/print_white_48dp.png"
+            icon.source: "qrc:/icon/print"
             icon.width: iconSize
             icon.height: iconSize
             display: AbstractButton.TextUnderIcon
@@ -66,7 +66,7 @@ Popup {
         }
         Button {
             text: qsTr("Email")
-            icon.source: "qrc:/Images/email_white_48dp.png"
+            icon.source: "qrc:/icon/email"
             icon.width: iconSize
             icon.height: iconSize
             display: AbstractButton.TextUnderIcon
@@ -83,7 +83,7 @@ Popup {
         Button {
             id: closeButton
             text: "Close"
-            icon.source: "qrc:/Images/clear_white_48dp.png"
+            icon.source: "qrc:/icon/close"
             icon.width: iconSize
             icon.height: iconSize
             display: AbstractButton.TextUnderIcon
@@ -179,7 +179,7 @@ Popup {
                 Button {
                     id: emailSendButton
                     text: "Send"
-                    icon.source: "qrc:/Images/send_white_48dp.png"
+                    icon.source: "qrc:/icon/send"
                     icon.width: iconSize
                     icon.height: iconSize
                     display: AbstractButton.TextBesideIcon
@@ -227,10 +227,10 @@ Popup {
                 ListModel {
                     id: autoCompleteListModel
 
-                    ListElement {
-                        filePath: "filePath"
-                        email: "email"
-                    }
+//                    ListElement {
+//                        filePath: "filePath"
+//                        email: "email"
+//                    }
                 }
 
 

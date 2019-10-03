@@ -101,7 +101,7 @@ Rectangle {
                         height: itemHeight
                         Image {
                             id: folderPicture
-                            source: folders.isFolder(index) ? "qrc:/Images/folder_white_48dp.png" : "qrc:/Images/file_white_48dp.png"
+                            source: folders.isFolder(index) ? "qrc:/icon/file" : "qrc:/icon/folder"
                             width: itemHeight * 0.9
                             height: itemHeight * 0.9
                             anchors.left: parent.left
@@ -302,7 +302,7 @@ Rectangle {
                             width: itemHeight
                             height: itemHeight
                             anchors.centerIn: parent
-                            source: "qrc:/Images/back_white_48dp.png"
+                            source: "qrc:/icon/back"
                         }
                         MouseArea { id: upRegion; anchors.centerIn: parent
                             width: buttonHeight

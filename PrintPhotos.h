@@ -28,7 +28,7 @@ public:
 signals:
 
 public slots:
-    void printPhoto(const QString &photoPath, int copyCount);
+    void printPhoto(const QString &photoPath, int copyCount, bool printCanvas);
     QString getPrinterName(QString const &printerName);
 
 private:
@@ -44,7 +44,7 @@ class PrintThread : public QThread
 {
     Q_OBJECT
 public:
-    PrintThread(const QString &photoPath, const QString &printerName, int copyCount, QObject *parent = nullptr);
+    PrintThread(const QString &photoPath, const QString &printerName, int copyCount, bool printCanvas, QObject *parent = nullptr);
     void run() override;
 
 signals:
@@ -52,10 +52,11 @@ signals:
 public slots:
 
 private:
-    QString photoPath;
-    QString printerName;
-    QString saveFolder;
-    int copyCount;
+    QString photoPath = "";
+    QString printerName = "";
+    QString saveFolder = "";
+    int copyCount = 0;
+    bool printCanvas = false;
 };
 
 #endif // PRINTPHOTOS_H

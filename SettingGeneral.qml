@@ -1,8 +1,8 @@
 import QtQuick 2.12
-import QtQuick.Window 2.2
+import QtQuick.Window 2.12
 import QtQuick.VirtualKeyboard 2.2
-import QtQuick.Controls.Styles 1.4
-import QtQuick.Controls 2.5
+import QtQuick.Controls 2.12
+import QtQuick.Controls.Styles 1.2
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1
@@ -16,10 +16,13 @@ import QtMultimedia 5.8
 Item {
     id: root
     property alias templateImagePath: templateImageField.text
-    property alias printFolder: printFolderField.text
+//    property alias printFolder: printFolderField.text
     property alias saveFolder: saveFolderField.text
-    property alias emailFolder: emailFolderField.text
+//    property alias emailFolder: emailFolderField.text
     property alias displayScale: displayScalingButton.value
+    property alias lockPin: lockPinTextField.text
+    property alias qrImagePath: qrField.text
+    property alias albumUrl: albumUrlField.text
 
     property alias bgColor: bgColorRectangle.color
     property alias countDownColor: countDownColorRectangle.color
@@ -38,10 +41,13 @@ Item {
     property alias autoPrintCopies: autoPrintCopies.value
     property alias printCopiesPerSession: printCopiesPerSessionButton.value
 
-    property string lastFolder: "file:///Users/Vu/Documents/PixylBooth/Videos"
+//    property string lastFolder: "file:///Users/Vu/Documents/PixylBooth/Videos"
     property alias startVideoPlaylist: startVideoPlaylist
     property alias beforeCaptureVideoPlaylist: beforeCapturePlaylist
     property alias afterCaptureVideoPlaylist: afterCaptureVideoPlaylist
+    property alias processingVideosPlaylist: processingVideoPlaylist
+    property alias printingVideosPlaylist: printingVideoPlaylist
+    property alias signingVideosPlaylist: signingVideosPlaylist
 
     property real rowHeight: pixel(6)
     property real textSize: pixel(4)
@@ -51,7 +57,23 @@ Item {
     property real numberPhotos
     property string templateFormat
     property real buttonHeight: pixel(12)
-    property string cameraDeviceId: "deviceId"
+
+    property alias emojiFolder: emojiFolderField.text
+//    property alias canvasSaveFolder: canvasSaveFolderField.text
+
+    function loadPlaylist(playlist, playlistString) {
+        if (String(playlistString).length == 0) return;
+        playlist.clear()
+        var datamodel = JSON.parse(playlistString)
+        for (var i = 0 ; i < datamodel.length ; i++) playlist.addItem(datamodel[i])
+    }
+
+    function getPlaylistString(playlist) {
+        var datamodel = []
+        for (var i = 0 ; i < playlist.itemCount ; i++) datamodel.push(playlist.itemSource(i))
+        return JSON.stringify(datamodel)
+    }
+
 
     Settings {
         category: "General"
@@ -62,6 +84,7 @@ Item {
         property alias reviewTimer: reviewTimerButton.value
         property alias endSessionTimer: endSessionTimerButton.value
         property alias displayScale: displayScalingButton.value
+        property alias lockPin: lockPinTextField.text
 
     }
 
@@ -70,10 +93,13 @@ Item {
         id: profileSettings
         property alias saveFolder: saveFolderField.text
         property alias templateImagePath: templateImageField.text
-        property alias printFolder: printFolderField.text
-        property alias emailFolder: emailFolderField.text
+//        property alias printFolder: printFolderField.text
+//        property alias emailFolder: emailFolderField.text
         property alias templateFormat: root.templateFormat
         property alias numberPhotos: root.numberPhotos
+        property alias emojiFolder: emojiFolderField.text
+        property alias qrImagePath: qrField.text
+        property alias albumUrl: albumUrlField.text
     }
 
 
@@ -83,9 +109,9 @@ Item {
         property alias showLiveVideoOnStart: showLiveVideoOnStartSwitch.checked
         property alias showLiveVideoOnCountdown: showLiveVideoOnCountdownSwitch.checked
         property alias mirrorLiveVideo: mirrorLiveVideoSwitch.checked
-        property string cameraDeviceId
-        property alias cameraDeviceIdIndex: cameraDeviceIdCombo.currentIndex
-        property alias cameraDisplayName: cameraDeviceIdCombo.currentText
+//        property string cameraDeviceId
+//        property alias cameraDeviceIdIndex: cameraDeviceIdCombo.currentIndex
+//        property alias cameraDisplayName: cameraDeviceIdCombo.currentText
     }
 
 
@@ -109,11 +135,21 @@ Item {
     Settings {
         category: "Videos"
         id: videoSettings
-        property alias lastFolder: root.lastFolder
+        property string lastFolder
         property string startVideos
         property string beforeCaptureVideos
         property string afterCaptureVideos
+        property string processingVideos
+        property string printingVideos
+        property string signingVideos
     }
+
+//    Settings {
+//        category: "Canvas"
+//        id: canvasSettings
+//        property alias emojiFolder: emojiFolderField.text
+////        property alias canvasSaveFolder: canvasSaveFolderField.text
+//    }
 
 
     PrintPhotos {
@@ -125,28 +161,43 @@ Item {
         id: settingModel
         ListElement {
             name: "General"
-            icon: "qrc:/Images/settings_white_48dp.png"
+            icon: "qrc:/icon/settings"
+            view: "generalView"
         }
         ListElement {
             name: "Profile"
-            icon: "qrc:/Images/folder_shared_white_48dp.png"
+            icon: "qrc:/icon/profile"
+            view: "profileView"
         }
         ListElement {
             name: "Camera"
-            icon: "qrc:/Images/camera_alt_white_48dp.png"
-
+            icon: "qrc:/icon/camera"
+            view: "cameraView"
         }
         ListElement {
             name: "Color"
-            icon: "qrc:/Images/color_lens_white_48dp.png"
+            icon: "qrc:/icon/color"
+            view: "colorView"
         }
         ListElement {
             name: "Printer"
-            icon: "qrc:/Images/print_white_48dp.png"
+            icon: "qrc:/icon/print"
+            view: "printerView"
         }
         ListElement {
             name: "Video"
-            icon: "qrc:/Images/video_library_white_48dp.png"
+            icon: "qrc:/icon/video_library"
+            view: "videoView"
+        }
+        ListElement {
+            name: "Lighting"
+            icon: "qrc:/icon/light"
+            view: "lightingView"
+        }
+        ListElement {
+            name: "Canvas"
+            icon: "qrc:/icon/paint"
+            view: "canvasView"
         }
     }
 
@@ -156,6 +207,7 @@ Item {
             anchors.left: parent.left
             anchors.right: parent.right
             height: pixel(12)
+//            clip: true
 
             Row {
                 anchors.margins: pixel(5)
@@ -178,31 +230,18 @@ Item {
             }
             MouseArea {
                 anchors.fill: parent
+                z: 5
                 onClicked: {
+                    var viewList = [generalView, profileView, cameraView, colorView, printerView, videoView, lightingView, canvasView]
+                    stackView.replace(viewList[index])
                     listView.currentIndex = index
-                    if(index == 0 && stackView.currentItem != generalView) {
-                        stackView.replace(generalView)
-                    }
-                    else if(index == 1 && stackView.currentItem != profileView) {
-                        stackView.replace(profileView)
-                    }
-                    else if(index == 2 && stackView.currentItem != cameraView) {
-                        stackView.replace(cameraView)
-                    }
-                    else if(index == 3 && stackView.currentItem != colorView) {
-                        stackView.replace(colorView)
-                    }
-                    else if(index == 4 && stackView.currentItem != printerView) {
-                        stackView.replace(printerView)
-                    }
-                    else if(index == 5 && stackView.currentItem != videoView) {
-                        stackView.replace(videoView)
-                    }
                 }
             }
 
         }
     }
+
+
 
     Popup {
         id: filePopup
@@ -229,7 +268,7 @@ Item {
 
         VideoBrowser {
             id: fileBrowser
-            folder: root.lastFolder
+            folder: videoSettings.lastFolder
             anchors.fill: parent
 
             Component.onCompleted: {
@@ -238,40 +277,6 @@ Item {
             }
         }
 
-
-
-//        FileBrowser {
-//            id: startVideoBrowser
-//            folder: root.lastFolder
-//            anchors.fill: parent
-//            Component.onCompleted: {
-//                browserClosed.connect(filePopup.close)
-//                fileSelected.connect(filePopup.close)
-//                fileSelected.connect(startVideoPlaylist.addItem)
-//            }
-//        }
-
-//        FileBrowser {
-//            id: beforeCaptureVideoBrowser
-//            folder: root.lastFolder
-//            anchors.fill: parent
-//            Component.onCompleted: {
-//                browserClosed.connect(filePopup.close)
-//                fileSelected.connect(filePopup.close)
-//                fileSelected.connect(beforeCapturePlaylist.addItem)
-//            }
-//        }
-
-//        FileBrowser {
-//            id: afterCaptureVideoBrowser
-//            folder: root.lastFolder
-//            anchors.fill: parent
-//            Component.onCompleted: {
-//                browserClosed.connect(filePopup.close)
-//                fileSelected.connect(filePopup.close)
-//                fileSelected.connect(afterCaptureVideoPlaylist.addItem)
-//            }
-//        }
     }
 
     ColumnLayout {
@@ -298,7 +303,7 @@ Item {
                 height: pixel(3)
                 anchors.left: parent.left
                 anchors.top: parent.top
-                source: "qrc:/Images/corner.png"
+                source: "qrc:/corner"
                 visible: false
             }
 
@@ -308,7 +313,7 @@ Item {
                 height: pixel(3)
                 anchors.left: parent.left
                 anchors.bottom: parent.bottom
-                source: "qrc:/Images/corner.png"
+                source: "qrc:/corner"
                 rotation: 270
                 visible: false
             }
@@ -343,8 +348,9 @@ Item {
                     model: settingModel
                     anchors.fill: parent
                     delegate: settingDelegate
+                    highlightMoveDuration: 100               
                     highlight: Rectangle {
-                        color: "#222"
+                        color: Material.color(Material.Cyan, Material.Shade800)
                     }
 
                 }
@@ -504,6 +510,66 @@ Item {
                     }
 
 
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: qsTr("Lock PIN")
+                        subtitle: qsTr("Password to unlock main screen (unencrypted)")
+                    }
+
+                    TextField {
+                        id: lockPinTextField
+                        font.pixelSize: root.textSize
+                        Layout.fillWidth: true
+                        placeholderText: "Enter a PIN"
+                        echoMode: TextInput.Password
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        enabled: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        onEditingFinished: {
+                            keypad.visible = false
+                        }
+
+                        onPressed: {
+                            keypad.visible = true
+                        }
+                    }
+
+                    InputPanel {
+                        id: keypad
+                        visible: false
+                        Layout.fillWidth: true
+//                        implicitWidth: mainWindow.width * 0.9
+        //                implicitHeight: mainWindow.height * 0.5
+                    }
+
 
                     RowLayout {}
                 }
@@ -522,117 +588,17 @@ Item {
                         height: root.rowHeight
                         Layout.fillWidth: true
                         text: qsTr("Template Image")
-                        subtitle: "Location of template image"
+                        subtitle: "Path of template image for photos"
                     }
 
-                    TextField {
+                    PathField {
                         id: templateImageField
                         font.pixelSize: root.textSize
                         Layout.fillWidth: true
                         placeholderText: "Choose a template..."
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                templateImageFileDialog.open()
-                            }
-                        }
-
-                        FileDialog {
-                            id: templateImageFileDialog
-                            title: "Please select a template"
-                            nameFilters: ["Image Files (*.jpg *.png)"]
-                            onAccepted: {
-                                templateImageField.text = stripFilePrefix(String(fileUrl))
-                            }
-                        }
-                    }
-
-                    CustomLabel {
-                        height: root.rowHeight
-                        Layout.fillWidth: true
-                        text: qsTr("Save Folder")
-                        subtitle: "Location to save photos"
-                    }
-
-                    TextField {
-                        id: saveFolderField
-                        font.pixelSize: root.textSize
-                        Layout.fillWidth: true
-                        placeholderText: "Choose a save folder..."
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                folderDialog.open()
-                            }
-                        }
-
-                        FolderDialog {
-                            id: folderDialog
-                            title: "Please select save directory"
-                            onAccepted: {
-                                saveFolderField.text = stripFilePrefix(String(folder))
-                            }
-                        }
-                    }
-
-                    CustomLabel {
-                        height: root.rowHeight
-                        Layout.fillWidth: true
-                        text: qsTr("Print Folder")
-                        subtitle: "Location to save prints"
-                    }
-
-                    TextField {
-                        id: printFolderField
-                        font.pixelSize: root.textSize
-                        Layout.fillWidth: true
-                        placeholderText: "Choose a print folder..."
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                printFolderDialog.open()
-                            }
-                        }
-
-                        FolderDialog {
-                            id: printFolderDialog
-                            title: "Please select print directory"
-                            onAccepted: {
-                                printFolderField.text = stripFilePrefix(String(folder))
-                            }
-                        }
-                    }
-
-                    CustomLabel {
-                        height: root.rowHeight
-                        Layout.fillWidth: true
-                        text: qsTr("Email Folder")
-                        subtitle: "Location to save email list"
-                    }
-
-                    TextField {
-                        id: emailFolderField
-                        font.pixelSize: root.textSize
-                        Layout.fillWidth: true
-                        placeholderText: "Choose a email folder..."
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                emailFolderDialog.open()
-                            }
-                        }
-
-                        FolderDialog {
-                            id: emailFolderDialog
-                            title: "Please select email directory"
-                            onAccepted: {
-                                emailFolderField.text = stripFilePrefix(String(folder))
-                            }
-                        }
+                        title: "Please select a template"
+                        nameFilters: ["PNG Image Files (*.png)"]
+                        isFile: true
                     }
 
                     Button {
@@ -644,10 +610,194 @@ Item {
                         }
                     }
 
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: qsTr("QR Image")
+                        subtitle: "Path of QR Image"
+                    }
+
+                    PathField {
+                        id: qrField
+                        font.pixelSize: root.textSize
+                        placeholderText: "Select QR image"
+                        title: "Select QR image"
+                        nameFilters: ["PNG Image Files (*.png)"]
+                        isFile: true
+                        Layout.fillWidth: true
+                    }
+
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: qsTr("Album Link")
+                        subtitle: "Album URL for QR code generation"
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        TextField {
+                            id: albumUrlField
+                            font.pixelSize: root.textSize
+                            Layout.fillWidth: true
+
+                            placeholderText: "Enter album URL"
+                            selectByMouse: true
+
+                            onReleased: {
+                                contextMenu.open()
+                            }
+
+                            Menu {
+                                id: contextMenu
+
+                                MenuItem {
+                                    text: "Cut"
+
+                                    iconSource: "qrc:/icon/clear_black"
+                                    onTriggered: {
+                                        albumUrlField.cut()
+                                    }
+                                }
+
+                                MenuItem {
+                                    text: "Clear"
+
+                                    iconSource: "qrc:/icon/clear_black"
+                                    onTriggered: {
+                                        albumUrlField.clear()
+                                    }
+                                }
+                                MenuItem {
+                                    text: "Copy"
+                                    iconSource: "qrc:/icon/copy_black"
+                                    onTriggered: {
+                                        albumUrlField.selectAll()
+                                        albumUrlField.copy()
+                                    }
+                                }
+                                MenuItem {
+                                    text: "Clear 'n' Paste"
+                                    iconSource: "qrc:/icon/paste_black"
+                                    onTriggered: {
+                                        albumUrlField.clear()
+                                        albumUrlField.paste()
+                                    }
+                                }
+                            }
+                        }
+                        Button {
+                            icon.source: "qrc:/icon/check"
+                            onClicked: {
+                                getQrImage()
+                            }
+                        }
+                    }
+
+
+
+
+
+
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: qsTr("Save Folder")
+                        subtitle: "Folder to save current session"
+                    }
+
+                    PathField {
+                        id: saveFolderField
+                        font.pixelSize: root.textSize
+                        Layout.fillWidth: true
+                        placeholderText: "Choose a save folder..."
+                        title: "Please select save directory"
+                        isFile: false
+
+                        onDialogOk: {
+                            captureView.sonyRemote.saveFolder = saveFolderField.text + "/Camera"
+//                            captureView.sonyRemote.restart()
+                        }
+
+                    }
+
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: qsTr("Emojis Folder")
+                        subtitle: "Folder of emojis"
+                    }
+
+                    PathField {
+                        id: emojiFolderField
+                        font.pixelSize: root.textSize
+                        Layout.fillWidth: true
+                        placeholderText: "Choose an emoji folder..."
+                        title: "Please select emoji folder"
+                        isFile: false
+
+                    }
+
+
+
+
+
+//                    TextField {
+//                        id: emojiFolderField
+//                        font.pixelSize: root.textSize
+//                        Layout.fillWidth: true
+//                        placeholderText: "Choose an emoji folder..."
+
+//                        MouseArea {
+//                            anchors.fill: parent
+//                            onClicked: {
+//                                emojiFolderFolderDialog.open()
+//                            }
+//                        }
+
+//                        FolderDialog {
+//                            id: emojiFolderFolderDialog
+//                            title: "Please select directory"
+//                            onAccepted: {
+//                                emojiFolderField.text = stripFilePrefix(String(folder))
+//                            }
+//                        }
+//                    }
+
+//                    CustomLabel {
+//                        height: root.rowHeight
+//                        Layout.fillWidth: true
+//                        text: qsTr("Canvas Save Folder")
+//                        subtitle: "Folder to save guest's canvas"
+//                    }
+
+//                    TextField {
+//                        id: canvasSaveFolderField
+//                        font.pixelSize: root.textSize
+//                        Layout.fillWidth: true
+//                        placeholderText: "Choose a save folder..."
+
+//                        MouseArea {
+//                            anchors.fill: parent
+//                            onClicked: {
+//                                canvasSaveDialog.open()
+//                            }
+//                        }
+
+//                        FolderDialog {
+//                            id: canvasSaveDialog
+//                            title: "Please select directory"
+//                            onAccepted: {
+//                                canvasSaveFolderField.text = stripFilePrefix(String(folder))
+//                            }
+//                        }
+//                    }
+
                     RowLayout {}
 
                 }
             }
+
             Item {
                 id: cameraView
                 visible: false
@@ -662,9 +812,11 @@ Item {
                         subtitle: "Shows live video on start screen"
                         height: root.rowHeight
                         Layout.fillWidth: true
+                        visible: false
                     }
                     Switch {
                         id: showLiveVideoOnStartSwitch
+                        visible: false
                     }
 
                     CustomLabel {
@@ -672,9 +824,11 @@ Item {
                         subtitle: "Shows live video during countdown"
                         height: root.rowHeight
                         Layout.fillWidth: true
+                        visible: false
                     }
                     Switch {
                         id: showLiveVideoOnCountdownSwitch
+                        visible: false
                     }
 
                     CustomLabel {
@@ -682,9 +836,11 @@ Item {
                         subtitle: "Trigger camera shutter automatically"
                         height: root.rowHeight
                         Layout.fillWidth: true
+                        visible: false
                     }
                     Switch {
                         id: autoTriggerSwitch
+                        visible: false
                     }
 
                     CustomLabel {
@@ -698,84 +854,7 @@ Item {
                         id: mirrorLiveVideoSwitch
                     }
 
-//                    SpinBox {
-//                        value: 9
-//                    }
 
-//                    SpinBox {
-//                        value: 10
-
-//                        up.indicator: Rectangle {
-//                            height: parent.height - pixel(3)
-//                            width: height
-//                            implicitWidth: 40
-//                            implicitHeight: 40
-//                            color: "#808080"
-//                            radius: height / 2
-
-//                            anchors {
-//                                left: parent.left
-//                                verticalCenter: parent.verticalCenter
-//                            }
-
-//                            Text {
-//                                text: "-"
-//                                font.pixelSize: parent.height
-//                                color: "#ffffff"
-//                                anchors.fill: parent
-//                                fontSizeMode: Text.Fit
-//                                horizontalAlignment: Text.AlignHCenter
-//                                verticalAlignment: Text.AlignVCenter
-//                            }
-//                        }
-
-//                        down.indicator: Rectangle {
-//                            height: parent.height - pixel(3)
-//                            width: height
-//                            implicitWidth: 40
-//                            implicitHeight: 40
-//                            color: "#808080"
-//                            radius: height / 2
-
-//                            anchors {
-//                                right: parent.right
-//                                verticalCenter: parent.verticalCenter
-//                            }
-
-//                            Text {
-//                                text: "+"
-//                                font.pixelSize: parent.height
-//                                color: "#ffffff"
-//                                anchors.fill: parent
-//                                fontSizeMode: Text.Fit
-//                                horizontalAlignment: Text.AlignHCenter
-//                                verticalAlignment: Text.AlignVCenter
-//                            }
-//                        }
-
-
-//                        background: Rectangle {
-//                            color: Material.background
-//                            radius: height / 2
-//                        }
-//                    }
-
-                    ComboBox {
-                        id: cameraDeviceIdCombo
-                        Layout.fillWidth: true
-
-                        model: QtMultimedia.availableCameras
-                        textRole: "displayName"
-                        displayText: "Liveview: " + currentText
-                        delegate: ItemDelegate {
-                            text: modelData.displayName
-
-                            onClicked: {
-                                cameraSettings.cameraDeviceId = modelData.deviceId
-                            }
-                        }
-
-                    }
 
 
                     RowLayout {}
@@ -972,35 +1051,6 @@ Item {
                 id: videoView
                 visible: false
 
-                Component.onCompleted: {
-                    var playlists = [startVideoPlaylist, beforeCapturePlaylist, afterCaptureVideoPlaylist]
-                    var playlistsString = [videoSettings.startVideos, videoSettings.beforeCaptureVideos, videoSettings.afterCaptureVideos]
-
-                    for (var j = 0 ; j < playlists.length ; j++) {
-                        playlists[j].clear()
-                        var datamodel = JSON.parse(playlistsString[j])
-                        for (var i = 0 ; i < datamodel.length ; i++) playlists[j].addItem(datamodel[i])
-                    }
-
-                }
-
-                Component.onDestruction: {
-
-                    var playlists = [startVideoPlaylist, beforeCapturePlaylist, afterCaptureVideoPlaylist]
-                    var playlistsString = [videoSettings.startVideos, videoSettings.beforeCaptureVideos, videoSettings.afterCaptureVideos]
-
-                    for (var j = 0 ; j < playlists.length ; j++) {
-                        var datamodel = []
-                        for (var i = 0 ; i < playlists[j].itemCount ; i++) datamodel.push(playlists[j].itemSource(i))
-
-                        if (j === 0) videoSettings.startVideos = JSON.stringify(datamodel)
-                        else if (j === 1) videoSettings.beforeCaptureVideos = JSON.stringify(datamodel)
-                        else if (j === 2) videoSettings.afterCaptureVideos = JSON.stringify(datamodel)
-                    }
-
-                }
-
-
                 Playlist {
                     id: startVideoPlaylist
                     playbackMode: Playlist.Random
@@ -1016,6 +1066,21 @@ Item {
                     playbackMode: Playlist.Random
                 }
 
+                Playlist {
+                    id: processingVideoPlaylist
+                    playbackMode: Playlist.Random
+                }
+
+                Playlist {
+                    id: printingVideoPlaylist
+                    playbackMode: Playlist.Random
+                }
+
+                Playlist {
+                    id: signingVideosPlaylist
+                    playbackMode: Playlist.Random
+                }
+
 
                 ColumnLayout {
                     anchors.fill: parent
@@ -1023,35 +1088,31 @@ Item {
                     anchors.margins: root.columnMargins
 
                     VideoList {
-                        id: startVideoList
                         Layout.fillWidth: true
                         title: "Start Videos"
-                        model: startVideoPlaylist
+                        playlist: startVideoPlaylist
 
-
-                        addButton.onClicked: {
-                            filePopup.open()
-                            fileBrowser.playlist = startVideoPlaylist
+                        onSaveRequest: {
+                            videoSettings.startVideos = getPlaylistString(startVideoPlaylist)
                         }
 
-                        clearButton.onClicked: {
-                            startVideoPlaylist.clear()
+                        Component.onCompleted: {
+                            loadPlaylist(startVideoPlaylist, videoSettings.startVideos)
                         }
+
                     }
 
                     VideoList {
-                        id: beforeCaptureVideoList
                         Layout.fillWidth: true
                         title: "Before Capture Videos"
-                        model: beforeCapturePlaylist
+                        playlist: beforeCapturePlaylist
 
-                        addButton.onClicked: {
-                            filePopup.open()
-                            fileBrowser.playlist = beforeCapturePlaylist
+                        onSaveRequest: {
+                            videoSettings.beforeCaptureVideos = getPlaylistString(beforeCapturePlaylist)
                         }
 
-                        clearButton.onClicked: {
-                            beforeCapturePlaylist.clear()
+                        Component.onCompleted: {
+                            loadPlaylist(beforeCapturePlaylist, videoSettings.beforeCaptureVideos)
                         }
 
                     }
@@ -1060,14 +1121,59 @@ Item {
                         id: afterCaptureVideoCaptureList
                         Layout.fillWidth: true
                         title: "After Capture Videos"
-                        model: afterCaptureVideoPlaylist
+                        playlist: afterCaptureVideoPlaylist
 
-                        addButton.onClicked: {
-                            filePopup.open()
-                            fileBrowser.playlist = afterCaptureVideoPlaylist
+                        onSaveRequest: {
+                            videoSettings.afterCaptureVideos = getPlaylistString(afterCaptureVideoPlaylist)
                         }
-                        clearButton.onClicked: {
-                            afterCaptureVideoPlaylist.clear()
+
+                        Component.onCompleted: {
+                            loadPlaylist(afterCaptureVideoPlaylist, videoSettings.afterCaptureVideos)
+                        }
+
+                    }
+
+                    VideoList {
+                        Layout.fillWidth: true
+                        title: "Processing Videos"
+                        playlist: processingVideoPlaylist
+
+                        onSaveRequest: {
+                            videoSettings.processingVideos = getPlaylistString(processingVideoPlaylist)
+                        }
+
+                        Component.onCompleted: {
+                            loadPlaylist(processingVideoPlaylist, videoSettings.processingVideos)
+                        }
+
+                    }
+
+                    VideoList {
+                        Layout.fillWidth: true
+                        title: "Printing Videos"
+                        playlist: printingVideoPlaylist
+
+                        onSaveRequest: {
+                            videoSettings.printingVideos = getPlaylistString(printingVideoPlaylist)
+                        }
+
+                        Component.onCompleted: {
+                            loadPlaylist(printingVideoPlaylist, videoSettings.printingVideos)
+                        }
+
+                    }
+
+                    VideoList {
+                        Layout.fillWidth: true
+                        title: "Signing Videos"
+                        playlist: signingVideosPlaylist
+
+                        onSaveRequest: {
+                            videoSettings.signingVideos = getPlaylistString(signingVideosPlaylist)
+                        }
+
+                        Component.onCompleted: {
+                            loadPlaylist(signingVideosPlaylist, videoSettings.signingVideos)
                         }
 
                     }
@@ -1076,6 +1182,53 @@ Item {
 
             }
 
+            Item {
+                id: lightingView
+                visible: false
+
+//                ColumnLayout {
+//                    anchors.fill: parent
+//                    spacing: root.spacing
+//                    anchors.margins: root.columnMargins
+
+//                    CustomLabel {
+//                        text: "Serial COM Port"
+//                        subtitle: "COM port number for serial communication"
+//                        height: root.rowHeight
+//                        Layout.fillWidth: true
+//                    }
+
+//                    ComboBox {
+//                        model: ListModel {
+//                            ListElement { text: "COM1" }
+//                            ListElement { text: "COM2" }
+//                            ListElement { text: "COM3" }
+//                        }
+//                    }
+
+
+//                    RowLayout {}
+//                }
+
+
+
+            }
+
+            Item {
+                id: canvasView
+                visible: false
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    spacing: root.spacing
+                    anchors.margins: root.columnMargins
+
+
+
+                    RowLayout {}
+
+                }
+            }
         }
 
     }

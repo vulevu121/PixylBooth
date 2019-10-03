@@ -13,6 +13,8 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 
+#include "Windows.h"
+
 class SonyAPI : public QObject
 {
     Q_OBJECT
@@ -63,8 +65,11 @@ private:
     QString m_saveFolder;
     QString m_fileName;
     bool m_readyFlag = true;
+    QString urlString = "";
     QNetworkAccessManager *manager = nullptr;
     QNetworkAccessManager *downloadManager = nullptr;
+    int maxRetries = 3;
+    int currentRetry = 0;
 };
 
 #endif // SONYAPI_H

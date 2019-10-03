@@ -4,26 +4,24 @@ import QtQuick.VirtualKeyboard 2.2
 import QtQuick.Controls.Styles 1.4
 import QtQuick.Controls 2.5
 import QtQuick.Controls.Material 2.12
-import QtQuick.Layouts 1.3
-import Qt.labs.platform 1.1
-import QtQuick.Dialogs 1.3
-import Qt.labs.settings 1.1
+//import QtQuick.Layouts 1.3
+//import Qt.labs.platform 1.1
+//import QtQuick.Dialogs 1.3
+//import Qt.labs.settings 1.1
 import QtMultimedia 5.9
-import QtGraphicalEffects 1.0
-import Qt.labs.folderlistmodel 2.0
-import QtWebView 1.1
-import Process 1.0
-import SonyAPI 1.0
-import SonyLiveview 1.0
+//import QtGraphicalEffects 1.0
+//import Qt.labs.folderlistmodel 2.0
+//import QtWebView 1.1
 import ProcessPhotos 1.0
 import PrintPhotos 1.0
-import CSVFile 1.0
-import Firebase 1.0
+//import Firebase 1.0
+import SonyRemote 1.0
 
 Item {
-    id: root
+    id: captureView
 
-    property alias liveView: liveView
+//    property alias liveView: liveView
+    property alias sonyRemote: sonyRemote
     property alias mediaPlayer: mediaPlayer
     property alias countdown: countdown
 
@@ -32,86 +30,75 @@ Item {
     property alias endSession: endSession
     property alias captureToolbar: captureToolbar
 
-
-//    Settings {
-//        id: mainSettings
-//        property string cameraDeviceId
-//    }
-
-//    Settings {
-//        id: profileSettings
-//        property string templateImagePath
-//    }
-
-
-//    Settings {
-//        id: templateSettings
-//        category: "Template"
-//        property string templateFormat
-//        property real numberPhotos
-//    }
-
-//    Settings {
-//        id: cameraSettings
-//        category: "Camera"
-//        property string cameraDeviceId
-//    }
+    function capturePhoto() {
+        sonyRemote.actTakePicture()
+        toast.show("Capturing Photo " + (photoList.count+1) + " / " + settings.numberPhotos)
+    }
 
     function startState() {
-        sonyAPI.stop()
-        sonyAPI.start()
+//        toast.show("Start State")
+        console.log("[CaptureView] Start state")
+        captureToolbar.playing = false
+        sonyRemote.start()
+//        sonyAPI.stop()
+//        sonyAPI.start()
         playStartVideos()
-
         // clear photo list and timers before capture
         photoList.clear()
         stopAllTimers()
         resetCountdownTimer()
-
-        toast.show("Initializing Sony camera")
-
-        captureToolbar.playPauseButton.checked = false
-        root.state = "start"
+//        toast.show("Initializing Sony camera")
+        captureView.state = "start"
 //        liveView.stop()
 //        liveView.start()
-
     }
 
     function beforeCaptureState() {
+//        toast.show("Before Capture State")
+        console.log("[CaptureView] Before capture state")
         stopAllTimers()
-        sonyAPI.cancelHalfPressShutter()
+//        sonyAPI.cancelHalfPressShutter()
         playBeforeCaptureVideos()
         beforeCaptureTimer.restart()
-        root.state = "beforecapture"
+        captureView.state = "beforecapture"
     }
 
     function liveviewState() {
+//        toast.show("Liveview State")
+        console.log("[CaptureView] Liveview state")
         resetCountdownTimer()
         countdown.visible = true
         countdownTimer.restart()
         reviewImage.source = ""
-        root.state = "liveview"
-
+        captureView.state = "liveview"
     }
 
     function afterCaptureState() {
+//        toast.show("After Capture State")
+        console.log("[CaptureView] After capture state")
         playAfterCaptureVideos()
-        afterCaptureTimer.restart()
-        root.state = "afterCapture"
-
+//        afterCaptureTimer.restart()
+        captureView.state = "aftercapture"
     }
 
     function reviewState() {
+//        toast.show("Review State")
+        console.log("[CaptureView] Review state")
         reviewTimer.restart()
-        root.state = "review"
-
+        captureView.state = "review"
     }
 
     function endSessionState() {
-        endSessionPopup.source = addFilePrefix(lastCombinedPhoto)
-        endSessionPopup.open()
-        endSessionTimer.restart()
-        root.state = "endsession"
-        liveView.stop()
+//        toast.show("End Session State")
+        console.log("[CaptureView] End session state")
+//        playProcessingVideos()
+//        endSessionPopup.source = addFilePrefix(lastCombinedPhoto)
+//        endSessionPopup.open()
+//        endSessionTimer.restart()
+        captureView.state = "endsession"
+//        liveView.stop()
+        mediaPlayer.stop()
+
     }
 
     function stopAllTimers() {
@@ -121,6 +108,7 @@ Item {
         endSessionTimer.stop()
         countdownTimer.stop()
         actTakePictureTimer.stop()
+        console.log("[CaptureView] All timers stopped")
     }
 
     function resetCountdownTimer() {
@@ -141,8 +129,7 @@ Item {
         mediaPlayer.playlist = settings.beforeCaptureVideoPlaylist
         settings.beforeCaptureVideoPlaylist.next()
         mediaPlayer.play()
-        console.log('playBeforeCaptureVideos')
-
+        console.log("[CaptureView] Playing before capture videos")
     }
 
     function playAfterCaptureVideos() {
@@ -150,58 +137,70 @@ Item {
         mediaPlayer.playlist = settings.afterCaptureVideoPlaylist
         settings.afterCaptureVideoPlaylist.next()
         mediaPlayer.play()
-        console.log('playAfterCaptureVideos')
+        console.log("[CaptureView] Playing after capture videos")
+    }
+
+    function playProcessingVideos() {
+        mediaPlayer.stop()
+        mediaPlayer.playlist = settings.processingVideosPlaylist
+        settings.processingVideosPlaylist.next()
+        mediaPlayer.play()
+        console.log("[CaptureView] Playing processing videos")
     }
 
     function combinePhotos() {
-        // make the template as the first image in the list
-        var photos = ""
-
-        // iterate and append all the photos to the list string
-        var i
+        toast.show("Processing photos")
+        console.log("[CaptureView] Processing photos")
         if (photoList.count > 0) {
-
-            for(i = 0 ; i < photoList.count ; i++) {
-                photos = photos.concat(photoList.get(i).filePath)
-                if (i < photoList.count-1) {
-                    photos = photos.concat(";")
-                }
-            }
-
-            lastCombinedPhoto = processPhotos.combine(photos)
+            processPhotos.combine()
 //            console.log(lastCombinedPhoto)
         }
     }
 
     // Sony API to initialize camera, take picture, etc.
-    SonyAPI {
-        id: sonyAPI
-        saveFolder: settings.saveFolder
-        onActTakePictureCompleted: {
-            actTakePictureTimer.stop()
-            reviewImage.source = addFilePrefix(actTakePictureFilePath)
-            photoList.append({"fileName": getFileName(actTakePictureFilePath), "filePath": actTakePictureFilePath})
-            reviewState()
-        }
+//    SonyAPI {
+//        id: sonyAPI
+//        saveFolder: settings.saveFolder + "/Camera"
+//        onActTakePictureCompleted: {
+//            actTakePictureTimer.stop()
+//            reviewImage.source = addFilePrefix(actTakePictureFilePath)
+//            photoList.append({"filePath": actTakePictureFilePath})
+//            reviewState()
+//        }
 
-        onExposureSignal: {
-            exposureButton.value = exposure
-        }
+//        onExposureSignal: {
+//            exposureButton.value = exposure
+//        }
 
-    }
-
+//    }
 
     // process the photos into template
     ProcessPhotos {
         id: processPhotos
-        saveFolder: settings.printFolder
+        saveFolder: settings.saveFolder + "/Prints"
 
         templatePath: settings.templateImagePath
         templateFormat: settings.templateFormat
+
+        model: photoList
+
+        onCombineFinished: {
+            console.log("[ProcessPhotos]" + outputPath)
+            lastCombinedPhoto = outputPath
+
+            endSessionPopup.source = addFilePrefix(lastCombinedPhoto)
+            endSessionPopup.open()
+            endSessionTimer.restart()
+
+            if (settings.autoPrint) {
+                toast.show("Autoprinting photo!")
+                imagePrint.printPhoto(lastCombinedPhoto, settings.autoPrintCopies, false)
+            }
+            gallery.updateView()
+
+
+        }
     }
-
-
-
 
     // timer to initialize to a default state
     Timer {
@@ -212,6 +211,7 @@ Item {
 
         onTriggered: {
             startState()
+//            captureToolbar.locked = true
         }
     }
 
@@ -220,6 +220,7 @@ Item {
     Timer {
         id: beforeCaptureTimer
         interval: settings.beforeCaptureTimer * 1000
+        running: false
         repeat: false
 
         onTriggered: {
@@ -230,6 +231,7 @@ Item {
     // timer for after capture video
     Timer {
         id: afterCaptureTimer
+        running: false
         interval: settings.afterCaptureTimer * 1000
         repeat: false
 
@@ -247,20 +249,20 @@ Item {
         interval: 1000
 
         onTriggered: {
-            if (captureView.countdown.count == settings.countdownTimer - 1) {
-                sonyAPI.actHalfPressShutter()
+            if (captureView.countdown.count == settings.countdownTimer) {
+                sonyRemote.actHalfPressShutter()
+//                sonyAPI.actHalfPressShutter()
+                if (photoList.count+1 == settings.numberPhotos) {
+                    toast.show("Last one! Smile!")
+                }
+                toast.show("Wait for Flash!")
             }
-
-            if (captureView.countdown.count == 2) {
-                sonyAPI.cancelHalfPressShutter()
-            }
-
 
             if (captureView.countdown.count <= 0) {
+                capturePhoto()
+                afterCaptureState()
                 resetCountdownTimer()
-                // take a picture at end of countdown
-                sonyAPI.actTakePicture()
-                toast.show("Capturing photo " + (photoList.count+1))
+//                sonyAPI.actTakePicture()
                 actTakePictureTimer.restart()
             }
             else {
@@ -273,12 +275,12 @@ Item {
     // timeout after capture request is initiated, just in case
     Timer {
         id: actTakePictureTimer
-        interval: 5000
+        interval: 10000
+        running: false
         repeat: false
 
         onTriggered: {
-            sonyAPI.actTakePicture()
-            toast.show("Capturing photo " + (photoList.count+1))
+            capturePhoto()
         }
     }
 
@@ -286,36 +288,52 @@ Item {
     Timer {
         id: reviewTimer
         interval: settings.reviewTimer * 1000
+        running: false
         repeat: false
 
         onTriggered: {
             if (photoList.count < settings.numberPhotos) {
-//                beforeCaptureState()
-                afterCaptureState()
+                beforeCaptureState()
+//                afterCaptureState()
             } else {
                 combinePhotos()
+//                afterCaptureState()
                 endSessionState()
 
             }
         }
     }
 
-
-
     // timer for end of session to print and share photos
     Timer {
         id: endSessionTimer
+        running: false
         interval: settings.endSessionTimer * 1000
         repeat: false
 
         onTriggered: {
             endSessionPopup.close()
             startState()
-
         }
     }
 
+    Row {
+        z: 5
+        anchors {
+            top: parent.top
+            right: parent.right
+            margins: pixel(2)
+        }
+        spacing: pixel(2)
 
+        Label {
+            id: batteryPercentageLabel
+        }
+
+        Label {
+            id: evLabel
+        }
+    }
 
 
     UpDownButton {
@@ -324,6 +342,7 @@ Item {
         max: 15
         value: 0
         height: pixel(12)
+        visible: false
         z: 5
 
         anchors {
@@ -333,8 +352,9 @@ Item {
         }
 
         onValueChanged: {
-            sonyAPI.setExposureCompensation(exposureButton.value)
-            toast.show("Camera exposure set to " + exposureButton.value)
+            sonyRemote.setExposureCompensation(exposureButton.value)
+//            sonyAPI.setExposureCompensation(exposureButton.value)
+//            toast.show("Camera Exposure Set To " + exposureButton.value)
         }
 
         Timer {
@@ -344,31 +364,33 @@ Item {
             running: true
 
             onTriggered: {
-                sonyAPI.getExposureCompensation()
+                sonyRemote.getExposureCompensation()
+//                sonyAPI.getExposureCompensation()
             }
 
         }
 
     }
 
-    Timer {
-        id: autorunTimer
-        interval: 60000
-        repeat: true
-        running: autorunTimerSwitch.checked
+//    Timer {
+//        id: autorunTimer
+//        interval: 60000
+//        repeat: true
+//        running: autorunTimerSwitch.checked
 
-        triggeredOnStart: true
+//        triggeredOnStart: true
 
-        onTriggered: {
-            captureToolbar.playPauseButton.checked = true
-            captureToolbar.playPauseButton.clicked()
-        }
-    }
+//        onTriggered: {
+//            captureToolbar.playPauseButton.checked = true
+//            captureToolbar.playPauseButton.clicked()
+//        }
+//    }
 
-    Switch {
-        id: autorunTimerSwitch
-        z: 3
-    }
+//    Switch {
+//        id: autorunTimerSwitch
+//        z: 3
+//    }
+
 
     
     // ==== STATES ====
@@ -377,7 +399,8 @@ Item {
         State {
             name: "start"
             PropertyChanges {
-                target: liveView
+//                target: liveView
+                target: sonyRemote
                 opacity: settings.showLiveVideoOnStartSwitch ? 1 : 0
                 scale: 1
             }
@@ -401,7 +424,8 @@ Item {
         State {
             name: "liveview"
             PropertyChanges {
-                target: liveView
+//                target: liveView
+                target: sonyRemote
                 opacity: 1
                 scale: 1
                 width: mainWindow.width * 0.9
@@ -419,7 +443,7 @@ Item {
 
         // ==== after capture state ====
         State {
-            name: "afterCapture"
+            name: "aftercapture"
             PropertyChanges {
                 target: videoLoader
                 opacity: 1
@@ -441,7 +465,7 @@ Item {
         State {
             name: "endsession"
             PropertyChanges {
-                target: endSession
+                target: videoLoader
                 opacity: 1
                 scale: 1
             }
@@ -457,255 +481,96 @@ Item {
         }
     }
 
-    ImagePopup {
+    CanvasPopup {
         id: endSessionPopup
-        anchors.centerIn: parent
-        width: mainWindow.width * 0.9
-        height: width / photoAspectRatio
+        width: mainWindow.width
+        y: 0
 
-        Overlay.modal: GaussianBlur {
-            source: captureView
-            radius: 8
-            samples: 16
-            deviation: 3
+        saveFolder: settings.saveFolder
+        onClosed: {
+            startState()
         }
+
+//        Overlay.modal: GaussianBlur {
+//            source: captureView
+//            radius: 8
+//            samples: 16
+//            deviation: 3
+//        }
     }
     
     
-//    Button {
-//        id: playPauseButton
-//        text: "Play/Pause"
-//        Layout.alignment: Qt.AlignRight | Qt.AlignTop
-//        icon.source: checked ? "qrc:/Images/pause_white_48dp.png" : "qrc:/Images/play_arrow_white_48dp.png"
-//        icon.width: pixel(20)
-//        icon.height: pixel(20)
-//        anchors.centerIn: parent
-//        display: AbstractButton.IconOnly
-//        highlighted: false
-//        flat: false
-//        opacity: 0.8
-//        background: Rectangle {
-//            color: "transparent"
-//        }
-
-//        Material.accent: Material.color(Material.Green, Material.Shade700)
-//        checkable: true
-//        z: 10
-//        scale: 3
-//        smooth: true
-
-//        Behavior on icon.source {
-//            ParallelAnimation {
-//                id: playPauseButtonParallelAnimation
-
-//                NumberAnimation {
-//                    target: playPauseButton
-//                    property: "opacity";
-//                    from: 0.1;
-//                    to: 0.3;
-//                    duration: 800;
-//                    easing.type: Easing.InOutQuad;
-//                }
-
-//                NumberAnimation {
-//                    target: playPauseButton
-//                    property: "scale";
-//                    from: 2;
-//                    to: 3;
-//                    duration: 600;
-//                    easing.type: Easing.InOutQuad;
-//                }
-//            }
-//        }
-
-//        onClicked: {
-//            var playState = playPauseButton.checked
-
-//            if (root.state == "start") {
-//                beforeCaptureState()
-//            }
-
-//            if (root.state == "beforecapture") {
-//                beforeCaptureTimer.running = playState
-//            }
-
-//            if (root.state == "liveview") {
-//                countdownTimer.running = playState
-//            }
-
-//            if (root.state == "review") {
-//                reviewTimer.running = playState
-//            }
-
-//            if (root.state == "endsession") {
-//                endSessionTimer.running = playState
-//            }
-
-//        }
-//    }
-    
     CaptureToolbar {
         id: captureToolbar
-        opacity: 0.5
+        opacity: 0.8
+        z: 10
+//        y: captureView.height/2 - pixel(30)
+
+        anchors {
+            fill: parent
+//            verticalCenter: parent.verticalCenter
+//            right: parent.right
+//            left: parent.left
+        }
+
     }
     
         
 //     live view from camera
-    SonyLiveview {
-        id: liveView
+//    SonyLiveview {
+//        id: liveView
+//        opacity: 0
+//        scale: 0.1
+//        z:1
+
+//        flipHorizontally: settings.mirrorLiveVideoSwitch
+
+//        width: parent.width
+//        height: width / photoAspectRatio
+//        anchors.horizontalCenter: parent.horizontalCenter
+
+//    }
+
+    SonyRemote {
+        id: sonyRemote
         opacity: 0
         scale: 0.1
         z:1
-
-        flipHorizontally: settings.mirrorLiveVideoSwitch
-
         width: parent.width
         height: width / photoAspectRatio
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors {
+            horizontalCenter: parent.horizontalCenter
+        }
+        flipHorizontally: settings.mirrorLiveVideoSwitch
 
+        saveFolder: settings.saveFolder + "/Camera"
+        onActTakePictureCompleted: {
+            actTakePictureTimer.stop()
+            reviewImage.source = addFilePrefix(filePath)
+            photoList.append({"filePath": filePath})
+            reviewState()
+        }
+
+        liveviewRunning: captureView.state == "liveview"
+
+        onExposureSignal: {
+            exposureButton.value = exposure
+        }
+
+        onBatteryPercentageSignal: {
+            batteryPercentageLabel.text = "BAT: " + percent + "%"
+        }
+
+        onEvSignal: {
+            evLabel.text = "EV: " + ev
+        }
     }
 
-//    Button {
-//        onClicked: {
-//            liveView.start()
-//            liveView.opacity = 1
-//            liveView.scale = 1
-//        }
-//    }
-    
-    
-    
-
-
-//    Timer {
-//        interval: 3000
-//        running: true
-//        repeat: false
-
-//        onTriggered: {
-//            try {
-//                console.log("Initializing Webcamera")
-//                liveView.source = "CameraItem.qml"
-////                liveView.item.start()
-//                if (liveView.status == Loader.Error) {
-//                    liveView.source = "CameraDummy.qml"
-//                    console.log("CameraDummy")
-//                }
-//            }
-//            catch(err) {
-//                console.log(err)
-//            }
-
-
-//        }
-//    }
-
-//    WebView {
-//        id: liveView
-//        opacity: 0
-//        scale: 0.1
-
-//        url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test"
-
-//        width: parent.width
-//        height: width / photoAspectRatio
-//        anchors.horizontalCenter: parent.horizontalCenter
-
-//        anchors {
-//            top: parent.top
-//            topMargin: pixel(30)
-//        }
-//    }
-
-//    Loader {
-//        id: liveView
-//        opacity: 0
-//        scale: 0.1
-
-////        source: "CameraItem.qml"
-
-//        width: parent.width
-//        height: width / photoAspectRatio
-//        anchors.horizontalCenter: parent.horizontalCenter
-
-//        anchors {
-//            top: parent.top
-//            topMargin: pixel(30)
-//        }
-
-//    }
-
-    
-//    VideoOutput {
-//        id: liveView
-//        opacity: 0
-//        scale: 0.1
-
-        
-//        visible: true
-//        width: parent.width
-//        height: width / photoAspectRatio
-//        anchors.horizontalCenter: parent.horizontalCenter
-
-//        anchors {
-//            top: parent.top
-//            topMargin: pixel(30)
-//        }
-
-////        source: camera
-
-//        Text {
-//            text: qsTr("Preview")
-//            color: Material.foreground
-//            font.pixelSize: pixel(5)
-//        }
-        
-////        Rectangle {
-////            anchors.fill: parent
-////            border.color: "#808080"
-////            border.width: 1
-////            color: "transparent"
-////        }
-
-
-////        Button {
-////            text: "Stop"
-////            onClicked: {
-////                camera.stop()
-
-////                liveView.source = camera;
-
-////                liveView.update()
-
-////                camera.start()
-////            }
-////        }
-//    }
-
-//    Camera {
-//        id: camera
-//        captureMode: Camera.CaptureStillImage
-//        deviceId: settings.cameraDeviceId
-
-
-//    }
-
-
-
-//    Webcamera {
-//        id: liveview
-
-//        opacity: 0
-//        scale: 0.1
-//        width: parent.width
-//        height: width / photoAspectRatio
-//        anchors.horizontalCenter: parent.horizontalCenter
-//        anchors.top: parent.top
-//        anchors {
-//            top: parent.top
-//            topMargin: pixel(30)
-//        }
-//    }
+    Component.onDestruction: {
+//        liveView.stop()
+        sonyRemote.stop()
+        mediaPlayer.stop()
+    }
 
     
     VideoOutput {
@@ -716,14 +581,24 @@ Item {
         opacity: 0
         scale: 0.1
 
+    }
+
+    Rectangle {
+        id: touchArea
+        anchors.fill: videoLoader
+        z: 1
+        color: "transparent"
+
         MouseArea {
             anchors.fill: parent
-            onClicked: {
-                captureToolbar.playPauseButton.checked = true
-                captureToolbar.playPauseButton.clicked()
-            }
-        }
 
+            onClicked: {
+//                captureToolbar.playPauseButton.checked = !captureToolbar.playPauseButton.checked;
+//                captureToolbar.playPauseButton.clicked()
+                captureToolbar.playPause()
+            }
+
+        }
     }
     
     MediaPlayer {
@@ -739,14 +614,13 @@ Item {
     // countdown display
     Countdown {
         id: countdown
-        anchors.fill: liveView
+        anchors.fill: sonyRemote
+//        anchors.fill: liveView
         textColor: settings.countDownColor
         opacity: 0
         scale: 0.1
         z: 4
     }
-    
-    
     
     // review image
     Rectangle {
@@ -764,7 +638,14 @@ Item {
             anchors.fill: parent
             fillMode: Image.PreserveAspectFit
             mirror: settings.mirrorLiveVideoSwitch
+
+            Text {
+                id: name
+                text: qsTr("Do you want to redo?")
+            }
         }
+
+
     }
     
     // end session
@@ -774,12 +655,20 @@ Item {
         opacity: 0
         scale: 0.1
         
-        Gallery {
-            anchors.fill: parent
-            anchors.leftMargin: pixel(20)
-            model: photoList
-            cellWidth: mainWindow.width - pixel(40)
-        }
+//        Gallery {
+//            anchors.fill: parent
+//            anchors.leftMargin: pixel(20)
+//            model: photoList
+//            cellWidth: mainWindow.width - pixel(40)
+//        }
+
+//        PhotoCanvas {
+//            id: photoCanvas
+//            width: parent.width
+//            height: width / photoAspectRatio
+//            imageSource: addFilePrefix(lastCombinedPhoto)
+//        }
+
     }
     
 }
