@@ -85,7 +85,8 @@ void CombineThread::run() {
     QImage templateImage(m_templatePath);
     qDebug() << "[ProcessPhotos] Template" << m_templatePath;
     // create an empty 3600x2400 canvas
-    QImage output(3600, 2400, QImage::Format_RGB32);
+//    QImage output(3600, 2400, QImage::Format_RGB32);
+    QImage output(templateImage.width(), templateImage.height(), QImage::Format_RGB32);
     // prepare painting
     QPainter imagePainter(&output);
 

@@ -92,8 +92,8 @@ Item {
 //        toast.show("End Session State")
         console.log("[CaptureView] End session state")
 //        playProcessingVideos()
-//        endSessionPopup.source = addFilePrefix(lastCombinedPhoto)
-//        endSessionPopup.open()
+//        canvasPopup.source = addFilePrefix(lastCombinedPhoto)
+//        canvasPopup.open()
 //        endSessionTimer.restart()
         captureView.state = "endsession"
 //        liveView.stop()
@@ -188,8 +188,8 @@ Item {
             console.log("[ProcessPhotos]" + outputPath)
             lastCombinedPhoto = outputPath
 
-            endSessionPopup.source = addFilePrefix(lastCombinedPhoto)
-            endSessionPopup.open()
+            canvasPopup.source = addFilePrefix(lastCombinedPhoto)
+            canvasPopup.open()
             endSessionTimer.restart()
 
             if (settings.autoPrint) {
@@ -312,7 +312,7 @@ Item {
         repeat: false
 
         onTriggered: {
-            endSessionPopup.close()
+            canvasPopup.close()
             startState()
         }
     }
@@ -482,9 +482,11 @@ Item {
     }
 
     CanvasPopup {
-        id: endSessionPopup
+        id: canvasPopup
         width: mainWindow.width
-        y: 0
+        height: mainWindow.height
+        anchors.centerIn: Overlay.overlay
+
 
         saveFolder: settings.saveFolder
         onClosed: {

@@ -78,7 +78,7 @@ void SonyRemote::getExposureCompensation() {
 
 void SonyRemote::paint(QPainter *painter)
 {
-    QScreen *screen = QGuiApplication::primaryScreen();
+
     originalPixmap = screen->grabWindow(liveviewWid);
     QRectF bounding_rect = boundingRect();
     QImage scaled = originalPixmap.toImage().scaledToHeight(int(bounding_rect.height())).mirrored(m_flipHorizontally, false);
@@ -307,7 +307,15 @@ QString SonyRemote::getSaveDir() {
 void SonyRemote::resizeRemoteWindow() {
     if (!m_readyFlag) return;
     qDebug() << "[SonyRemote] Resizing window";
-    MoveWindow(remoteHwnd, 100, 100, 1000, 550, BOOL(true));
+    QRect availableGeometry = screen->availableGeometry();
+
+    qDebug() << availableGeometry;
+
+    int width = int(availableGeometry.width() * 0.5);
+    int height = int(width / 1.75);
+
+
+    MoveWindow(remoteHwnd, 0, 0, width, height, BOOL(true));
 
 }
 

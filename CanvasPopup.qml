@@ -15,14 +15,6 @@ Popup {
     modal: true
     padding: pixel(2)
 
-//    margins: 0
-
-    //    background: Rectangle {
-    //        color: Material.background
-    //        opacity: 1
-    //        radius: canvasPopup.buttonRadius
-    //    }
-
     property string saveFolder
     property real iconSize: pixel(20)
     property string smsFileURL: addFilePrefix(settings.saveFolder + "/SMS.txt")
@@ -31,7 +23,12 @@ Popup {
     property real buttonRadius: pixel(2)
 
     Overlay.modal: Rectangle {
-            color: "#A0101010"
+            color: "#64000000"
+    }
+
+    background: Rectangle {
+        color: "#000000"
+        opacity: 0.8
     }
 
     onOpened: {
@@ -41,8 +38,6 @@ Popup {
 
         loadModelFromJson(openFile(smsFileURL), smsModel)
         loadModelFromJson(openFile(emailFileURL), emailModel)
-
-//        printPopup.open()
     }
 
     onClosed: {
@@ -197,7 +192,12 @@ Popup {
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         Overlay.modal: Rectangle {
-                color: "#A0101010"
+                color: "#64000000"
+        }
+
+        background: Rectangle {
+            color: "#000000"
+            opacity: 0.8
         }
 
         onOpened: {
@@ -324,7 +324,12 @@ Popup {
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         Overlay.modal: Rectangle {
-                color: "#A0101010"
+                color: "#64000000"
+        }
+
+        background: Rectangle {
+            color: "#000000"
+            opacity: 0.8
         }
 
         ColumnLayout {
@@ -338,6 +343,7 @@ Popup {
                 id: printCopyCountButton
                 min: 1
                 value: 1
+                text: settings.paperCutting ? value*2 : value
                 max: settings.printCopiesPerSession
                 height: pixel(20)
                 width: height * 3
@@ -393,7 +399,12 @@ Popup {
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         Overlay.modal: Rectangle {
-            color: "#A0101010"
+                color: "#64000000"
+        }
+
+        background: Rectangle {
+            color: "#000000"
+            opacity: 0.8
         }
 
         onOpened: {
@@ -454,15 +465,20 @@ Popup {
         }
     }
 
-    Column {
-        spacing: 4
-        anchors.fill: parent
+    Rectangle {
+        id: toolBar
+        width: parent.width
+        height: pixel(40)
+        color: "transparent"
 
+        anchors {
+            top: parent.top
+        }
 
         RowLayout {
+
             anchors {
-                left: parent.left
-                right: parent.right
+                fill: parent
             }
 
             RoundButton {
@@ -576,159 +592,141 @@ Popup {
                 }
             }
         }
+    }
 
-        Rectangle {
-            id: palleteRect
-            width: image.width
-            height: canrect.paletteSize
-            z: 1
+    Rectangle {
+        id: paletteRect
+        width: parent.width
+        height: canrect.paletteSize
 
-            clip: true
-            color: "black"
+        anchors {
+            top: toolBar.bottom
+        }
+
+        clip: true
+        color: "black"
 //            border.width: 1
 //            border.color: "white"
 
-            RowLayout {
-                anchors.fill: parent
-                Image {
-                    source: "qrc:/icon/back"
-                    height: canrect.paletteSize
-                    width: height
-                    Layout.alignment: Qt.AlignLeft
-                    z: 1
-                }
-
-                ListView {
-//                    anchors.fill: parent
-                    id: colorPalette
-                    model: colorModel
-                    delegate: colorDelegate
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignHCenter
-                    implicitHeight: canrect.paletteSize
-
-                    spacing: 0
-                    highlightFollowsCurrentItem: true
-                    orientation: ListView.Horizontal
-
-                    highlight: Rectangle {
-                        color: "red"
-                    }
-
-                    highlightMoveDuration: 100
-
-
-                }
-
-                Image {
-                    source: "qrc:/icon/forward"
-                    height: canrect.paletteSize
-                    width: height
-                    Layout.alignment: Qt.AlignRight
-                    z: 1
-                }
+        RowLayout {
+            anchors.fill: parent
+            Image {
+                source: "qrc:/icon/back"
+                height: canrect.paletteSize
+                width: height
+                Layout.alignment: Qt.AlignLeft
+                z: 1
             }
 
+            ListView {
+//                    anchors.fill: parent
+                id: colorPalette
+                model: colorModel
+                delegate: colorDelegate
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignHCenter
+                implicitHeight: canrect.paletteSize
 
+                spacing: 0
+                highlightFollowsCurrentItem: true
+                orientation: ListView.Horizontal
+
+                highlight: Rectangle {
+                    color: "red"
+                }
+
+                highlightMoveDuration: 100
+
+
+            }
+
+            Image {
+                source: "qrc:/icon/forward"
+                height: canrect.paletteSize
+                width: height
+                Layout.alignment: Qt.AlignRight
+                z: 1
+            }
         }
 
-        Rectangle {
-            id: brushRect
-            z: 2
-            height: canrect.paletteSize
-            width: image.width
 
-            color: "black"
+    }
+
+    Rectangle {
+        id: brushRect
+        height: canrect.paletteSize
+        width: parent.width
+
+        anchors {
+            top: paletteRect.bottom
+        }
+
+        color: "black"
 //            border.width: 1
 //            border.color: "white"
-            clip: true
+        clip: true
 
-            RowLayout {
-                anchors.fill: parent
-                Image {
-                    source: "qrc:/icon/back"
-                    height: canrect.paletteSize
-                    width: height
-                    Layout.alignment: Qt.AlignLeft
-                    z: 1
-                }
+        RowLayout {
+            anchors.fill: parent
+            Image {
+                source: "qrc:/icon/back"
+                height: canrect.paletteSize
+                width: height
+                Layout.alignment: Qt.AlignLeft
+                z: 1
+            }
 
 
-                ListView {
-                    id: brushPalette
+            ListView {
+                id: brushPalette
 //                    anchors.fill: parent
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignHCenter
-                    implicitHeight: canrect.paletteSize
-                    model: emojisModel
-                    delegate: brushDelegate
-                    spacing: 0
-                    highlightFollowsCurrentItem: true
-                    orientation: ListView.Horizontal
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignHCenter
+                implicitHeight: canrect.paletteSize
+                model: emojisModel
+                delegate: brushDelegate
+                spacing: 0
+                highlightFollowsCurrentItem: true
+                orientation: ListView.Horizontal
 
-                    highlight: Rectangle {
-                        color: "red"
-                    }
-
-                    highlightMoveDuration: 100
+                highlight: Rectangle {
+                    color: "red"
                 }
 
-                Image {
-                    source: "qrc:/icon/forward"
-                    height: canrect.paletteSize
-                    width: height
-                    Layout.alignment: Qt.AlignRight
-                    z: 1
-                }
+                highlightMoveDuration: 100
             }
 
-
-        }
-
-        Text {
-            id: signText
-            width: parent.width
-            height: canrect.paletteSize
-            text: "Sign or Draw on Photo\nThen Press Print!"
-            color: "white"
-            font.pointSize: pixel(3)
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-
-            SequentialAnimation {
-                loops: Animation.Infinite
-                running: true
-                NumberAnimation {
-                    target: signText
-                    properties: "scale"
-                    easing.type: Easing.OutElastic
-                    from: 1
-                    to: 1.5
-                    duration: 600
-//                    loops: Animation.Infinite
-                }
-                NumberAnimation {
-                    target: signText
-                    properties: "scale"
-//                    easing.type: Easing.OutQuad
-                    to: 1
-                    duration: 400
-//                    loops: Animation.Infinite
-                }
+            Image {
+                source: "qrc:/icon/forward"
+                height: canrect.paletteSize
+                width: height
+                Layout.alignment: Qt.AlignRight
+                z: 1
             }
-
         }
 
-        Image {
+
+    }
+
+    Image {
             id: image
-            width: parent.width
-            height: width / photoAspectRatio
+//            width: parent.width
+//            height: pixel(100)
             fillMode: Image.PreserveAspectFit
             source: ""
 
+            anchors {
+                left: parent.left
+                right: parent.right
+                top: brushRect.bottom
+                bottom: parent.bottom
+            }
+
+
+
             Rectangle {
                 id: canrect
-                anchors.fill: parent
+//                anchors.fill: parent
                 property int mouseX
                 property int mouseY
                 property int lastX
@@ -739,6 +737,14 @@ Popup {
                 property int paletteSize: pixel(20)
                 property int emojiSize: pixel(20)
                 color: "transparent"
+//                opacity: 0.5
+
+                width: parent.paintedWidth
+                height: parent.paintedHeight
+
+                anchors {
+                    centerIn: parent
+                }
 
                 Canvas {
                     id: canvas
@@ -752,17 +758,17 @@ Popup {
                         }
                     }
 
-//                    onImageDrawnChanged: {
-//                        canvas.requestPaint()
-//                    }
+    //                    onImageDrawnChanged: {
+    //                        canvas.requestPaint()
+    //                    }
 
                     onClearRectChanged: {
                         canvas.requestPaint()
                     }
 
-//                    onLastCanvasLoadedChanged: {
-//                        canvas.requestPaint()
-//                    }
+    //                    onLastCanvasLoadedChanged: {
+    //                        canvas.requestPaint()
+    //                    }
 
                     property color strokeColor: "#00ffff"
                     property color shadowColor: "#4d4cff"
@@ -771,7 +777,7 @@ Popup {
                     property int brushType: brushPalette.currentIndex
                     property string patternImage: ""
                     property bool clearRect: false
-//                    property bool imageDrawn: false
+    //                    property bool imageDrawn: false
                     property bool lastCanvasLoaded: false
 
 
@@ -811,8 +817,8 @@ Popup {
                     function drawImage(ct, img) {
                         var mouseX = canrect.mouseX
                         var mouseY = canrect.mouseY
-//                        var lastX = canrect.lastX
-//                        var lastY = canrect.lastY
+    //                        var lastX = canrect.lastX
+    //                        var lastY = canrect.lastY
 
                         var size = canrect.emojiSize
                         ct.save();
@@ -884,7 +890,8 @@ Popup {
                 }
             }
         }
-    }
+
+
 
 
 }

@@ -53,8 +53,8 @@ int main(int argc, char *argv[])
 
 //    QtWebView::initialize();
     
-    app.setOrganizationName("PixylBooth");
-    app.setOrganizationDomain("PixylBooth");
+    app.setOrganizationName("Pixyl");
+    app.setOrganizationDomain("gopixyl.com");
     app.setApplicationName("PixylBooth");
 
     QQmlApplicationEngine engine;

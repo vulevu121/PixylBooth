@@ -5,34 +5,13 @@ PrintPhotos::PrintPhotos(QObject *parent) : QObject(parent)
 
 }
 
-QString PrintPhotos::getPrinterName(QString const &printerName) {
-    QPrinter printer;
-
-    QPrintDialog *dialog = new QPrintDialog(&printer);
-    dialog->setWindowTitle("Print Document");
-
-    if (dialog->exec() != QDialog::Accepted) return printerName;
-
-
-    return printer.printerName();
-
-}
-
-// print in a new thread to prevent gui lag
-void PrintPhotos::printPhoto(const QString &photoPath, int copyCount, bool printCanvas) {
-    PrintThread *thread = new PrintThread(photoPath, printerName(), copyCount, printCanvas, this);
-    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-    thread->start();
-}
-
 QString PrintPhotos::saveFolder() {
     return m_saveFolder;
 }
 
 void PrintPhotos::setSaveFolder(const QString &saveFolder) {
-    if (saveFolder == m_saveFolder)
-        return;
-    m_saveFolder = saveFolder;
+    if (saveFolder != m_saveFolder)
+        m_saveFolder = saveFolder;
 }
 
 
@@ -41,28 +20,75 @@ QString PrintPhotos::printerName() {
 }
 
 void PrintPhotos::setPrinterName(const QString &printerName) {
-    if (printerName == m_printerName)
-        return;
-    m_printerName = printerName;
+    if (printerName != m_printerName)
+        m_printerName = printerName;
 }
 
+QString PrintPhotos::paperName() {
+    return m_paperName;
+}
+
+void PrintPhotos::setPaperName(const QString &paperName) {
+    if (paperName != m_paperName)
+        m_paperName = paperName;
+}
+
+QString PrintPhotos::getPrinterSettings(QString const &printerName) {
+    QPrinter printer;
+
+    QPrintDialog *dialog = new QPrintDialog(&printer);
+    dialog->setWindowTitle("Print Document");
+
+    if (dialog->exec() != QDialog::Accepted) return printerName;
+
+    m_printerName = printer.printerName();
+    m_paperName = printer.paperName();
+//    QSettings *settings = new QSettings("Pixyl", "PixylBooth");
+//    settings->setValue("/Printer/paperName", m_paperName);
+    return printer.printerName();
+}
+
+// print in a new thread to prevent gui lag
+void PrintPhotos::printPhoto(const QString &photoPath, int copyCount, bool printCanvas) {
+    PrintThread *thread = new PrintThread(this);
+    thread->photoPath = photoPath;
+    thread->saveFolder = m_saveFolder;
+    thread->copyCount = copyCount;
+    thread->printCanvas = printCanvas;
+    thread->printerName = m_printerName;
+    connect(thread, &PrintThread::finished, thread, &PrintThread::deleteLater);
+    thread->start();
+}
 
 
 // ==================================================================
 
 
-PrintThread::PrintThread(const QString &photoPath, const QString &printerName, int copyCount, bool printCanvas, QObject *parent)
-    : QThread(parent), photoPath(photoPath), printerName(printerName), copyCount(copyCount), printCanvas(printCanvas)
+PrintThread::PrintThread(QObject *parent)
+    : QThread(parent)
 {
 
 }
 
 void PrintThread::run() {
+    QImage photo(photoPath);
+    QString canvasPath(photoPath.replace("/Prints/", "/Canvas/").replace(".jpg", ".png"));
+
     QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
-    printer.setOrientation(QPrinter::Landscape);
     printer.setPrinterName(printerName);
     printer.setCopyCount(copyCount);
+
+    if (photo.width() <= 1250 && photo.height() <= 3650) {
+        printer.setOrientation(QPrinter::Portrait);
+        printer.setPaperName("6x4-Split (6x2 2 prints)");
+    }
+    else {
+        printer.setOrientation(QPrinter::Landscape);
+        printer.setPaperName("6x4 / 152x100mm");
+    }
+
+
 
     QMarginsF margins(qreal(0), qreal(0), qreal(0), qreal(0));
 
@@ -71,34 +97,29 @@ void PrintThread::run() {
     QSizeF qsize = printer.paperSize(QPrinter::DevicePixel);
     QList<int> supportedResolutions = printer.supportedResolutions();
 
-
     int res = supportedResolutions[supportedResolutions.length()-1];
 
     printer.setResolution(res);
-
-    // debug prints
     qDebug() << "[PrintPhotos] Size:" << qsize;
-//    qDebug() << printer.pageLayout().margins().top();
-//    qDebug() << printer.pageLayout().margins().left();
     qDebug() << "[PrintPhotos] Resolution:" << printer.supportedResolutions();
-
-//    qDebug() << photoPaths;
-//    qDebug() << printerName;
 
     QPainter printerPainter;
     printerPainter.begin(&printer);
-//    photoPath = "c:/Users/Vu/Pictures/PixylBooth/Prints/DSC05785_DSC05786_DSC05787.jpg";
-
-    QImage photo(photoPath);
-    QString canvasPath(photoPath.replace("/Prints/", "/Canvas/").replace(".jpg", ".png"));
-
 
     qDebug() << "[PrintPhotos] Printing" << photoPath;
     qDebug() << "[PrintPhotos] Copies:" << copyCount;
     qDebug() << "[PrintPhotos] Canvas:" << canvasPath;
 
-    QImage photoScaled = photo.scaled(1820, 1230);
-    printerPainter.drawImage(0, 0, photoScaled);
+    if (photo.width() <= 1250 && photo.height() <= 3650) {
+        QImage photoScaled = photo.scaled(615, 1820);
+        printerPainter.drawImage(0, 0, photoScaled);
+        printerPainter.drawImage(615, 0, photoScaled);
+    }
+    else {
+        QImage photoScaled = photo.scaled(1820, 1230);
+        printerPainter.drawImage(0, 0, photoScaled);
+    }
+
 
     if (printCanvas) {
         QImage canvasImage(canvasPath);

@@ -21,6 +21,7 @@ Rectangle {
     property real min: 0
     property real value: min
     property real max: 99
+    property string text: value
 
     
     RoundButton {
@@ -40,7 +41,7 @@ Rectangle {
     
     Text {
         id: valueText
-        text: parent.value
+        text: parent.text
         height: parent.height
         width: height
         color: Material.foreground

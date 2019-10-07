@@ -150,6 +150,7 @@ Window {
     PrintPhotos {
         id: imagePrint
         printerName: settings.printerName
+        paperName: settings.paperName
     }
 
 

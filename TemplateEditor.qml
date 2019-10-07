@@ -128,6 +128,7 @@ ApplicationWindow {
     Rectangle {
         anchors.fill: templateImage
         z:2
+//        opacity: 0.8
         Repeater {
             id: repeater
             model: photoFrameModel
@@ -167,7 +168,7 @@ ApplicationWindow {
                     color: "white"
                 }
 
-                ColumnLayout {
+                RowLayout {
                     z: 1
 
                     Button {

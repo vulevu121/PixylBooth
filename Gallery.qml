@@ -41,25 +41,33 @@ Rectangle {
 
     CanvasPopup {
         id: imagePopup
-        width: root.width * 0.98
-        y: pixel(2)
-        x: (mainWindow.width - width)/2
+//        width: root.width * 0.98
+////        height: root.height * 0.95
+//        y: pixel(2)
+//        x: (mainWindow.width - width)/2
+
+        width: parent.width
+        height: parent.height
+        anchors.centerIn: Overlay.overlay
+
         saveFolder: settings.saveFolder
+
+
     }
 
     Component {
         id: photoDelegate
         Item {
-            width: parent.width
-            height: width / photoAspectRatio
+            width: root.width
+            height: root.height
 
             Image {
                 id: mainImage
                 source: addFilePrefix(filePath)
-                anchors {
-                    fill: parent
-                    margins: pixel(10)
-                }
+
+                width: parent.width
+                height: parent.height
+
                 cache: false
                 asynchronous: true
                 fillMode: Image.PreserveAspectFit
@@ -84,19 +92,6 @@ Rectangle {
         }
     }
     
-//    GridView {
-//        id: view
-
-//        anchors {
-//            fill: parent
-//        }
-
-//        cellWidth: parent.width
-//        cellHeight: cellWidth / photoAspectRatio
-//        model: folderListModel
-//        delegate: photoDelegate
-
-//    }
 
     ListView {
         id: view

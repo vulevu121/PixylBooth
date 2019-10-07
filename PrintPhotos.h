@@ -8,13 +8,14 @@
 #include <QDebug>
 #include <QThread>
 #include <QDir>
-
+//#include <QSettings>
 
 class PrintPhotos : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString saveFolder READ saveFolder WRITE setSaveFolder)
     Q_PROPERTY(QString printerName READ printerName WRITE setPrinterName)
+    Q_PROPERTY(QString paperName READ paperName WRITE setPaperName)
 
 public:
     explicit PrintPhotos(QObject *parent = nullptr);
@@ -25,15 +26,19 @@ public:
     QString printerName();
     void setPrinterName(const QString &printerName);
 
+    QString paperName();
+    void setPaperName(const QString &paperName);
 signals:
+
 
 public slots:
     void printPhoto(const QString &photoPath, int copyCount, bool printCanvas);
-    QString getPrinterName(QString const &printerName);
+    QString getPrinterSettings(QString const &printerName);
 
 private:
     QString m_saveFolder;
     QString m_printerName;
+    QString m_paperName;
 };
 
 
@@ -44,14 +49,9 @@ class PrintThread : public QThread
 {
     Q_OBJECT
 public:
-    PrintThread(const QString &photoPath, const QString &printerName, int copyCount, bool printCanvas, QObject *parent = nullptr);
+    PrintThread(QObject *parent = nullptr);
     void run() override;
 
-signals:
-
-public slots:
-
-private:
     QString photoPath = "";
     QString printerName = "";
     QString saveFolder = "";

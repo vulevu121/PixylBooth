@@ -21,6 +21,7 @@
 #include <QRegularExpressionMatch>
 #include <QDir>
 #include <QDateTime>
+#include <QScreen>
 
 #include "Windows.h"
 
@@ -92,7 +93,7 @@ private:
     QTimer *checkRemoteHwndTimer = new QTimer(this);
     HWND remoteHwnd;
     uint keycode;
-
+    QScreen *screen = QGuiApplication::primaryScreen();
 
 };
 

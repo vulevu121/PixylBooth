@@ -16,12 +16,9 @@ import QtMultimedia 5.8
 Item {
     id: root
     property alias templateImagePath: templateImageField.text
-//    property alias printFolder: printFolderField.text
     property alias saveFolder: saveFolderField.text
-//    property alias emailFolder: emailFolderField.text
     property alias displayScale: displayScalingButton.value
     property alias lockPin: lockPinTextField.text
-    property alias qrImagePath: qrField.text
     property alias albumUrl: albumUrlField.text
 
     property alias bgColor: bgColorRectangle.color
@@ -40,8 +37,9 @@ Item {
     property alias autoPrint: autoPrint.checked
     property alias autoPrintCopies: autoPrintCopies.value
     property alias printCopiesPerSession: printCopiesPerSessionButton.value
+    property alias paperName: paperNameField.text
+    property alias paperCutting: paperCuttingSwitch.checked
 
-//    property string lastFolder: "file:///Users/Vu/Documents/PixylBooth/Videos"
     property alias startVideoPlaylist: startVideoPlaylist
     property alias beforeCaptureVideoPlaylist: beforeCapturePlaylist
     property alias afterCaptureVideoPlaylist: afterCaptureVideoPlaylist
@@ -59,7 +57,6 @@ Item {
     property real buttonHeight: pixel(12)
 
     property alias emojiFolder: emojiFolderField.text
-//    property alias canvasSaveFolder: canvasSaveFolderField.text
 
     function loadPlaylist(playlist, playlistString) {
         if (String(playlistString).length == 0) return;
@@ -73,7 +70,6 @@ Item {
         for (var i = 0 ; i < playlist.itemCount ; i++) datamodel.push(playlist.itemSource(i))
         return JSON.stringify(datamodel)
     }
-
 
     Settings {
         category: "General"
@@ -93,12 +89,9 @@ Item {
         id: profileSettings
         property alias saveFolder: saveFolderField.text
         property alias templateImagePath: templateImageField.text
-//        property alias printFolder: printFolderField.text
-//        property alias emailFolder: emailFolderField.text
         property alias templateFormat: root.templateFormat
         property alias numberPhotos: root.numberPhotos
         property alias emojiFolder: emojiFolderField.text
-        property alias qrImagePath: qrField.text
         property alias albumUrl: albumUrlField.text
     }
 
@@ -109,9 +102,6 @@ Item {
         property alias showLiveVideoOnStart: showLiveVideoOnStartSwitch.checked
         property alias showLiveVideoOnCountdown: showLiveVideoOnCountdownSwitch.checked
         property alias mirrorLiveVideo: mirrorLiveVideoSwitch.checked
-//        property string cameraDeviceId
-//        property alias cameraDeviceIdIndex: cameraDeviceIdCombo.currentIndex
-//        property alias cameraDisplayName: cameraDeviceIdCombo.currentText
     }
 
 
@@ -130,6 +120,8 @@ Item {
         property alias autoPrint: autoPrint.checked
         property alias autoPrintCopies: autoPrintCopies.value
         property alias printCopiesPerSession: printCopiesPerSessionButton.value
+        property alias paperName: paperNameField.text
+        property alias paperCutting: paperCuttingSwitch.checked
     }
 
     Settings {
@@ -142,18 +134,6 @@ Item {
         property string processingVideos
         property string printingVideos
         property string signingVideos
-    }
-
-//    Settings {
-//        category: "Canvas"
-//        id: canvasSettings
-//        property alias emojiFolder: emojiFolderField.text
-////        property alias canvasSaveFolder: canvasSaveFolderField.text
-//    }
-
-
-    PrintPhotos {
-        id: imagePrint
     }
 
 
@@ -526,33 +506,6 @@ Item {
                         inputMethodHints: Qt.ImhDigitsOnly
                         enabled: true
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                         onEditingFinished: {
                             keypad.visible = false
                         }
@@ -610,22 +563,6 @@ Item {
                         }
                     }
 
-                    CustomLabel {
-                        height: root.rowHeight
-                        Layout.fillWidth: true
-                        text: qsTr("QR Image")
-                        subtitle: "Path of QR Image"
-                    }
-
-                    PathField {
-                        id: qrField
-                        font.pixelSize: root.textSize
-                        placeholderText: "Select QR image"
-                        title: "Select QR image"
-                        nameFilters: ["PNG Image Files (*.png)"]
-                        isFile: true
-                        Layout.fillWidth: true
-                    }
 
                     CustomLabel {
                         height: root.rowHeight
@@ -995,11 +932,46 @@ Item {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                                printerNameField.text = imagePrint.getPrinterName(printerNameField.text)
-
+                                imagePrint.getPrinterSettings(printerNameField.text)
+                                printerNameField.text = imagePrint.printerName
+                                paperNameField.text = imagePrint.paperName
                             }
                         }
                     }
+
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: "Paper Name"
+                        subtitle: "Paper name for selected printer"
+                    }
+                    TextField {
+                        id: paperNameField
+                        Layout.fillWidth: true
+                        placeholderText: "Click here to change printer preference"
+                        height: root.rowHeight
+
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                imagePrint.getPrinterSettings(printerNameField.text)
+                                printerNameField.text = imagePrint.printerName
+                                paperNameField.text = imagePrint.paperName
+                            }
+                        }
+                    }
+
+                    CustomLabel {
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                        text: "Paper Cutting"
+                        subtitle: "Set this to true if printer has cutting enabled"
+                    }
+
+                    Switch {
+                        id: paperCuttingSwitch
+                    }
+
 
                     // === Automatic Printing ====
                     CustomLabel {
