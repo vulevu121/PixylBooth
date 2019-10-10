@@ -2,8 +2,9 @@ QT += gui quick widgets multimedia network printsupport webview
 CONFIG += c++11
 
 TEMPLATE = app
-win32:VERSION = 1.2
-else:VERSION = 1.2
+VERSION = 1.60
+#win32:VERSION = 1.2
+#else:VERSION = 1.2
 
 RC_ICONS = PixylBooth.ico
 
@@ -19,15 +20,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    CSVFile.cpp \
     Firebase.cpp \
-    QRGenerator.cpp \
-    SonyAPI.cpp \
     SonyRemote.cpp \
     main.cpp \
     ProcessPhotos.cpp \
     PrintPhotos.cpp \
-    SonyLiveview.cpp
 
 RESOURCES += qml.qrc
 
@@ -46,15 +43,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
-    CSVFile.h \
     Firebase.h \
-    QRGenerator.h \
-    SonyAPI.h \
     SonyRemote.h \
-    process.h \
     ProcessPhotos.h \
     PrintPhotos.h \
-    SonyLiveview.h
 
 DISTFILES += \
 

@@ -3,33 +3,20 @@
         <file>qtquickcontrols2.conf</file>
         <file alias="shadow">Images/box-shadow.png</file>
         <file alias="corner">Images/corner.png</file>
-        <file>CameraDummy.qml</file>
-        <file>CameraItem.qml</file>
-        <file>CaptureFrame.qml</file>
         <file>CaptureToolbar.qml</file>
         <file>CaptureView.qml</file>
-        <file>ContentVideo.qml</file>
         <file>Countdown.qml</file>
-        <file>CustomButton.qml</file>
         <file>CustomLabel.qml</file>
-        <file>CustomPane.qml</file>
-        <file>DebugButtons.qml</file>
         <file>FileBrowser.qml</file>
         <file>Gallery.qml</file>
-        <file>ImagePopup.qml</file>
-        <file>LiveView.qml</file>
-        <file>LiveViewVideo.qml</file>
         <file>LoginScreen.qml</file>
         <file>main.qml</file>
         <file>SettingGeneral.qml</file>
         <file>TemplateEditor.qml</file>
-        <file>Toast.qml</file>
-        <file>ToastManager.qml</file>
         <file>UpDownButton.qml</file>
         <file>UpDownButtonVertical.qml</file>
         <file>VideoBrowser.qml</file>
         <file>VideoList.qml</file>
-        <file>Webcamera.qml</file>
         <file>CanvasPopup.qml</file>
         <file>PathField.qml</file>
     </qresource>
@@ -71,9 +58,10 @@
         <file alias="check">Images/1x/outline_check_white_48dp.png</file>
         <file alias="paste">Images/1x/outline_ballot_white_48dp.png</file>
         <file alias="copy">Images/1x/outline_file_copy_white_48dp.png</file>
-        <file alias="paste_black">Images/1x/outline_ballot_black_48dp.png</file>
-        <file alias="copy_black">Images/1x/outline_file_copy_black_48dp.png</file>
         <file alias="clear_black">Images/1x/outline_clear_black_48dp.png</file>
+        <file alias="brush">Images/1x/brush.png</file>
+        <file alias="lightbulb">Images/1x/lightbulb-on-outline.png</file>
+        <file alias="replay">Images/1x/replay.png</file>
     </qresource>
     <qresource prefix="/img"/>
 </RCC>

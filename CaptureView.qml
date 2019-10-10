@@ -194,7 +194,7 @@ Item {
 
             if (settings.autoPrint) {
                 toast.show("Autoprinting photo!")
-                imagePrint.printPhoto(lastCombinedPhoto, settings.autoPrintCopies, false)
+                printPhotos.printPhoto(lastCombinedPhoto, settings.autoPrintCopies, false)
             }
             gallery.updateView()
 

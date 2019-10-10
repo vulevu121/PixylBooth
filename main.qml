@@ -148,7 +148,7 @@ Window {
 
     // print class to print photos
     PrintPhotos {
-        id: imagePrint
+        id: printPhotos
         printerName: settings.printerName
         paperName: settings.paperName
     }
@@ -425,6 +425,7 @@ Window {
     }
 
 
+
     Component {
         id: toastDelegate
 
@@ -434,10 +435,10 @@ Window {
             width: parent.width
             font.pixelSize: pixel(10)
             font.capitalization: Font.MixedCase
-            icon.width: height
-            icon.height: height
-            icon.source: "qrc:/icon/capture"
-            display: Button.TextBesideIcon
+//            icon.width: height
+//            icon.height: height
+//            icon.source: "qrc:/icon/capture"
+//            display: Button.TextBesideIcon
 
             anchors {
                 horizontalCenter: parent.horizontalCenter
@@ -472,15 +473,22 @@ Window {
     // toast
     ListView {
         id: toast
-        z: 10
+        z: 9
         model: toastList
         delegate: toastDelegate
         width: pixel(140)
         height: pixel(100)
-//        visible: toastList.count > 0
+
+        opacity: toastList.count > 0 ? 1 : 0
+
+        visible: opacity > 0.1
 
         ListModel {
             id: toastList
+        }
+
+        Behavior on opacity {
+            NumberAnimation {duration: 1000}
         }
 
 

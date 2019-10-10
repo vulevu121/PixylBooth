@@ -71,6 +71,7 @@ Item {
         return JSON.stringify(datamodel)
     }
 
+
     Settings {
         category: "General"
         id: generalSettings
@@ -137,6 +138,8 @@ Item {
     }
 
 
+
+
     ListModel {
         id: settingModel
         ListElement {
@@ -171,12 +174,12 @@ Item {
         }
         ListElement {
             name: "Lighting"
-            icon: "qrc:/icon/light"
+            icon: "qrc:/icon/lightbulb"
             view: "lightingView"
         }
         ListElement {
             name: "Canvas"
-            icon: "qrc:/icon/paint"
+            icon: "qrc:/icon/brush"
             view: "canvasView"
         }
     }
@@ -220,8 +223,6 @@ Item {
 
         }
     }
-
-
 
     Popup {
         id: filePopup
@@ -333,6 +334,16 @@ Item {
                         color: Material.color(Material.Cyan, Material.Shade800)
                     }
 
+                }
+
+                Text {
+                    text: "Version " + Qt.application.version
+                    color: Material.accent
+                    anchors {
+                        left: parent.left
+                        bottom: parent.bottom
+                        margins: pixel(2)
+                    }
                 }
             }
 
@@ -932,9 +943,9 @@ Item {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                                imagePrint.getPrinterSettings(printerNameField.text)
-                                printerNameField.text = imagePrint.printerName
-                                paperNameField.text = imagePrint.paperName
+                                printPhotos.getPrinterSettings(printerNameField.text)
+                                printerNameField.text = printPhotos.printerName
+                                paperNameField.text = printPhotos.paperName
                             }
                         }
                     }
@@ -954,9 +965,9 @@ Item {
                         MouseArea {
                             anchors.fill: parent
                             onClicked: {
-                                imagePrint.getPrinterSettings(printerNameField.text)
-                                printerNameField.text = imagePrint.printerName
-                                paperNameField.text = imagePrint.paperName
+                                printPhotos.getPrinterSettings(printerNameField.text)
+                                printerNameField.text = printPhotos.printerName
+                                paperNameField.text = printPhotos.paperName
                             }
                         }
                     }

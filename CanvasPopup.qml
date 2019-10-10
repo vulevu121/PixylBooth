@@ -362,7 +362,7 @@ Popup {
 //                    console.log(printCopyCountButton.value)
 //                    console.log(root.source)
                     toast.show("Printing photo")
-                    imagePrint.printPhoto(stripFilePrefix(image.source), printCopyCountButton.value, false)
+                    printPhotos.printPhoto(stripFilePrefix(image.source), printCopyCountButton.value, false)
                     toast.show("Printing " + printCopyCountButton.value + " copies")
                     printPopup.close()
                 }
@@ -380,7 +380,7 @@ Popup {
 //                    console.log(printCopyCountButton.value)
 //                    console.log(root.source)
                     toast.show("Printing photo with paint")
-                    imagePrint.printPhoto(stripFilePrefix(image.source), printCopyCountButton.value, true)
+                    printPhotos.printPhoto(stripFilePrefix(image.source), printCopyCountButton.value, true)
                     toast.show("Printing " + printCopyCountButton.value + " copies")
                     printPopup.close()
                 }

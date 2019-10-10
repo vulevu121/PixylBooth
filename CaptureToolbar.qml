@@ -75,6 +75,7 @@ Rectangle {
         anchors {
             horizontalCenter: parent.horizontalCenter
             verticalCenter: parent.verticalCenter
+            verticalCenterOffset: pixel(40)
         }
 
         Behavior on scale {
@@ -84,16 +85,6 @@ Rectangle {
             }
         }
 
-
-//        add: Transition {
-//            NumberAnimation {
-//                properties: "scale, opacity"
-//                easing.type: Easing.OutElastic
-//                from: 0
-//                to: 1
-//                duration: 800
-//            }
-//        }
 
         Button {
             id: playPauseButton
@@ -157,7 +148,7 @@ Rectangle {
             font.pixelSize: captureRect.fontSize
             font.capitalization: Font.MixedCase
             text: qsTr("Restart")
-            icon.source: "qrc:/icon/refresh"
+            icon.source: "qrc:/icon/replay"
             icon.width: height
             icon.height: height
 
@@ -224,7 +215,7 @@ Rectangle {
             text: "Restart from beginning?"
             width: captureRect.iconSize
             height: captureRect.iconSize
-            icon.source: "qrc:/icon/refresh"
+            icon.source: "qrc:/icon/replay"
             icon.width: height
             icon.height: height
             display: AbstractButton.IconOnly
