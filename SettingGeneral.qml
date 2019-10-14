@@ -566,7 +566,7 @@ Item {
                     }
 
                     Button {
-                        text: "Edit Template"
+                        text: "Format Template"
                         onClicked: {
                             var component = Qt.createComponent("TemplateEditor.qml")
                             var window    = component.createObject(root)

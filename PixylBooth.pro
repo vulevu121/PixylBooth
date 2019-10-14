@@ -1,4 +1,4 @@
-QT += gui quick widgets multimedia network printsupport webview
+QT += gui quick widgets multimedia network printsupport webview serialport
 CONFIG += c++11
 
 TEMPLATE = app
@@ -21,6 +21,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     Firebase.cpp \
+    SerialControl.cpp \
     SonyRemote.cpp \
     main.cpp \
     ProcessPhotos.cpp \
@@ -44,6 +45,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     Firebase.h \
+    SerialControl.h \
     SonyRemote.h \
     ProcessPhotos.h \
     PrintPhotos.h \

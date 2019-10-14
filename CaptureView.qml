@@ -16,6 +16,7 @@ import ProcessPhotos 1.0
 import PrintPhotos 1.0
 //import Firebase 1.0
 import SonyRemote 1.0
+//import SerialControl 1.0
 
 Item {
     id: captureView
@@ -202,6 +203,8 @@ Item {
         }
     }
 
+
+
     // timer to initialize to a default state
     Timer {
         id: initialTimer1
@@ -249,6 +252,8 @@ Item {
         interval: 1000
 
         onTriggered: {
+//            serialControl.writeData("Stop");
+//            serialControl.writeData("ColorSweep(FF0000, 1)")
             if (captureView.countdown.count == settings.countdownTimer) {
                 sonyRemote.actHalfPressShutter()
 //                sonyAPI.actHalfPressShutter()
@@ -259,6 +264,7 @@ Item {
             }
 
             if (captureView.countdown.count <= 0) {
+                //serialControl.writeData()
                 capturePhoto()
                 afterCaptureState()
                 resetCountdownTimer()
@@ -567,6 +573,11 @@ Item {
             evLabel.text = "EV: " + ev
         }
     }
+
+//    SerialControl {
+//        id: serialControl
+
+//    }
 
     Component.onDestruction: {
 //        liveView.stop()
