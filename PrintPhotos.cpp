@@ -43,6 +43,7 @@ QString PrintPhotos::getPrinterSettings(QString const &printerName) {
 
     m_printerName = printer.printerName();
     m_paperName = printer.paperName();
+
 //    QSettings *settings = new QSettings("Pixyl", "PixylBooth");
 //    settings->setValue("/Printer/paperName", m_paperName);
     return printer.printerName();
@@ -56,6 +57,7 @@ void PrintPhotos::printPhoto(const QString &photoPath, int copyCount, bool print
     thread->copyCount = copyCount;
     thread->printCanvas = printCanvas;
     thread->printerName = m_printerName;
+    thread->paperName = m_paperName;
     connect(thread, &PrintThread::finished, thread, &PrintThread::deleteLater);
     thread->start();
 }
@@ -81,12 +83,17 @@ void PrintThread::run() {
 
     if (photo.width() <= 1250 && photo.height() <= 3650) {
         printer.setOrientation(QPrinter::Portrait);
-        printer.setPaperName("6x4-Split (6x2 2 prints)");
+//        printer.setPaperName("6x4-Split (6x2 2 prints)");
+
+
     }
     else {
         printer.setOrientation(QPrinter::Landscape);
-        printer.setPaperName("6x4 / 152x100mm");
+//        printer.setPaperName("6x4 / 152x100mm");
     }
+
+
+    printer.setPaperName(paperName);
 
 
 

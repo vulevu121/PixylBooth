@@ -55,6 +55,7 @@ public:
     QString photoPath = "";
     QString printerName = "";
     QString saveFolder = "";
+    QString paperName = "";
     int copyCount = 0;
     bool printCanvas = false;
 };
