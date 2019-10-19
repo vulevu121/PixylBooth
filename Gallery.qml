@@ -26,6 +26,7 @@ Rectangle {
     property bool showFileName: false
     property alias view: view
 
+
     function updateView() {
         view.model = []
         view.model = folderListModel
@@ -59,7 +60,7 @@ Rectangle {
         id: photoDelegate
         Item {
             width: root.width
-            height: root.height
+            height: settings.print6x4Split ? root.height : root.width / photoAspectRatio
 
             Image {
                 id: mainImage

@@ -50,7 +50,7 @@ Window {
 //    property string password: passwordField.text
     property string idToken
     property string refreshToken
-    property real photoAspectRatio: 3/2
+    property real photoAspectRatio: 1.5
 
 
     Settings {

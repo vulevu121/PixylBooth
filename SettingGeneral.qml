@@ -38,7 +38,7 @@ Item {
     property alias autoPrintCopies: autoPrintCopies.value
     property alias printCopiesPerSession: printCopiesPerSessionButton.value
     property alias paperName: paperNameField.text
-    property alias paperCutting: paperCuttingSwitch.checked
+    property alias print6x4Split: print6x4SplitSwitch.checked
 
     property alias startVideoPlaylist: startVideoPlaylist
     property alias beforeCaptureVideoPlaylist: beforeCapturePlaylist
@@ -122,7 +122,7 @@ Item {
         property alias autoPrintCopies: autoPrintCopies.value
         property alias printCopiesPerSession: printCopiesPerSessionButton.value
         property alias paperName: paperNameField.text
-        property alias paperCutting: paperCuttingSwitch.checked
+        property alias print6x4Split: print6x4SplitSwitch.checked
     }
 
     Settings {
@@ -428,6 +428,7 @@ Item {
                         id: beforeCaptureTimerButton
                         height: buttonHeight
                         width: height * 3
+                        min: 2
                     }
 
                     CustomLabel {
@@ -441,6 +442,7 @@ Item {
                         id: afterCaptureTimerButton
                         height: buttonHeight
                         width: height * 3
+                        min: 2
                     }
 
                     CustomLabel {
@@ -455,6 +457,7 @@ Item {
                         id: countdownTimerButton
                         height: buttonHeight
                         width: height * 3
+                        min: 3
                     }
 
 
@@ -469,6 +472,7 @@ Item {
                         id: reviewTimerButton
                         height: buttonHeight
                         width: height * 3
+                        min: 2
                     }
 
 
@@ -483,6 +487,7 @@ Item {
                         id: endSessionTimerButton
                         height: buttonHeight
                         width: height * 3
+                        min: 10
                     }
 
 
@@ -498,6 +503,7 @@ Item {
                         id: displayScalingButton
                         height: buttonHeight
                         width: height * 3
+                        min: 1
                     }
 
 
@@ -975,12 +981,12 @@ Item {
                     CustomLabel {
                         height: root.rowHeight
                         Layout.fillWidth: true
-                        text: "Paper Cutting"
-                        subtitle: "Set this to true if printer has cutting enabled"
+                        text: "6x4 Split"
+                        subtitle: "Print double for 6x4 split"
                     }
 
                     Switch {
-                        id: paperCuttingSwitch
+                        id: print6x4SplitSwitch
                     }
 
 
@@ -1001,12 +1007,14 @@ Item {
                         subtitle: "Number of copies for automatic printing"
                         height: root.rowHeight
                         Layout.fillWidth: true
+
                     }
 
                     UpDownButton {
                         id: autoPrintCopies
                         height: buttonHeight
                         width: height * 3
+                        min: 1
                     }
 
                     // === Print Limit ====
@@ -1021,6 +1029,7 @@ Item {
                         id: printCopiesPerSessionButton
                         height: buttonHeight
                         width: height * 3
+                        min: 1
                     }
 
 

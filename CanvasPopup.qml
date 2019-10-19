@@ -43,8 +43,8 @@ Popup {
     onClosed: {
         saveCanvas()
 
-        saveFile(smsFileURL, getJsonFromModel(smsModel))
-        saveFile(emailFileURL, getJsonFromModel(emailModel))
+//        saveFile(smsFileURL, getJsonFromModel(smsModel))
+//        saveFile(emailFileURL, getJsonFromModel(emailModel))
 
     }
 
@@ -206,6 +206,7 @@ Popup {
 
         onClosed: {
             emailTextField.clear()
+            saveFile(emailFileURL, getJsonFromModel(emailModel))
         }
 
         Column {
@@ -258,8 +259,17 @@ Popup {
                     highlighted: true
                     onClicked: {
                         if (emailTextField.text.length > 0) {
-                            var photoPath = String(image.source)
+                            var list = []
+
+                            var photoPath = String(stripFilePrefix(image.source))
+//                            var fileName = photoPath.substring(photoPath.lastIndexOf('/')+1, photoPath.length)
+//                            console.log(fileName)
                             var inputEmail = emailTextField.text.toLowerCase()
+
+//                            list.push(photoPath, photoPath);
+//                            console.log(list)
+
+
                             emailModel.append({"PhotoPath": photoPath, "Email": inputEmail})
 //                            emailTextField.clear()
                             emailPopup.close()
@@ -343,7 +353,7 @@ Popup {
                 id: printCopyCountButton
                 min: 1
                 value: 1
-                text: settings.paperCutting ? value*2 : value
+                text: settings.print6x4Split ? value*2 : value
                 max: settings.printCopiesPerSession
                 height: pixel(20)
                 width: height * 3
@@ -413,6 +423,7 @@ Popup {
 
         onClosed: {
             phoneNumber.clear()
+            saveFile(smsFileURL, getJsonFromModel(smsModel))
         }
 
 
