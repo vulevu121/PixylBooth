@@ -259,13 +259,14 @@ Popup {
                     highlighted: true
                     onClicked: {
                         if (emailTextField.text.length > 0) {
-                            var list = []
+
 
                             var photoPath = String(stripFilePrefix(image.source))
 //                            var fileName = photoPath.substring(photoPath.lastIndexOf('/')+1, photoPath.length)
 //                            console.log(fileName)
                             var inputEmail = emailTextField.text.toLowerCase()
 
+//                            var list = []
 //                            list.push(photoPath, photoPath);
 //                            console.log(list)
 
@@ -460,7 +461,13 @@ Popup {
                     highlighted: true
                     onClicked: {
                         var photoPath = String(image.source)
-                        smsModel.append({ "PhotoPath": photoPath, "Phone": phoneNumber.text, "Carrier": carrierCombo.currentText })
+
+//                        var test = [{"path":"file1"}, {"path":"file2"}]
+                        var output = { "PhotoPath": photoPath, "Phone": phoneNumber.text, "Carrier": carrierCombo.currentText }
+                        console.log(output)
+
+
+                        smsModel.append(output)
     //                    console.log(getJsonFromModel(smsModel))
                         smsPopup.close()
                     }

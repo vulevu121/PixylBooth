@@ -89,21 +89,42 @@ void CombineThread::run() {
     QImage output(templateImage.width(), templateImage.height(), QImage::Format_RGB32);
     // prepare painting
     QPainter imagePainter(&output);
+    QTransform trans;
 
     for (int i = 0 ; i < templateJsonArray.count() ; i++) {
         int ax = templateJsonArray[i].toObject()["ax"].toInt();
         int ay = templateJsonArray[i].toObject()["ay"].toInt();
         int awidth = templateJsonArray[i].toObject()["awidth"].toInt();
+        int protation = templateJsonArray[i].toObject()["protation"].toInt();
 
         QString filePath = m_model->data(m_model->index(i, 0), 0).toString();
         qDebug() << "[ProcessPhotos] Processing" << filePath;
 
         QDir imageDir(filePath);
         QImage image(imageDir.absolutePath());
-        QImage imageScaled = image.scaledToWidth(awidth);
+//        QImage imageScaled = image.scaledToWidth(awidth);
+        QImage imageScaled = image.scaledToWidth(1800);
+
+        trans.reset();
+        if (i == 0) {
+            trans.translate(output.width()/2+1200, output.height()/2-1800);
+        }
+        else if (i == 1) {
+            trans.translate(output.width()/2, output.height()/2);
+        }
+        else if (i == 2) {
+            trans.translate(output.width()/2+1200, output.height()/2);
+        }
+
+        trans.rotate(90);
+        imagePainter.setTransform(trans);
+
 
         // draw each photo onto canvas
-        imagePainter.drawImage(ax, ay, imageScaled);
+        imagePainter.drawImage(0, 0, imageScaled);
+
+        // return to top-left origin
+        imagePainter.resetTransform();
     }
 
     // draw template image after photos

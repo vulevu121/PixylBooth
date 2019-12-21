@@ -62,6 +62,8 @@
         <file alias="brush">Images/1x/brush.png</file>
         <file alias="lightbulb">Images/1x/lightbulb-on-outline.png</file>
         <file alias="replay">Images/1x/replay.png</file>
+        <file alias="rotate-left">icons/rotate-left.png</file>
+        <file alias="rotate-right">icons/rotate-right.png</file>
     </qresource>
     <qresource prefix="/img"/>
 </RCC>

@@ -1,4 +1,4 @@
-#include "SonyRemote.h"
+﻿#include "SonyRemote.h"
 
 enum Id { liveview, batteryPercent, ev, statusMsg, saveDir, photoButton, halfPressButton, IdCount };
 static BOOL CALLBACK EnumChildProc(HWND hwnd, LPARAM lParam);
@@ -39,6 +39,16 @@ void SonyRemote::setLiveviewRunning(bool running) {
         qDebug() << "[SonyRemote] Stopping liveview";
         liveviewUpdateTimer->stop();
     }
+}
+
+bool SonyRemote::isPortraitMode() {
+    return m_portraitMode;
+}
+
+void SonyRemote::setPortraitMode(bool portraitMode) {
+    if (portraitMode == m_portraitMode)
+        return;
+    m_portraitMode = portraitMode;
 }
 
 QString SonyRemote::getSaveFolder() {

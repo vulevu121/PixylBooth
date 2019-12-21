@@ -25,7 +25,7 @@ ApplicationWindow {
 //    maximumWidth: Screen.width * 0.8
 //    maximumHeight: Screen.height * 0.8
 
-    property real iconSize: pixel(8)
+    property real iconSize: pixel(6)
     property real aspectRatio: 1.5
 
     Settings {
@@ -137,6 +137,7 @@ ApplicationWindow {
                 id: photoFrame
                 x: px
                 y: py
+                rotation: protation
                 color: "#008000"
                 width: pwidth
                 height: pheight
@@ -168,79 +169,93 @@ ApplicationWindow {
                     color: "white"
                 }
 
-                RowLayout {
-                    z: 1
+                ColumnLayout {
+                    RowLayout {
+                        z: 1
 
-                    Button {
-                        text: "Delete"
-                        display: Button.IconOnly
-                        icon.source: "qrc:/icon/delete"
-                        icon.width: iconSize
-                        icon.height: iconSize
-                        flat: true
+                        Button {
+                            text: "Delete"
+                            display: Button.IconOnly
+                            icon.source: "qrc:/icon/delete"
+                            icon.width: iconSize
+                            icon.height: iconSize
+                            flat: true
 
-                        onClicked: {
-                            photoFrameModel.remove(index)
-                        }
-                    }
-
-                    Button {
-                        text: "Scale up"
-                        display: Button.IconOnly
-                        icon.source: "qrc:/icon/zoom_in"
-                        icon.width: iconSize
-                        icon.height: iconSize
-                        flat: true
-                        autoRepeat: true
-
-
-                        onClicked: {
-                            photoFrameModel.get(index).pwidth += 10
-                            photoFrameModel.get(index).pheight = get_pheight(photoFrameModel.get(index).pwidth)
+                            onClicked: {
+                                photoFrameModel.remove(index)
+                            }
                         }
 
                     }
 
-                    Button {
-                        text: "Scale down"
-                        display: Button.IconOnly
-                        icon.source: "qrc:/icon/zoom_out"
-                        icon.width: iconSize
-                        icon.height: iconSize
-                        flat: true
-                        autoRepeat: true
+                    RowLayout {
+                        Button {
+                            text: "Rotate Left"
+                            display: Button.IconOnly
+                            icon.source: "qrc:/icon/rotate-left"
+                            icon.width: iconSize
+                            icon.height: iconSize
+                            flat: true
+                            autoRepeat: true
 
+                            onClicked: {
+                                photoFrameModel.get(index).protation -= 15
+                            }
 
-                        onClicked: {
-                            photoFrameModel.get(index).pwidth -= 10
-                            photoFrameModel.get(index).pheight = get_pheight(photoFrameModel.get(index).pwidth)
+                        }
+
+                        Button {
+                            text: "Rotate Right"
+                            display: Button.IconOnly
+                            icon.source: "qrc:/icon/rotate-right"
+                            icon.width: iconSize
+                            icon.height: iconSize
+                            flat: true
+                            autoRepeat: true
+
+                            onClicked: {
+                                photoFrameModel.get(index).protation += 15
+                            }
                         }
                     }
 
-    //                Button {
-    //                    text: "Drag"
-    //                    display: Button.IconOnly
-    //                    icon.source: "qrc:/Images/open_with_white_48dp.png"
-    //                    icon.width: iconSize
-    //                    icon.height: iconSize
-    //                    flat: true
+                    RowLayout {
+                        Button {
+                            text: "Scale up"
+                            display: Button.IconOnly
+                            icon.source: "qrc:/icon/zoom_in"
+                            icon.width: iconSize
+                            icon.height: iconSize
+                            flat: true
+                            autoRepeat: true
 
-    //                    MouseArea {
-    //                        anchors.fill: parent
-    //                        hoverEnabled: true
-    //                        drag.target: photoFrame
 
-    //                        onReleased: {
-    //                            photoFrameModel.get(index).px = photoFrame.x
-    //                            photoFrameModel.get(index).py = photoFrame.y
+                            onClicked: {
+                                photoFrameModel.get(index).pwidth += 10
+                                photoFrameModel.get(index).pheight = get_pheight(photoFrameModel.get(index).pwidth)
+                            }
 
-    //                            photoFrameModel.get(index).ax = get_ax(photoFrame.x)
-    //                            photoFrameModel.get(index).ay = get_ay(photoFrame.y)
-    //                        }
-    //                    }
-    //                }
+                        }
 
+                        Button {
+                            text: "Scale down"
+                            display: Button.IconOnly
+                            icon.source: "qrc:/icon/zoom_out"
+                            icon.width: iconSize
+                            icon.height: iconSize
+                            flat: true
+                            autoRepeat: true
+
+
+                            onClicked: {
+                                photoFrameModel.get(index).pwidth -= 10
+                                photoFrameModel.get(index).pheight = get_pheight(photoFrameModel.get(index).pwidth)
+                            }
+                        }
+                    }
                 }
+
+
 
 
     //            PinchArea {
@@ -340,6 +355,19 @@ ApplicationWindow {
             py: 0
             pwidth: 300
             pheight: 200
+            protation: 0
+            ax: 0
+            ay: 0
+            awidth: 300
+            aheight: 200
+
+        }
+        ListElement {
+            px: 0
+            py: 0
+            pwidth: 300
+            pheight: 200
+            protation: 0
             ax: 0
             ay: 0
             awidth: 300
@@ -350,16 +378,7 @@ ApplicationWindow {
             py: 0
             pwidth: 300
             pheight: 200
-            ax: 0
-            ay: 0
-            awidth: 300
-            aheight: 200
-        }
-        ListElement {
-            px: 0
-            py: 0
-            pwidth: 300
-            pheight: 200
+            protation: 0
             ax: 0
             ay: 0
             awidth: 300

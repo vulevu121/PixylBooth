@@ -434,10 +434,10 @@ Item {
                 target: sonyRemote
                 opacity: 1
                 scale: 1
-                width: mainWindow.width * 0.9
-                height: width / photoAspectRatio
-                x: 0
-                y: pixel(30)
+//                width: mainWindow.width * 0.9
+//                height: width / photoAspectRatio
+//                x: 0
+//                y: pixel(30)
             }
             PropertyChanges {
                 target: countdown
@@ -544,10 +544,12 @@ Item {
         opacity: 0
         scale: 0.1
         z:1
-        width: parent.width
+        width: settings.portraitModeSwitch ? parent.height : parent.width
         height: width / photoAspectRatio
+        rotation: settings.portraitModeSwitch ? -90 : 0
         anchors {
             horizontalCenter: parent.horizontalCenter
+            verticalCenter: parent.verticalCenter
         }
         flipHorizontally: settings.mirrorLiveVideoSwitch
 
@@ -560,6 +562,8 @@ Item {
         }
 
         liveviewRunning: captureView.state == "liveview"
+
+        portraitMode: settings.portraitModeSwitch
 
         onExposureSignal: {
             exposureButton.value = exposure
@@ -638,11 +642,16 @@ Item {
     // review image
     Rectangle {
         id: review
-        width: mainWindow.width - pixel(10)
-        height: width * 0.75
-        anchors.top: parent.top
-        anchors.topMargin: pixel(20)
-        anchors.horizontalCenter: parent.horizontalCenter
+//        width: mainWindow.width - pixel(10)
+        width: settings.portraitModeSwitch ? mainWindow.height : mainWindow.width
+        height: width / photoAspectRatio
+        rotation: settings.portraitModeSwitch ? -90 : 0
+//        anchors.top: parent.top
+//        anchors.topMargin: pixel(20)
+        anchors {
+            horizontalCenter: parent.horizontalCenter
+            verticalCenter: parent.verticalCenter
+        }
         opacity: 0
         scale: 0.1
         color: "transparent"

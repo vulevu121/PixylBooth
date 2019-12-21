@@ -81,16 +81,18 @@ void PrintThread::run() {
     printer.setPrinterName(printerName);
     printer.setCopyCount(copyCount);
 
-    if (photo.width() <= 1250 && photo.height() <= 3650) {
-        printer.setOrientation(QPrinter::Portrait);
-//        printer.setPaperName("6x4-Split (6x2 2 prints)");
+//    if (photo.width() <= 1250 && photo.height() <= 3650) {
+//        printer.setOrientation(QPrinter::Portrait);
+////        printer.setPaperName("6x4-Split (6x2 2 prints)");
 
 
-    }
-    else {
-        printer.setOrientation(QPrinter::Landscape);
-//        printer.setPaperName("6x4 / 152x100mm");
-    }
+//    }
+//    else {
+//        printer.setOrientation(QPrinter::Landscape);
+////        printer.setPaperName("6x4 / 152x100mm");
+//    }
+
+    printer.setOrientation(QPrinter::Portrait);
 
 
     printer.setPaperName(paperName);
@@ -117,20 +119,23 @@ void PrintThread::run() {
     qDebug() << "[PrintPhotos] Copies:" << copyCount;
     qDebug() << "[PrintPhotos] Canvas:" << canvasPath;
 
-    if (photo.width() <= 1250 && photo.height() <= 3650) {
-        QImage photoScaled = photo.scaled(615, 1820);
-        printerPainter.drawImage(0, 0, photoScaled);
-        printerPainter.drawImage(615, 0, photoScaled);
-    }
-    else {
-        QImage photoScaled = photo.scaled(1820, 1230);
-        printerPainter.drawImage(0, 0, photoScaled);
-    }
+//    if (photo.width() <= 1250 && photo.height() <= 3650) {
+//        QImage photoScaled = photo.scaled(615, 1840);
+//        printerPainter.drawImage(0, 0, photoScaled);
+//        printerPainter.drawImage(615, 0, photoScaled);
+//    }
+//    else {
+//        QImage photoScaled = photo.scaled(1840, 1230);
+//        printerPainter.drawImage(0, 0, photoScaled);
+//    }
+
+    QImage photoScaled = photo.scaled(1230, 1840);
+    printerPainter.drawImage(0, 0, photoScaled);
 
 
     if (printCanvas) {
         QImage canvasImage(canvasPath);
-        QImage canvasImageScaled = canvasImage.scaled(1820, 1230);
+        QImage canvasImageScaled = canvasImage.scaled(1840, 1230);
         printerPainter.drawImage(0, 0, canvasImageScaled);
     }
 

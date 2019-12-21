@@ -32,6 +32,7 @@ Item {
     property alias showLiveVideoOnStartSwitch: showLiveVideoOnStartSwitch.checked
     property alias showLiveVideoOnCountdownSwitch: showLiveVideoOnCountdownSwitch.checked
     property alias mirrorLiveVideoSwitch: mirrorLiveVideoSwitch.checked
+    property alias portraitModeSwitch: portraitModeSwitch.checked
 
     property alias printerName: printerNameField.text
     property alias autoPrint: autoPrint.checked
@@ -103,6 +104,7 @@ Item {
         property alias showLiveVideoOnStart: showLiveVideoOnStartSwitch.checked
         property alias showLiveVideoOnCountdown: showLiveVideoOnCountdownSwitch.checked
         property alias mirrorLiveVideo: mirrorLiveVideoSwitch.checked
+        property alias portraitMode: portraitModeSwitch.checked
     }
 
 
@@ -808,11 +810,18 @@ Item {
                         id: mirrorLiveVideoSwitch
                     }
 
+                    CustomLabel {
+                        text: "Portrait Mode"
+                        subtitle: "Capture images in vertical orientation"
+                        height: root.rowHeight
+                        Layout.fillWidth: true
+                    }
 
-
+                    Switch {
+                        id: portraitModeSwitch
+                    }
 
                     RowLayout {}
-
                 }
 
             }

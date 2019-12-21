@@ -25,8 +25,6 @@
 
 #include "Windows.h"
 
-
-
 class SonyRemote : public QQuickPaintedItem
 {
     Q_OBJECT
@@ -35,6 +33,7 @@ class SonyRemote : public QQuickPaintedItem
     Q_PROPERTY(QString readyFlag READ readyFlag)
     Q_PROPERTY(bool flipHorizontally READ isFlipHorizontally WRITE setFlipHorizontally)
     Q_PROPERTY(bool liveviewRunning READ isLiveviewRunning WRITE setLiveviewRunning)
+    Q_PROPERTY(bool portraitMode READ isPortraitMode WRITE setPortraitMode)
 public:
     SonyRemote(QQuickItem *parent = nullptr);
     void paint(QPainter *painter);
@@ -75,6 +74,8 @@ public slots:
     void closeRemoteWindow();
     void setLiveviewRunning(bool running);
     void releaseKey();
+    bool isPortraitMode();
+    void setPortraitMode(bool portraitMode);
 
 private:
     QString m_actTakePictureFilePath;
@@ -84,6 +85,7 @@ private:
     bool m_hostConnected = false;
     bool m_flipHorizontally = false;
     bool m_liveviewRunning = false;
+    bool m_portraitMode = false;
 
     QPixmap originalPixmap;
     WId liveviewWid;
