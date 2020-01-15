@@ -106,19 +106,28 @@ void CombineThread::run() {
         QImage imageScaled = image.scaledToWidth(1800);
 
         trans.reset();
+//        if (i == 0) {
+//            trans.translate(output.width()/2+1200, output.height()/2-1800);
+//        }
+//        else if (i == 1) {
+//            trans.translate(output.width()/2, output.height()/2);
+//        }
+//        else if (i == 2) {
+//            trans.translate(output.width()/2+1200, output.height()/2);
+//        }
+
         if (i == 0) {
-            trans.translate(output.width()/2+1200, output.height()/2-1800);
-        }
-        else if (i == 1) {
             trans.translate(output.width()/2, output.height()/2);
         }
+        else if (i == 1) {
+            trans.translate(output.width()/2, output.height()/2+1800);
+        }
         else if (i == 2) {
-            trans.translate(output.width()/2+1200, output.height()/2);
+            trans.translate(0, output.height());
         }
 
-        trans.rotate(90);
+        trans.rotate(-90);
         imagePainter.setTransform(trans);
-
 
         // draw each photo onto canvas
         imagePainter.drawImage(0, 0, imageScaled);

@@ -154,7 +154,7 @@ void SonyRemote::getRemoteWid() {
         qDebug() << "[SonyRemote] Found" << remoteHwnd << liveviewContainerHwnd << liveviewHwnd;
         liveviewWid = WId(liveviewHwnd);
 
-        QTimer::singleShot(2000, this, SLOT(resizeRemoteWindow()));
+//        QTimer::singleShot(2000, this, SLOT(resizeRemoteWindow()));
 //        QTimer::singleShot(2000, this, SLOT(getHwnd()));
 
         EnumChildWindows(remoteHwnd, EnumChildProc, NULL);
@@ -210,23 +210,24 @@ void SonyRemote::actTakePictureReply() {
     if (QFile::exists(filePath)) {
         qDebug() << filePath << "exists";
 
-        QString targetFilePath = m_saveFolder + "/" + fileName;
+        QString targetFilePath = m_saveFolder + "/DSC_" + QDateTime::currentDateTime().toString("yyMMdd_HHmmss") + ".jpg";
 
         // move to target folder
         if (QFile::rename(filePath, targetFilePath)) {
             emit actTakePictureCompleted(targetFilePath);
-        } else {
-            // else append current datetime if target file already exists
-            QString name = fileName.left(fileName.lastIndexOf("."));
-            QString ext = fileName.right(fileName.length() - fileName.lastIndexOf("."));
-
-            QString curDateTime = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
-            QString newFileName = name + "_" + curDateTime + ext;
-            targetFilePath = m_saveFolder + "/" + newFileName;
-
-            QFile::rename(filePath, targetFilePath);
-            emit actTakePictureCompleted(targetFilePath);
         }
+//        else {
+//            // else append current datetime if target file already exists
+//            QString name = fileName.left(fileName.lastIndexOf("."));
+//            QString ext = fileName.right(fileName.length() - fileName.lastIndexOf("."));
+
+//            QString curDateTime = QDateTime::currentDateTime().toString("yyMMdd_HHmmss");
+//            QString newFileName = name + "_" + curDateTime + ext;
+//            targetFilePath = m_saveFolder + "/" + newFileName;
+
+//            QFile::rename(filePath, targetFilePath);
+//            emit actTakePictureCompleted(targetFilePath);
+//        }
     }
 
 

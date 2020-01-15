@@ -546,7 +546,7 @@ Item {
         z:1
         width: settings.portraitModeSwitch ? parent.height : parent.width
         height: width / photoAspectRatio
-        rotation: settings.portraitModeSwitch ? -90 : 0
+        rotation: settings.portraitModeSwitch ? 90 : 0
         anchors {
             horizontalCenter: parent.horizontalCenter
             verticalCenter: parent.verticalCenter
@@ -645,7 +645,7 @@ Item {
 //        width: mainWindow.width - pixel(10)
         width: settings.portraitModeSwitch ? mainWindow.height : mainWindow.width
         height: width / photoAspectRatio
-        rotation: settings.portraitModeSwitch ? -90 : 0
+        rotation: settings.portraitModeSwitch ? 90 : 0
 //        anchors.top: parent.top
 //        anchors.topMargin: pixel(20)
         anchors {
