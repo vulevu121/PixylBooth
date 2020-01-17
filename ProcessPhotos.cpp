@@ -56,6 +56,18 @@ void ProcessPhotos::setModel(QAbstractItemModel *model) {
     }
 }
 
+bool ProcessPhotos::portraitMode()
+{
+    return m_portraitMode;
+}
+
+void ProcessPhotos::setPortraitMode(bool enable)
+{
+    if (enable != m_portraitMode) {
+        m_portraitMode = enable;
+    }
+}
+
 void ProcessPhotos::emitCombineFinished(const QString &outputPath) {
     emit combineFinished(outputPath);
 }
@@ -66,6 +78,7 @@ void ProcessPhotos::combine() {
     thread->m_templatePath = m_templatePath;
     thread->m_templateFormat = m_templateFormat;
     thread->templateJsonArray = templateJsonArray;
+    thread->portraitMode = m_portraitMode;
     thread->m_model = m_model;
     connect(thread, &CombineThread::finished, thread, &CombineThread::deleteLater);
     connect(thread, &CombineThread::combineFinished, this, &ProcessPhotos::emitCombineFinished);
@@ -102,38 +115,47 @@ void CombineThread::run() {
 
         QDir imageDir(filePath);
         QImage image(imageDir.absolutePath());
-//        QImage imageScaled = image.scaledToWidth(awidth);
-        QImage imageScaled = image.scaledToWidth(1800);
 
-        trans.reset();
-//        if (i == 0) {
-//            trans.translate(output.width()/2+1200, output.height()/2-1800);
-//        }
-//        else if (i == 1) {
-//            trans.translate(output.width()/2, output.height()/2);
-//        }
-//        else if (i == 2) {
-//            trans.translate(output.width()/2+1200, output.height()/2);
-//        }
+        if (portraitMode) {
 
-        if (i == 0) {
-            trans.translate(output.width()/2, output.height()/2);
+    //        QImage imageScaled = image.scaledToWidth(awidth);
+            QImage imageScaled = image.scaledToWidth(1800);
+
+            trans.reset();
+    //        if (i == 0) {
+    //            trans.translate(output.width()/2+1200, output.height()/2-1800);
+    //        }
+    //        else if (i == 1) {
+    //            trans.translate(output.width()/2, output.height()/2);
+    //        }
+    //        else if (i == 2) {
+    //            trans.translate(output.width()/2+1200, output.height()/2);
+    //        }
+
+            if (i == 0) {
+                trans.translate(output.width()/2, output.height()/2);
+            }
+            else if (i == 1) {
+                trans.translate(output.width()/2, output.height()/2+1800);
+            }
+            else if (i == 2) {
+                trans.translate(0, output.height());
+            }
+
+            trans.rotate(-90);
+            imagePainter.setTransform(trans);
+
+            // draw each photo onto canvas
+            imagePainter.drawImage(0, 0, imageScaled);
+
+            // return to top-left origin
+            imagePainter.resetTransform();
         }
-        else if (i == 1) {
-            trans.translate(output.width()/2, output.height()/2+1800);
-        }
-        else if (i == 2) {
-            trans.translate(0, output.height());
+        else {
+            QImage imageScaled = image.scaledToWidth(awidth);
+            imagePainter.drawImage(ax, ay, imageScaled);
         }
 
-        trans.rotate(-90);
-        imagePainter.setTransform(trans);
-
-        // draw each photo onto canvas
-        imagePainter.drawImage(0, 0, imageScaled);
-
-        // return to top-left origin
-        imagePainter.resetTransform();
     }
 
     // draw template image after photos

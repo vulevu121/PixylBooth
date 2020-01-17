@@ -21,6 +21,7 @@ class ProcessPhotos : public QObject
     Q_PROPERTY(QString templateFormat READ getTemplateFormat WRITE setTemplateFormat)
     Q_PROPERTY(QString templatePath READ getTemplatePath WRITE setTemplatePath)
     Q_PROPERTY(QAbstractItemModel *model READ getModel WRITE setModel)
+    Q_PROPERTY(bool portraitMode READ portraitMode WRITE setPortraitMode)
 
 public:
     explicit ProcessPhotos(QObject *parent = nullptr);
@@ -37,6 +38,10 @@ public:
     QAbstractItemModel *getModel();
     void setModel(QAbstractItemModel *model);
 
+    bool portraitMode();
+    void setPortraitMode(bool enable);
+
+
 signals:
     void combineFinished(const QString &outputPath);
     void operate();
@@ -51,6 +56,7 @@ private:
     QString m_templatePath;
     QJsonArray templateJsonArray;
     QAbstractItemModel *m_model;
+    bool m_portraitMode = false;
 };
 
 
@@ -69,6 +75,7 @@ public:
     QString m_templatePath;
     QJsonArray templateJsonArray;
     QAbstractItemModel *m_model;
+    bool portraitMode = false;
 
 signals:
     void combineFinished(const QString &outputPath);

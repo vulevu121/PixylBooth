@@ -8,6 +8,7 @@ import Qt.labs.folderlistmodel 2.13
 import QtQuick.VirtualKeyboard 2.13
 import QtQuick.VirtualKeyboard.Styles 2.13
 import QtQuick.VirtualKeyboard.Settings 2.13
+import SMSEmail 1.0
 
 Popup {
     id: canvasPopup
@@ -38,8 +39,8 @@ Popup {
         canvas.lastCanvasLoaded = false
         canvas.loadImage(canvasURL)
 
-        loadModelFromJson(openFile(smsFileURL), smsModel)
-        loadModelFromJson(openFile(emailFileURL), emailModel)
+//        loadModelFromJson(openFile(smsFileURL), smsModel)
+//        loadModelFromJson(openFile(emailFileURL), emailModel)
     }
 
     onClosed: {
@@ -89,6 +90,48 @@ Popup {
         request.open("PUT", fileUrl, false);
         request.send(text);
         return request.status;
+    }
+
+    function splitPath(path) {
+        var split1 = String(path).split("/DSC_")
+        var split2 = String(split1[1]).split("_DSC_")
+
+        var pathList = [path]
+
+        var basePath = split1[0].replace("Prints", "Camera")
+
+        pathList.push(basePath + "/DSC_" + split2[0] + ".jpg")
+        pathList.push(basePath + "/DSC_" + split2[1] + ".jpg")
+        pathList.push(basePath + "/DSC_" + split2[2])
+
+        for (var i=0; i<pathList.length; i++) {
+            console.log(pathList[i])
+        }
+
+        return pathList
+    }
+
+    Popup {
+        id: messagePopup
+        anchors {
+            centerIn: parent
+
+        }
+
+        property alias text: textbox.text
+
+        Text {
+            id: textbox
+            text: qsTr("text")
+            color: "white"
+            font.pointSize: 18
+        }
+    }
+
+    SMSEmail {
+        id: smsEmail
+        smsPath: settings.saveFolder + "/SMS.txt"
+        emailPath: settings.saveFolder + "/Email.txt"
     }
 
     ListModel {
@@ -209,7 +252,7 @@ Popup {
 
         onClosed: {
             emailTextField.clear()
-            saveFile(emailFileURL, getJsonFromModel(emailModel))
+//            saveFile(emailFileURL, getJsonFromModel(emailModel))
         }
 
         Column {
@@ -262,20 +305,9 @@ Popup {
                     highlighted: true
                     onClicked: {
                         if (emailTextField.text.length > 0) {
-
-
-                            var photoPath = String(stripFilePrefix(image.source))
-//                            var fileName = photoPath.substring(photoPath.lastIndexOf('/')+1, photoPath.length)
-//                            console.log(fileName)
+                            var printImage = String(stripFilePrefix(image.source))
                             var inputEmail = emailTextField.text.toLowerCase()
-
-//                            var list = []
-//                            list.push(photoPath, photoPath);
-//                            console.log(list)
-
-
-                            emailModel.append({"PhotoPath": photoPath, "Email": inputEmail})
-//                            emailTextField.clear()
+                            smsEmail.sendEmail(inputEmail, splitPath(printImage))
                             emailPopup.close()
                         }
 
@@ -427,7 +459,8 @@ Popup {
 
         onClosed: {
             phoneNumber.clear()
-            saveFile(smsFileURL, getJsonFromModel(smsModel))
+            carrierCombo.currentIndex = 0
+//            saveFile(smsFileURL, getJsonFromModel(smsModel))
         }
 
 
@@ -435,8 +468,8 @@ Popup {
             ComboBox {
                 id: carrierCombo
                 Layout.fillWidth: true
-                model: ["Select your Service Carrier", "ATT", "T-Mobile", "Verizon", "Sprint", "Metro PCS", "Boost Mobile", "Cricket"]
-                displayText: "Service Carrier: " + currentText
+                model: ["Phone Carrier", "ATT", "T-Mobile", "Verizon", "Sprint", "Metro PCS", "Boost Mobile", "Cricket"]
+                displayText: currentText
                 focusPolicy: Qt.NoFocus
             }
             RowLayout {
@@ -463,23 +496,19 @@ Popup {
                     Material.accent: Material.color(Material.Yellow, Material.Shade700)
                     highlighted: true
                     onClicked: {
-                        var photoPath = String(image.source)
+                        if (carrierCombo.currentIndex == 0) {
+//                            messagePopup.text = "Please select your phone carrier!"
+//                            messagePopup.open()
+                            carrierCombo.popup.visible = true
+                            return
+                        }
 
-//                        var test = [{"path":"file1"}, {"path":"file2"}]
-//                        var output = { "PhotoPath": photoPath, "Phone": phoneNumber.text, "Carrier": carrierCombo.currentText }
-//                        console.log(output)
-//                        smsModel.append(output)
-    //                    console.log(getJsonFromModel(smsModel))
-
-                        var json = JSON.parse(jsonString)
-                        json[]
-                        console.log(json)
+                        var printImage = String(stripFilePrefix(image.source))
+                        smsEmail.sendSms(phoneNumber.text, carrierCombo.currentText, splitPath(printImage))
                         smsPopup.close()
                     }
                 }
             }
-
-
 
             InputPanel {
                 implicitWidth: mainWindow.width * 0.9

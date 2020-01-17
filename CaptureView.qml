@@ -182,12 +182,19 @@ Item {
 
         templatePath: settings.templateImagePath
         templateFormat: settings.templateFormat
+        portraitMode: settings.portraitModeSwitch
 
         model: photoList
 
         onCombineFinished: {
             console.log("[ProcessPhotos]" + outputPath)
             lastCombinedPhoto = outputPath
+
+            photoList2.append({"printImage": outputPath,
+                                  "photo1": photoList.get(0).filePath,
+                                  "photo2": photoList.get(1).filePath,
+                                  "photo3": photoList.get(2).filePath
+                              });
 
             canvasPopup.source = addFilePrefix(lastCombinedPhoto)
             canvasPopup.open()

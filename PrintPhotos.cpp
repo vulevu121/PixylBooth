@@ -33,6 +33,18 @@ void PrintPhotos::setPaperName(const QString &paperName) {
         m_paperName = paperName;
 }
 
+bool PrintPhotos::portraitMode()
+{
+    return m_portraitMode;
+}
+
+void PrintPhotos::setPortraitMode(bool enable)
+{
+    if (enable != m_portraitMode) {
+        m_portraitMode = enable;
+    }
+}
+
 QString PrintPhotos::getPrinterSettings(QString const &printerName) {
     QPrinter printer;
 
@@ -58,6 +70,7 @@ void PrintPhotos::printPhoto(const QString &photoPath, int copyCount, bool print
     thread->printCanvas = printCanvas;
     thread->printerName = m_printerName;
     thread->paperName = m_paperName;
+    thread->portraitMode = m_portraitMode;
     connect(thread, &PrintThread::finished, thread, &PrintThread::deleteLater);
     thread->start();
 }
@@ -92,12 +105,14 @@ void PrintThread::run() {
 ////        printer.setPaperName("6x4 / 152x100mm");
 //    }
 
-    printer.setOrientation(QPrinter::Portrait);
-
+    if (portraitMode) {
+        printer.setOrientation(QPrinter::Portrait);
+    }
+    else {
+        printer.setOrientation(QPrinter::Landscape);
+    }
 
     printer.setPaperName(paperName);
-
-
 
     QMarginsF margins(qreal(0), qreal(0), qreal(0), qreal(0));
 
@@ -119,25 +134,28 @@ void PrintThread::run() {
     qDebug() << "[PrintPhotos] Copies:" << copyCount;
     qDebug() << "[PrintPhotos] Canvas:" << canvasPath;
 
-//    if (photo.width() <= 1250 && photo.height() <= 3650) {
-//        QImage photoScaled = photo.scaled(615, 1840);
-//        printerPainter.drawImage(0, 0, photoScaled);
-//        printerPainter.drawImage(615, 0, photoScaled);
-//    }
-//    else {
-//        QImage photoScaled = photo.scaled(1840, 1230);
-//        printerPainter.drawImage(0, 0, photoScaled);
-//    }
+    if (portraitMode) {
+        QImage photoScaled = photo.scaled(1230, 1840);
+        printerPainter.drawImage(0, 0, photoScaled);
 
-    QImage photoScaled = photo.scaled(1230, 1840);
-    printerPainter.drawImage(0, 0, photoScaled);
-
-
-    if (printCanvas) {
-        QImage canvasImage(canvasPath);
-        QImage canvasImageScaled = canvasImage.scaled(1840, 1230);
-        printerPainter.drawImage(0, 0, canvasImageScaled);
+        if (printCanvas) {
+            QImage canvasImage(canvasPath);
+            QImage canvasImageScaled = canvasImage.scaled(1840, 1230);
+            printerPainter.drawImage(0, 0, canvasImageScaled);
+        }
     }
+    else {
+        if (photo.width() <= 1250 && photo.height() <= 3650) {
+            QImage photoScaled = photo.scaled(615, 1840);
+            printerPainter.drawImage(0, 0, photoScaled);
+            printerPainter.drawImage(615, 0, photoScaled);
+        }
+        else {
+            QImage photoScaled = photo.scaled(1840, 1230);
+            printerPainter.drawImage(0, 0, photoScaled);
+        }
+    }
+
 
     printerPainter.end();
 }

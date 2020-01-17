@@ -92,7 +92,8 @@ Window {
     }
 
     function getQrImage() {
-        qrImage.source = "https://api.qrserver.com/v1/create-qr-code/?margin=5&size=150x150&data=" + settings.albumUrl
+//        qrImage.source = "https://api.qrserver.com/v1/create-qr-code/?margin=5&size=150x150&data=" + settings.albumUrl
+        qrImage.source = addFilePrefix(settings.saveFolder + "/AlbumQR.png")
     }
 
 //    Process {
@@ -138,11 +139,16 @@ Window {
 
     }
 
+    ListModel {
+        id: photoList2
+    }
+
     // print class to print photos
     PrintPhotos {
         id: printPhotos
         printerName: settings.printerName
         paperName: settings.paperName
+        portraitMode: settings.portraitModeSwitch
     }
 
 

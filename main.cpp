@@ -14,6 +14,7 @@
 #include "SonyRemote.h"
 #include "SerialControl.h"
 //#include "QRGenerator.h"
+#include "SMSEmail.h"
 
 int main(int argc, char *argv[])
 {
@@ -27,6 +28,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<SonyRemote>("SonyRemote", 1, 0, "SonyRemote");
 //    qmlRegisterType<SerialControl>("SerialControl", 1, 0, "SerialControl");
 //    qmlRegisterType<QRGenerator>("QRGenerator", 1, 0, "QRGenerator");
+    qmlRegisterType<SMSEmail>("SMSEmail", 1, 0, "SMSEmail");
 
 //    qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
 //    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
