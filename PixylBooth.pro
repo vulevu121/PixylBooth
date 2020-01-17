@@ -21,6 +21,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     Firebase.cpp \
+    JSONSupport.cpp \
     SerialControl.cpp \
     SonyRemote.cpp \
     main.cpp \
@@ -45,6 +46,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     Firebase.h \
+    JSONSupport.h \
     SerialControl.h \
     SonyRemote.h \
     ProcessPhotos.h \

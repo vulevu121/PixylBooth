@@ -21,6 +21,8 @@ Popup {
     property string emailFileURL: addFilePrefix(settings.saveFolder + "/Email.txt")
     property real autoCompleteRowHeight: pixel(6)
     property real buttonRadius: pixel(2)
+    property string jsonString: "[{'test':'test'}]"
+
 
     Overlay.modal: Rectangle {
             color: "#64000000"
@@ -72,6 +74,7 @@ Popup {
         var data = []
         for (var i = 0 ; i < model.count ; i++) data.push(model.get(i))
         return JSON.stringify(data)
+
     }
 
     function openFile(fileUrl) {
@@ -463,12 +466,14 @@ Popup {
                         var photoPath = String(image.source)
 
 //                        var test = [{"path":"file1"}, {"path":"file2"}]
-                        var output = { "PhotoPath": photoPath, "Phone": phoneNumber.text, "Carrier": carrierCombo.currentText }
-                        console.log(output)
-
-
-                        smsModel.append(output)
+//                        var output = { "PhotoPath": photoPath, "Phone": phoneNumber.text, "Carrier": carrierCombo.currentText }
+//                        console.log(output)
+//                        smsModel.append(output)
     //                    console.log(getJsonFromModel(smsModel))
+
+                        var json = JSON.parse(jsonString)
+                        json[]
+                        console.log(json)
                         smsPopup.close()
                     }
                 }

@@ -28,8 +28,6 @@ import QtQuick.VirtualKeyboard.Settings 2.13
 Window {
     id: mainWindow
     visible: true
-    //    x: Screen.width / 2
-    //    y: 0
 
     width: 1080/2
     height: 1920/2
@@ -46,8 +44,6 @@ Window {
     property real pixelDensity: Screen.pixelDensity
     property string lastCombinedPhoto
     property bool liveviewStarted: false
-//    property string username: usernameField.text
-//    property string password: passwordField.text
     property string idToken
     property string refreshToken
     property real photoAspectRatio: 1.5
@@ -57,10 +53,6 @@ Window {
         id: mainSettings
         property alias x: mainWindow.x
         property alias y: mainWindow.y
-//        property alias lastCombinedPhoto: mainWindow.lastCombinedPhoto
-//        property alias username: mainWindow.username
-//        property alias password: mainWindow.password
-//        property alias rememberMe: rememberMeCheckBox.checked
         property alias idToken: mainWindow.idToken
         property alias refreshToken: mainWindow.refreshToken
         property alias visibility: mainWindow.visibility
