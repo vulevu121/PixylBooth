@@ -1,8 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Window 2.2
 import QtQuick.VirtualKeyboard 2.2
-import QtQuick.Controls.Styles 1.4
-import QtQuick.Controls 2.5
+import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1
@@ -93,14 +92,18 @@ Rectangle {
             }
         }
 
-
         Button {
             id: playPauseButton
             text: playing ? qsTr("Pause") : qsTr("Resume")
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-
+            background: Rectangle {
+                border.width: 2
+                border.color:  "#FFFFFF"
+                color: "#10FFFFFF"
+                radius: 4
+            }
 
 //            anchors {
 //                left: parent.left
@@ -113,7 +116,7 @@ Rectangle {
 //            icon.height: implicitHeight
             display: AbstractButton.TextBesideIcon
             highlighted: true
-//            Material.accent: Material.color(Material.Green, Material.Shade700)
+            Material.accent: Material.color(Material.Green, Material.Shade700)
             checkable: true
 
             onClicked: {
@@ -125,6 +128,12 @@ Rectangle {
             id: undoLastButton
             Layout.fillHeight: true
             Layout.fillWidth: true
+            background: Rectangle {
+                border.width: 2
+                border.color:  "#FFFFFF"
+                color: "#10FFFFFF"
+                radius: 4
+            }
 //            anchors {
 //                left: parent.left
 //                right: parent.right
@@ -155,6 +164,12 @@ Rectangle {
             id: restartButton
             Layout.fillHeight: true
             Layout.fillWidth: true
+            background: Rectangle {
+                border.width: 2
+                border.color:  "#FFFFFF"
+                color: "#10FFFFFF"
+                radius: 4
+            }
 //            anchors {
 //                left: parent.left
 //                right: parent.right
