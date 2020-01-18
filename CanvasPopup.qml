@@ -308,9 +308,42 @@ Popup {
                             var printImage = String(stripFilePrefix(image.source))
                             var inputEmail = emailTextField.text.toLowerCase()
                             smsEmail.sendEmail(inputEmail, splitPath(printImage))
+                            emailModel.append({"Email": inputEmail})
                             emailPopup.close()
                         }
 
+                    }
+                }
+            }
+
+            RowLayout {
+                width: parent.width
+                Repeater {
+                    model: ["@gmail.com", "@yahoo.com", "@outlook.com"]
+
+
+                    Button {
+                        Layout.fillWidth: true
+                        text: modelData
+                        onClicked: {
+                            emailTextField.text = emailTextField.text + modelData
+                            emailTextField.focus = true
+                        }
+                    }
+                }
+            }
+
+            RowLayout {
+                width: parent.width
+                Repeater {
+                    model: ["@aol.com", "@icloud.com", "@hotmail.com"]
+
+                    Button {
+                        Layout.fillWidth: true
+                        text: modelData
+                        onClicked: {
+                            emailTextField.text = emailTextField.text + modelData
+                        }
                     }
                 }
             }
@@ -353,6 +386,10 @@ Popup {
                 }
 
             }
+
+
+
+
 
             InputPanel {
                 width: mainWindow.width * 0.9

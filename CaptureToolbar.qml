@@ -65,18 +65,26 @@ Rectangle {
     }
 
     // Popup user buttons
-    Column {
+    ColumnLayout {
         id: userColumn
-        width: pixel(100)
+
+        opacity: 0.8
+        anchors {
+            left: parent.left
+            right: parent.right
+            top: parent.verticalCenter
+            bottom: parent.bottom
+            margins: pixel(10)
+        }
 
         scale: captureView.state in {"review": 0} ? 1 : 0
         visible: scale > 0.1 ? true : false
 
-        anchors {
-            horizontalCenter: parent.horizontalCenter
-            verticalCenter: parent.verticalCenter
-            verticalCenterOffset: pixel(40)
-        }
+//        anchors {
+//            horizontalCenter: parent.horizontalCenter
+//            verticalCenter: parent.verticalCenter
+//            verticalCenterOffset: pixel(80)
+//        }
 
         Behavior on scale {
             NumberAnimation {
@@ -89,16 +97,18 @@ Rectangle {
         Button {
             id: playPauseButton
             text: playing ? qsTr("Pause") : qsTr("Resume")
-//            visible: captureView.state in {"review": 0, "aftercapture": 1} ? true : false
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+
+//            anchors {
+//                left: parent.left
+//                right: parent.right
+//            }
             font.capitalization: Font.MixedCase
             font.pixelSize: captureRect.fontSize
             icon.source: playing ? "qrc:/icon/pause" : "qrc:/icon/play"
-            icon.width: height
-            icon.height: height
+//            icon.width: implicitHeight
+//            icon.height: implicitHeight
             display: AbstractButton.TextBesideIcon
             highlighted: true
             Material.accent: Material.color(Material.Green, Material.Shade700)
@@ -111,17 +121,18 @@ Rectangle {
 
         Button {
             id: undoLastButton
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+//            anchors {
+//                left: parent.left
+//                right: parent.right
+//            }
             font.pixelSize: captureRect.fontSize
             font.capitalization: Font.MixedCase
-//            visible: captureView.state in {"review": 0, "aftercapture": 1} ? true : false
             text: qsTr("Redo Last Photo")
             icon.source: "qrc:/icon/undo_one"
-            icon.width: height
-            icon.height: height
+//            icon.width: height
+//            icon.height: height
             display: captureView.state in {"review": 0, "aftercapture": 1} ? AbstractButton.TextBesideIcon : AbstractButton.IconOnly
             highlighted: true
             Material.accent: Material.color(Material.Orange, Material.Shade700)
@@ -140,17 +151,18 @@ Rectangle {
 
         Button {
             id: restartButton
-//            visible: captureView.state in {"review": 0, "aftercapture": 1} ? true : false
-            anchors {
-                left: parent.left
-                right: parent.right
-            }
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+//            anchors {
+//                left: parent.left
+//                right: parent.right
+//            }
             font.pixelSize: captureRect.fontSize
             font.capitalization: Font.MixedCase
             text: qsTr("Restart")
             icon.source: "qrc:/icon/replay"
-            icon.width: height
-            icon.height: height
+//            icon.width: height
+//            icon.height: height
 
             display: AbstractButton.TextBesideIcon
             highlighted: true
