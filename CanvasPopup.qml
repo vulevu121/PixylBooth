@@ -38,6 +38,7 @@ Popup {
         var canvasURL = getCanvasURL()
         canvas.lastCanvasLoaded = false
         canvas.loadImage(canvasURL)
+        printPopup.open()
 
 //        loadModelFromJson(openFile(smsFileURL), smsModel)
 //        loadModelFromJson(openFile(emailFileURL), emailModel)

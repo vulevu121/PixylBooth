@@ -100,6 +100,8 @@ Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
+
+
 //            anchors {
 //                left: parent.left
 //                right: parent.right
@@ -111,7 +113,7 @@ Rectangle {
 //            icon.height: implicitHeight
             display: AbstractButton.TextBesideIcon
             highlighted: true
-            Material.accent: Material.color(Material.Green, Material.Shade700)
+//            Material.accent: Material.color(Material.Green, Material.Shade700)
             checkable: true
 
             onClicked: {
