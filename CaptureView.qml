@@ -324,6 +324,7 @@ Item {
         interval: settings.endSessionTimer * 1000
         repeat: false
 
+
         onTriggered: {
             canvasPopup.close()
             startState()
@@ -555,8 +556,11 @@ Item {
         height: width / photoAspectRatio
         rotation: settings.portraitModeSwitch ? 90 : 0
         anchors {
-            horizontalCenter: parent.horizontalCenter
-            verticalCenter: parent.verticalCenter
+//            horizontalCenter: parent.horizontalCenter
+//            verticalCenter: parent.verticalCenter
+            top: parent.top
+            topMargin: pixel(20)
+
         }
         flipHorizontally: settings.mirrorLiveVideoSwitch
 
@@ -653,11 +657,11 @@ Item {
         width: settings.portraitModeSwitch ? mainWindow.height : mainWindow.width
         height: width / photoAspectRatio
         rotation: settings.portraitModeSwitch ? 90 : 0
-//        anchors.top: parent.top
-//        anchors.topMargin: pixel(20)
         anchors {
-            horizontalCenter: parent.horizontalCenter
-            verticalCenter: parent.verticalCenter
+//            horizontalCenter: parent.horizontalCenter
+//            verticalCenter: parent.verticalCenter
+            top: parent.top
+            topMargin: pixel(20)
         }
         opacity: 0
         scale: 0.1

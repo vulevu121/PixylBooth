@@ -22,11 +22,9 @@ Popup {
     property string emailFileURL: addFilePrefix(settings.saveFolder + "/Email.txt")
     property real autoCompleteRowHeight: pixel(6)
     property real buttonRadius: pixel(2)
-    property string jsonString: "[{'test':'test'}]"
-
 
     Overlay.modal: Rectangle {
-            color: "#64000000"
+        color: "#64000000"
     }
 
     background: Rectangle {
@@ -40,16 +38,11 @@ Popup {
         canvas.loadImage(canvasURL)
         printPopup.open()
 
-//        loadModelFromJson(openFile(smsFileURL), smsModel)
-//        loadModelFromJson(openFile(emailFileURL), emailModel)
+        closeButton.closingTime = settings.endSessionTimer
     }
 
     onClosed: {
         saveCanvas()
-
-//        saveFile(smsFileURL, getJsonFromModel(smsModel))
-//        saveFile(emailFileURL, getJsonFromModel(emailModel))
-
     }
 
     property alias source: image.source
@@ -239,7 +232,7 @@ Popup {
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         Overlay.modal: Rectangle {
-                color: "#64000000"
+            color: "#64000000"
         }
 
         background: Rectangle {
@@ -253,7 +246,6 @@ Popup {
 
         onClosed: {
             emailTextField.clear()
-//            saveFile(emailFileURL, getJsonFromModel(emailModel))
         }
 
         Column {
@@ -291,7 +283,6 @@ Popup {
                         }
                     }
                 }
-
 
                 Button {
                     id: emailSendButton
@@ -349,7 +340,6 @@ Popup {
                 }
             }
 
-
             Rectangle {
                 id: autoCompleteRect
                 width: parent.width
@@ -388,17 +378,11 @@ Popup {
 
             }
 
-
-
-
-
             InputPanel {
                 width: mainWindow.width * 0.9
             }
 
         }
-
-
     }
 
     Popup {
@@ -408,12 +392,16 @@ Popup {
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         Overlay.modal: Rectangle {
-                color: "#64000000"
+            color: "#64000000"
         }
 
         background: Rectangle {
             color: "#000000"
             opacity: 0.8
+        }
+
+        onOpened: {
+            printCopyCountButton.value = 1
         }
 
         ColumnLayout {
@@ -443,8 +431,6 @@ Popup {
                 Material.accent: Material.color(Material.Cyan, Material.Shade700)
                 highlighted: true
                 onClicked: {
-//                    console.log(printCopyCountButton.value)
-//                    console.log(root.source)
                     toast.show("Printing photo")
                     printPhotos.printPhoto(stripFilePrefix(image.source), printCopyCountButton.value, false)
                     toast.show("Printing " + printCopyCountButton.value + " copies")
@@ -461,8 +447,6 @@ Popup {
                 Material.accent: Material.color(Material.Cyan, Material.Shade900)
                 highlighted: true
                 onClicked: {
-//                    console.log(printCopyCountButton.value)
-//                    console.log(root.source)
                     toast.show("Printing photo with paint")
                     printPhotos.printPhoto(stripFilePrefix(image.source), printCopyCountButton.value, true)
                     toast.show("Printing " + printCopyCountButton.value + " copies")
@@ -483,7 +467,7 @@ Popup {
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         Overlay.modal: Rectangle {
-                color: "#64000000"
+            color: "#64000000"
         }
 
         background: Rectangle {
@@ -498,7 +482,6 @@ Popup {
         onClosed: {
             phoneNumber.clear()
             carrierCombo.currentIndex = 0
-//            saveFile(smsFileURL, getJsonFromModel(smsModel))
         }
 
 
@@ -535,8 +518,6 @@ Popup {
                     highlighted: true
                     onClicked: {
                         if (carrierCombo.currentIndex == 0) {
-//                            messagePopup.text = "Please select your phone carrier!"
-//                            messagePopup.open()
                             carrierCombo.popup.visible = true
                             return
                         }
@@ -550,7 +531,6 @@ Popup {
 
             InputPanel {
                 implicitWidth: mainWindow.width * 0.9
-//                implicitHeight: mainWindow.height * 0.5
             }
         }
     }
@@ -666,7 +646,7 @@ Popup {
 
             RoundButton {
                 id: closeButton
-                text: "Close"
+                text: "Close" + "(" + closingTime + ")"
                 icon.source: "qrc:/icon/close"
                 icon.width: iconSize
                 icon.height: iconSize
@@ -677,6 +657,22 @@ Popup {
                 Material.accent: Material.color(Material.Grey, Material.Shade700)
                 radius: canvasPopup.buttonRadius
                 highlighted: true
+
+                property int closingTime: 40
+                Timer {
+                    id: closingTimer
+                    interval: 1000
+                    running: parent.closingTime > 0
+                    repeat: true
+                    onTriggered: {
+                        parent.closingTime -= 1
+
+                        if (parent.closingTime==0) {
+                            canvasPopup.close()
+                        }
+                    }
+                }
+
                 onClicked: {
                     canvasPopup.close()
                 }
@@ -695,8 +691,6 @@ Popup {
 
         clip: true
         color: "black"
-//            border.width: 1
-//            border.color: "white"
 
         RowLayout {
             anchors.fill: parent
@@ -709,7 +703,6 @@ Popup {
             }
 
             ListView {
-//                    anchors.fill: parent
                 id: colorPalette
                 model: colorModel
                 delegate: colorDelegate
@@ -738,8 +731,6 @@ Popup {
                 z: 1
             }
         }
-
-
     }
 
     Rectangle {
@@ -752,8 +743,6 @@ Popup {
         }
 
         color: "black"
-//            border.width: 1
-//            border.color: "white"
         clip: true
 
         RowLayout {
@@ -769,7 +758,6 @@ Popup {
 
             ListView {
                 id: brushPalette
-//                    anchors.fill: parent
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignHCenter
                 implicitHeight: canrect.paletteSize
@@ -794,194 +782,188 @@ Popup {
                 z: 1
             }
         }
-
-
     }
 
     Image {
-            id: image
-//            width: parent.width
-//            height: pixel(100)
-            fillMode: Image.PreserveAspectFit
-            source: ""
+        id: image
+        fillMode: Image.PreserveAspectFit
+        source: ""
+
+        anchors {
+            left: parent.left
+            right: parent.right
+            top: brushRect.bottom
+            bottom: parent.bottom
+        }
+
+        Text {
+            text: closeButton.closingTime
+
+            font.pixelSize: pixel(20)
+            color: "white"
 
             anchors {
-                left: parent.left
-                right: parent.right
-                top: brushRect.bottom
                 bottom: parent.bottom
-            }
-
-
-
-            Rectangle {
-                id: canrect
-//                anchors.fill: parent
-                property int mouseX
-                property int mouseY
-                property int lastX
-                property int lastY
-                property bool pressed
-                property bool released
-                property bool changed
-                property int paletteSize: pixel(20)
-                property int emojiSize: pixel(20)
-                color: "transparent"
-//                opacity: 0.5
-
-                width: parent.paintedWidth
-                height: parent.paintedHeight
-
-                anchors {
-                    centerIn: parent
-                }
-
-                Canvas {
-                    id: canvas
-                    anchors.fill: parent
-
-                    onImageLoaded: {
-                        console.log("[CanvasPopup]", "Canvas loaded")
-                        if (canvas.lastCanvasLoaded == false) {
-                            console.log("[CanvasPopup]", "Paint requested")
-                            canvas.requestPaint()
-                        }
-                    }
-
-    //                    onImageDrawnChanged: {
-    //                        canvas.requestPaint()
-    //                    }
-
-                    onClearRectChanged: {
-                        canvas.requestPaint()
-                    }
-
-    //                    onLastCanvasLoadedChanged: {
-    //                        canvas.requestPaint()
-    //                    }
-
-                    property color strokeColor: "#00ffff"
-                    property color shadowColor: "#4d4cff"
-                    property real hue: 0.0
-                    property bool rainbowColor: false
-                    property int brushType: brushPalette.currentIndex
-                    property string patternImage: ""
-                    property bool clearRect: false
-    //                    property bool imageDrawn: false
-                    property bool lastCanvasLoaded: false
-
-
-                    function drawLine(ct) {
-                        if (canrect.pressed) {
-                            ct.lineWidth = 8
-                            ct.lineJoin = 'round'
-                            ct.lineCap = 'round'
-                            ct.shadowBlur = 10
-                            canrect.pressed = false
-                        }
-
-                        var lastX = canrect.lastX
-                        var lastY = canrect.lastY
-                        var mouseX = canrect.mouseX
-                        var mouseY = canrect.mouseY
-
-                        if (rainbowColor) {
-                            ct.strokeStyle = Qt.hsla(hue, 1, 0.5, 1)
-                            ct.shadowColor = Qt.hsla(hue, 1, 0.5, 0.5)
-                            hue = hue < 1 ? hue + 0.01 : 0
-                        }
-                        else {
-                            ct.strokeStyle = canvas.strokeColor
-                            ct.shadowColor = canvas.shadowColor
-                        }
-
-                        ct.beginPath()
-                        ct.moveTo(lastX, lastY)
-                        ct.lineTo(mouseX, mouseY)
-                        ct.stroke()
-
-                        canrect.lastX = canrect.mouseX
-                        canrect.lastY = canrect.mouseY
-                    }
-
-                    function drawImage(ct, img) {
-                        var mouseX = canrect.mouseX
-                        var mouseY = canrect.mouseY
-    //                        var lastX = canrect.lastX
-    //                        var lastY = canrect.lastY
-
-                        var size = canrect.emojiSize
-                        ct.save();
-                        ct.shadowColor = 'transparent'
-                        ct.drawImage(img, mouseX-size/2, mouseY-size/2, size, size);
-                        ct.restore();
-                    }
-
-                    onPaint: {
-                        var ctx = getContext("2d");
-
-                        var canvasURL = getCanvasURL()
-
-                        if (canvas.lastCanvasLoaded == false) {
-                            if (canvas.isImageLoaded(canvasURL)) {
-                                ctx.drawImage(canvasURL, 0, 0, ctx.canvas.width, ctx.canvas.height)
-                                console.log("[CanvasPopup]", canvasURL, "drawn")
-                                canvas.lastCanvasLoaded = true
-                                canvas.requestPaint()
-
-                                canvas.unloadImage(canvasURL)
-                                console.log("[CanvasPopup]", canvasURL, "unloaded")
-                            }
-                            else {
-                                canvas.loadImage(canvasURL)
-                            }
-                        }
-
-
-                        if (clearRect) {
-                            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-                            clearRect = false;
-                        }
-                        else {
-                            if (brushType in [0, 1]) {
-                                drawLine(ctx)
-                            }
-                            else if (brushType >= 2) {
-                                if (canrect.pressed) {
-                                    drawImage(ctx, patternImage)
-                                    canrect.pressed = false
-                                }
-
-                            }
-                        }
-
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-
-                        onPressed: {
-                            captureView.stopAllTimers()
-                            canrect.pressed = true;
-                            canrect.lastX = mouseX;
-                            canrect.lastY = mouseY;
-                            canrect.mouseX = mouseX;
-                            canrect.mouseY = mouseY;
-                            canvas.requestPaint();
-                        }
-
-
-                        onPositionChanged: {
-                            canrect.mouseX = mouseX;
-                            canrect.mouseY = mouseY;
-                            canvas.requestPaint();
-                        }
-
-                    }
-                }
+                right: parent.right
             }
         }
 
 
+        Rectangle {
+            id: canrect
+            //                anchors.fill: parent
+            property int mouseX
+            property int mouseY
+            property int lastX
+            property int lastY
+            property bool pressed
+            property bool released
+            property bool changed
+            property int paletteSize: pixel(20)
+            property int emojiSize: pixel(20)
+            color: "transparent"
+            //                opacity: 0.5
+
+            width: parent.paintedWidth
+            height: parent.paintedHeight
+
+            anchors {
+                centerIn: parent
+            }
+
+            Canvas {
+                id: canvas
+                anchors.fill: parent
+
+                onImageLoaded: {
+                    console.log("[CanvasPopup]", "Canvas loaded")
+                    if (canvas.lastCanvasLoaded == false) {
+                        console.log("[CanvasPopup]", "Paint requested")
+                        canvas.requestPaint()
+                    }
+                }
+
+                onClearRectChanged: {
+                    canvas.requestPaint()
+                }
+
+                property color strokeColor: "#00ffff"
+                property color shadowColor: "#4d4cff"
+                property real hue: 0.0
+                property bool rainbowColor: false
+                property int brushType: brushPalette.currentIndex
+                property string patternImage: ""
+                property bool clearRect: false
+                property bool lastCanvasLoaded: false
 
 
+                function drawLine(ct) {
+                    if (canrect.pressed) {
+                        ct.lineWidth = 8
+                        ct.lineJoin = 'round'
+                        ct.lineCap = 'round'
+                        ct.shadowBlur = 10
+                        canrect.pressed = false
+                    }
+
+                    var lastX = canrect.lastX
+                    var lastY = canrect.lastY
+                    var mouseX = canrect.mouseX
+                    var mouseY = canrect.mouseY
+
+                    if (rainbowColor) {
+                        ct.strokeStyle = Qt.hsla(hue, 1, 0.5, 1)
+                        ct.shadowColor = Qt.hsla(hue, 1, 0.5, 0.5)
+                        hue = hue < 1 ? hue + 0.01 : 0
+                    }
+                    else {
+                        ct.strokeStyle = canvas.strokeColor
+                        ct.shadowColor = canvas.shadowColor
+                    }
+
+                    ct.beginPath()
+                    ct.moveTo(lastX, lastY)
+                    ct.lineTo(mouseX, mouseY)
+                    ct.stroke()
+
+                    canrect.lastX = canrect.mouseX
+                    canrect.lastY = canrect.mouseY
+                }
+
+                function drawImage(ct, img) {
+                    var mouseX = canrect.mouseX
+                    var mouseY = canrect.mouseY
+                    //                        var lastX = canrect.lastX
+                    //                        var lastY = canrect.lastY
+
+                    var size = canrect.emojiSize
+                    ct.save();
+                    ct.shadowColor = 'transparent'
+                    ct.drawImage(img, mouseX-size/2, mouseY-size/2, size, size);
+                    ct.restore();
+                }
+
+                onPaint: {
+                    var ctx = getContext("2d");
+
+                    var canvasURL = getCanvasURL()
+
+                    if (canvas.lastCanvasLoaded == false) {
+                        if (canvas.isImageLoaded(canvasURL)) {
+                            ctx.drawImage(canvasURL, 0, 0, ctx.canvas.width, ctx.canvas.height)
+                            console.log("[CanvasPopup]", canvasURL, "drawn")
+                            canvas.lastCanvasLoaded = true
+                            canvas.requestPaint()
+
+                            canvas.unloadImage(canvasURL)
+                            console.log("[CanvasPopup]", canvasURL, "unloaded")
+                        }
+                        else {
+                            canvas.loadImage(canvasURL)
+                        }
+                    }
+
+
+                    if (clearRect) {
+                        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+                        clearRect = false;
+                    }
+                    else {
+                        if (brushType in [0, 1]) {
+                            drawLine(ctx)
+                        }
+                        else if (brushType >= 2) {
+                            if (canrect.pressed) {
+                                drawImage(ctx, patternImage)
+                                canrect.pressed = false
+                            }
+
+                        }
+                    }
+
+                }
+                MouseArea {
+                    anchors.fill: parent
+
+                    onPressed: {
+                        captureView.stopAllTimers()
+                        canrect.pressed = true;
+                        canrect.lastX = mouseX;
+                        canrect.lastY = mouseY;
+                        canrect.mouseX = mouseX;
+                        canrect.mouseY = mouseY;
+                        canvas.requestPaint();
+                    }
+
+
+                    onPositionChanged: {
+                        canrect.mouseX = mouseX;
+                        canrect.mouseY = mouseY;
+                        canvas.requestPaint();
+                    }
+
+                }
+            }
+        }
+    }
 }

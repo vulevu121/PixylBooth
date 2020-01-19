@@ -13,7 +13,7 @@ Rectangle {
     color: "transparent"
 
     property real iconSize: pixel(24)
-    property real fontSize: pixel(10)
+    property real fontSize: pixel(16)
 //    property alias playPauseButton: playPauseButton
     property alias lockButton: lockButton
 //    property int numberButtons: 6
@@ -73,7 +73,7 @@ Rectangle {
             right: parent.right
             top: parent.verticalCenter
             bottom: parent.bottom
-            margins: pixel(10)
+            margins: pixel(20)
         }
 
         scale: captureView.state in {"review": 0} ? 1 : 0
@@ -101,7 +101,7 @@ Rectangle {
             background: Rectangle {
                 border.width: 2
                 border.color:  "#FFFFFF"
-                color: "#10FFFFFF"
+                color: "#998BC34A"
                 radius: 4
             }
 
@@ -112,11 +112,11 @@ Rectangle {
             font.capitalization: Font.MixedCase
             font.pixelSize: captureRect.fontSize
             icon.source: playing ? "qrc:/icon/pause" : "qrc:/icon/play"
-//            icon.width: implicitHeight
-//            icon.height: implicitHeight
+            icon.width: font.pixelSize
+            icon.height: font.pixelSize
             display: AbstractButton.TextBesideIcon
             highlighted: true
-            Material.accent: Material.color(Material.Green, Material.Shade700)
+//            Material.accent: Material.color(Material.Green, Material.Shade700)
             checkable: true
 
             onClicked: {
@@ -126,12 +126,13 @@ Rectangle {
 
         Button {
             id: undoLastButton
+            text: qsTr("Redo Last Photo")
             Layout.fillHeight: true
             Layout.fillWidth: true
             background: Rectangle {
                 border.width: 2
                 border.color:  "#FFFFFF"
-                color: "#10FFFFFF"
+                color: "#99FF9800"
                 radius: 4
             }
 //            anchors {
@@ -140,10 +141,11 @@ Rectangle {
 //            }
             font.pixelSize: captureRect.fontSize
             font.capitalization: Font.MixedCase
-            text: qsTr("Redo Last Photo")
+
             icon.source: "qrc:/icon/undo_one"
-//            icon.width: height
-//            icon.height: height
+
+            icon.width: font.pixelSize
+            icon.height: font.pixelSize
             display: captureView.state in {"review": 0, "aftercapture": 1} ? AbstractButton.TextBesideIcon : AbstractButton.IconOnly
             highlighted: true
             Material.accent: Material.color(Material.Orange, Material.Shade700)
@@ -167,7 +169,7 @@ Rectangle {
             background: Rectangle {
                 border.width: 2
                 border.color:  "#FFFFFF"
-                color: "#10FFFFFF"
+                color: "#9900BCD4"
                 radius: 4
             }
 //            anchors {
@@ -178,12 +180,12 @@ Rectangle {
             font.capitalization: Font.MixedCase
             text: qsTr("Restart")
             icon.source: "qrc:/icon/replay"
-//            icon.width: height
-//            icon.height: height
+            icon.width: font.pixelSize
+            icon.height: font.pixelSize
 
             display: AbstractButton.TextBesideIcon
             highlighted: true
-            Material.accent: Material.color(Material.Cyan, Material.Shade700)
+//            Material.accent: Material.color(Material.Cyan, Material.Shade700)
 
             onClicked: {
     //            restartButtonAnimation.start()
