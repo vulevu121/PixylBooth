@@ -2,7 +2,7 @@ import QtQuick 2.12
 import QtQuick.Window 2.2
 import QtQuick.VirtualKeyboard 2.2
 import QtQuick.Controls 2.12
-import QtQuick.Controls.Material 2.12
+import QtQuick.Controls.Material 2.3
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1
 import QtQuick.Dialogs 1.3
@@ -14,9 +14,8 @@ Rectangle {
 
     property real iconSize: pixel(24)
     property real fontSize: pixel(16)
-//    property alias playPauseButton: playPauseButton
+    property real pointSize: 30
     property alias lockButton: lockButton
-//    property int numberButtons: 6
     property real iconSpacing: pixel(2)
     property bool playing: false
     property bool locked: false
@@ -73,17 +72,12 @@ Rectangle {
             right: parent.right
             top: parent.verticalCenter
             bottom: parent.bottom
-            margins: pixel(20)
+            margins: pixel(25)
         }
 
         scale: captureView.state in {"review": 0} ? 1 : 0
         visible: scale > 0.1 ? true : false
 
-//        anchors {
-//            horizontalCenter: parent.horizontalCenter
-//            verticalCenter: parent.verticalCenter
-//            verticalCenterOffset: pixel(80)
-//        }
 
         Behavior on scale {
             NumberAnimation {
@@ -92,66 +86,42 @@ Rectangle {
             }
         }
 
-        Button {
+        CustomToolbarButton {
             id: playPauseButton
-            text: playing ? qsTr("Pause") : qsTr("Resume")
             Layout.fillHeight: true
             Layout.fillWidth: true
+            text: playing ? qsTr("Pause") : qsTr("Resume")
+            font.pointSize: captureRect.pointSize
+            icon.source: playing ? "qrc:/icons/pause" : "qrc:/icons/play"
 
-            background: Rectangle {
-                border.width: 2
-                border.color:  "#FFFFFF"
-                color: "#998BC34A"
-                radius: 4
-            }
-
-//            anchors {
-//                left: parent.left
-//                right: parent.right
-//            }
-            font.capitalization: Font.MixedCase
-            font.pixelSize: captureRect.fontSize
-            icon.source: playing ? "qrc:/icon/pause" : "qrc:/icon/play"
-            icon.width: font.pixelSize
-            icon.height: font.pixelSize
-            display: AbstractButton.TextBesideIcon
-            highlighted: true
-//            Material.accent: Material.color(Material.Green, Material.Shade700)
-            checkable: true
+            bg.border.color: "#8BC34A"
+//            bg.border.width: 2
+//            bg.radius: 4
+//            bg.color: "#20FFFFFF"
 
             onClicked: {
                 playPause()
             }
         }
 
-        Button {
+        CustomToolbarButton {
             id: undoLastButton
             text: qsTr("Redo Last Photo")
             Layout.fillHeight: true
             Layout.fillWidth: true
-            background: Rectangle {
-                border.width: 2
-                border.color:  "#FFFFFF"
-                color: "#99FF9800"
-                radius: 4
-            }
-//            anchors {
-//                left: parent.left
-//                right: parent.right
-//            }
-            font.pixelSize: captureRect.fontSize
-            font.capitalization: Font.MixedCase
 
-            icon.source: "qrc:/icon/undo_one"
+            bg.border.color: "#FF9800"
+//            bg.border.width: 2
+//            bg.radius: 4
+//            bg.color: "#20FFFFFF"
 
-            icon.width: font.pixelSize
-            icon.height: font.pixelSize
+//            font.pixelSize: captureRect.fontSize
+            font.pointSize: captureRect.pointSize
+
+            icon.source: "qrc:/icons/restore"
             display: captureView.state in {"review": 0, "aftercapture": 1} ? AbstractButton.TextBesideIcon : AbstractButton.IconOnly
-            highlighted: true
-            Material.accent: Material.color(Material.Orange, Material.Shade700)
 
             onClicked: {
-    //            undoLastButtonAnimation.start()
                 if (captureView.state != "start") {
                     if (photoList.count > 0) {
                         photoList.remove(photoList.count-1, 1)
@@ -159,42 +129,27 @@ Rectangle {
                     beforeCaptureState()
                 }
             }
-
         }
 
-        Button {
+        CustomToolbarButton {
             id: restartButton
             Layout.fillHeight: true
             Layout.fillWidth: true
-            background: Rectangle {
-                border.width: 2
-                border.color:  "#FFFFFF"
-                color: "#9900BCD4"
-                radius: 4
-            }
-//            anchors {
-//                left: parent.left
-//                right: parent.right
-//            }
-            font.pixelSize: captureRect.fontSize
-            font.capitalization: Font.MixedCase
-            text: qsTr("Restart")
-            icon.source: "qrc:/icon/replay"
-            icon.width: font.pixelSize
-            icon.height: font.pixelSize
 
-            display: AbstractButton.TextBesideIcon
-            highlighted: true
-//            Material.accent: Material.color(Material.Cyan, Material.Shade700)
+            bg.border.color: "#00BCD4"
+//            bg.border.width: 2
+//            bg.radius: 4
+//            bg.color: "#20FFFFFF"
+//            font.pixelSize: captureRect.fontSize
+            font.pointSize: captureRect.pointSize
+            text: qsTr("Restart")
+            icon.source: "qrc:/icons/replay"
 
             onClicked: {
-    //            restartButtonAnimation.start()
                 restart()
             }
         }
     }
-
-
 
 
     // Capture toolbar
@@ -222,54 +177,71 @@ Rectangle {
             }
         }
 
-
-        Button {
+        CustomToolbarButton {
             id: playPauseButton2
             text: playing ? "Pause" : "Resume"
             width: captureRect.iconSize
             height: captureRect.iconSize
-            icon.source: playing ? "qrc:/icon/pause" : "qrc:/icon/play"
+            icon.source: playing ? "qrc:/icons/pause" : "qrc:/icons/play"
             icon.width: height
             icon.height: height
             display: AbstractButton.IconOnly
-            highlighted: true
-            Material.accent: Material.color(Material.Green, Material.Shade700)
             checkable: true
+
+            bg.border.color: "#8BC34A"
+//            bg.border.width: 2
+//            bg.radius: 4
+//            bg.color: "#20FFFFFF"
 
             onClicked: {
                 playPause()
             }
         }
 
-        Button {
+//        Button {
+//            highlighted: true
+//            Material.accent: Material.color(Material.Green, Material.Shade700)
+//        }
+
+
+        CustomToolbarButton {
             id: restartButton2
             text: "Restart from beginning?"
             width: captureRect.iconSize
             height: captureRect.iconSize
-            icon.source: "qrc:/icon/replay"
+            icon.source: "qrc:/icons/replay"
             icon.width: height
             icon.height: height
             display: AbstractButton.IconOnly
-            highlighted: true
-            Material.accent: Material.color(Material.Cyan, Material.Shade700)
+//            Material.accent: Material.color(Material.Cyan, Material.Shade700)
+
+            bg.border.color: "#00BCD4"
+//            bg.border.width: 2
+//            bg.radius: 4
+//            bg.color: "#20FFFFFF"
 
             onClicked: {
                 restart()
             }
         }
 
-        Button {
+        CustomToolbarButton {
             id: fullScreenButton
             text: "Full Screen"
             width: captureRect.iconSize
             visible: !locked
             height: captureRect.iconSize
-            icon.source: mainWindow.visibility === Window.FullScreen ? "qrc:/icon/fullscreen_exit" : "qrc:/icon/fullscreen"
+            icon.source: mainWindow.visibility === Window.FullScreen ? "qrc:/icons/fullscreen-exit" : "qrc:/icons/fullscreen"
             icon.width: height
             icon.height: height
             display: AbstractButton.IconOnly
-            highlighted: true
-            Material.accent: Material.color(Material.Yellow, Material.Shade700)
+//            highlighted: true
+//            Material.accent: Material.color(Material.Yellow, Material.Shade700)
+
+            bg.border.color: "#FFC107"
+//            bg.border.width: 2
+//            bg.radius: 4
+//            bg.color: "#20FFFFFF"
 
             onClicked: {
                 if (mainWindow.visibility === Window.FullScreen) {
@@ -281,19 +253,24 @@ Rectangle {
             }
         }
 
-        Button {
+        CustomToolbarButton {
             id: exitButton
             text: "Exit"
-            flat: false
+//            flat: false
             visible: !locked
             width: captureRect.iconSize
             height: captureRect.iconSize
-            icon.source: "qrc:/icon/close"
+            icon.source: "qrc:/icons/clear"
             icon.width: height
             icon.height: height
             display: AbstractButton.IconOnly
-            highlighted: true
-            Material.accent: Material.color(Material.Grey, Material.Shade700)
+//            highlighted: true
+//            Material.accent: Material.color(Material.Grey, Material.Shade700)
+
+            bg.border.color: "#9E9E9E"
+//            bg.border.width: 2
+//            bg.radius: 4
+//            bg.color: "#20FFFFFF"
 
             MessageDialog {
                 id: confirmExitDialog
@@ -307,22 +284,26 @@ Rectangle {
 
             onClicked: {
                 confirmExitDialog.open()
-    //            mainWindow.close()
             }
         }
 
-        Button {
+        CustomToolbarButton {
             id: lockButton
             text: locked ? "Unlock" : "Lock"
-            flat: false
+//            flat: false
             width: captureRect.iconSize
             height: captureRect.iconSize
-            icon.source: locked ? "qrc:/icon/unlock":  "qrc:/icon/lock"
+            icon.source: locked ? "qrc:/icons/unlock":  "qrc:/icons/lock"
             icon.width: height
             icon.height: height
             display: AbstractButton.IconOnly
-            highlighted: true
-            Material.accent: Material.color(Material.Grey, Material.Shade700)
+//            highlighted: true
+//            Material.accent: Material.color(Material.Grey, Material.Shade700)
+
+            bg.border.color: "#607D8B"
+//            bg.border.width: 2
+//            bg.radius: 4
+//            bg.color: "#20FFFFFF"
 
             onClicked: {
                 if (locked) {
@@ -332,12 +313,10 @@ Rectangle {
                     }
                     locked = false
 //                    lockPinPopup.open()
-
                 }
                 else {
                     locked = true
                 }
-
             }
         }
 
@@ -377,8 +356,6 @@ Rectangle {
                 onTextChanged: {
                     checkPin()
                 }
-
-
             }
 
             InputPanel {
@@ -388,11 +365,7 @@ Rectangle {
                     left: parent.left
                     right: parent.right
                 }
-
             }
         }
-
-
     }
-
 }

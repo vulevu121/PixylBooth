@@ -435,7 +435,7 @@ Window {
             font.capitalization: Font.MixedCase
 //            icon.width: height
 //            icon.height: height
-//            icon.source: "qrc:/icon/capture"
+//            icon.source: "qrc:/icons/capture"
 //            display: Button.TextBesideIcon
 
             anchors {
@@ -578,12 +578,12 @@ Window {
             radius: pixel(3)
          }
 
-        property real iconSize: pixel(10)
+        property real iconSize: pixel(16)
 
         TabButton {
             text: "Gallery"
             width: implicitWidth
-            icon.source: "qrc:/icon/photo_library"
+            icon.source: "qrc:/icons/photo"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly
@@ -596,7 +596,7 @@ Window {
         TabButton {
             text: "Capture"
             width: implicitWidth
-            icon.source: "qrc:/icon/capture"
+            icon.source: "qrc:/icons/capture"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly
@@ -610,7 +610,7 @@ Window {
             text: "Settings"
             width: implicitWidth
             enabled: captureView.captureToolbar.locked? false : true
-            icon.source: "qrc:/icon/settings"
+            icon.source: "qrc:/icons/tune"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
             display: AbstractButton.IconOnly

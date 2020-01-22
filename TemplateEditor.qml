@@ -76,7 +76,7 @@ ApplicationWindow {
 
             ToolButton {
                 text: "Add Photo"
-                icon.source: "qrc:/icon/add"
+                icon.source: "qrc:/icons/add"
                 Layout.alignment: Qt.AlignLeft
                 onClicked: {
                     var pwidth = templateImage.width
@@ -90,7 +90,7 @@ ApplicationWindow {
 
             ToolButton {
                 text: "Clear"
-                icon.source: "qrc:/icon/clear_all"
+                icon.source: "qrc:/icons/clear-all"
                 Layout.alignment: Qt.AlignLeft
                 onClicked: {
                     photoFrameModel.clear()
@@ -99,7 +99,7 @@ ApplicationWindow {
 
             ToolButton {
                 text: "Close"
-                icon.source: "qrc:/icon/close"
+                icon.source: "qrc:/icons/clear"
                 Layout.alignment: Qt.AlignRight
                 onClicked: {
                     templateEditor.close()
@@ -176,7 +176,7 @@ ApplicationWindow {
                         Button {
                             text: "Delete"
                             display: Button.IconOnly
-                            icon.source: "qrc:/icon/delete"
+                            icon.source: "qrc:/icons/delete-forever"
                             icon.width: iconSize
                             icon.height: iconSize
                             flat: true
@@ -192,7 +192,7 @@ ApplicationWindow {
                         Button {
                             text: "Rotate Left"
                             display: Button.IconOnly
-                            icon.source: "qrc:/icon/rotate-left"
+                            icon.source: "qrc:/icons/rotate-left"
                             icon.width: iconSize
                             icon.height: iconSize
                             flat: true
@@ -207,7 +207,7 @@ ApplicationWindow {
                         Button {
                             text: "Rotate Right"
                             display: Button.IconOnly
-                            icon.source: "qrc:/icon/rotate-right"
+                            icon.source: "qrc:/icons/rotate-right"
                             icon.width: iconSize
                             icon.height: iconSize
                             flat: true
@@ -223,7 +223,7 @@ ApplicationWindow {
                         Button {
                             text: "Scale up"
                             display: Button.IconOnly
-                            icon.source: "qrc:/icon/zoom_in"
+                            icon.source: "qrc:/icons/zoom-in"
                             icon.width: iconSize
                             icon.height: iconSize
                             flat: true
@@ -240,7 +240,7 @@ ApplicationWindow {
                         Button {
                             text: "Scale down"
                             display: Button.IconOnly
-                            icon.source: "qrc:/icon/zoom_out"
+                            icon.source: "qrc:/icons/zoom-out"
                             icon.width: iconSize
                             icon.height: iconSize
                             flat: true
@@ -398,7 +398,7 @@ ApplicationWindow {
 
 //        Button {
 //            text: "Add Photo"
-//            icon.source: "qrc:/icon/add"
+//            icon.source: "qrc:/icons/add"
 //            icon.width: iconSize
 //            icon.height: iconSize
 //            width: height
@@ -415,7 +415,7 @@ ApplicationWindow {
 
 //        Button {
 //            text: "Close"
-//            icon.source: "qrc:/icon/close"
+//            icon.source: "qrc:/icons/clear"
 //            icon.width: iconSize
 //            icon.height: iconSize
 //            width: height

@@ -88,7 +88,7 @@ Rectangle {
             Button {
                 id: addButton
                 text: "Add"
-                icon.source: "qrc:/icon/add"
+                icon.source: "qrc:/icons/add"
                 display: AbstractButton.IconOnly
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 implicitWidth: pixel(10)
@@ -103,7 +103,7 @@ Rectangle {
             Button {
                 id: clearButton
                 text: "Clear"
-                icon.source: "qrc:/icon/clear_all"
+                icon.source: "qrc:/icons/clear-all"
                 display: AbstractButton.IconOnly
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 implicitWidth: pixel(10)
@@ -119,7 +119,7 @@ Rectangle {
             Button {
                 id: deleteButton
                 text: "Remove"
-                icon.source: "qrc:/icon/remove"
+                icon.source: "qrc:/icons/remove"
                 display: AbstractButton.IconOnly
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 implicitWidth: pixel(10)
@@ -156,7 +156,7 @@ Rectangle {
 
                 Image {
                     id: folderPicture
-                    source: "qrc:/icon/video_library"
+                    source: "qrc:/icons/video"
                     width: root.rowHeight
                     height: root.rowHeight
                     anchors.verticalCenter: parent.verticalCenter

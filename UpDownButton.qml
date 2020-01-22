@@ -27,7 +27,7 @@ Rectangle {
     RoundButton {
         height: parent.height
         width: height
-        icon.source: "qrc:/icon/remove"
+        icon.source: "qrc:/icons/remove"
         icon.width: root.height
         icon.height: root.height
         anchors.left: parent.left
@@ -56,7 +56,7 @@ Rectangle {
     RoundButton {
         height: parent.height
         width: height
-        icon.source: "qrc:/icon/add"
+        icon.source: "qrc:/icons/add"
         icon.width: root.height
         icon.height: root.height
         anchors.right: parent.right

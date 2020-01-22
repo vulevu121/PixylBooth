@@ -105,23 +105,6 @@ Popup {
         return pathList
     }
 
-    Popup {
-        id: messagePopup
-        anchors {
-            centerIn: parent
-
-        }
-
-        property alias text: textbox.text
-
-        Text {
-            id: textbox
-            text: qsTr("text")
-            color: "white"
-            font.pointSize: 18
-        }
-    }
-
     SMSEmail {
         id: smsEmail
         smsPath: settings.saveFolder + "/SMS.txt"
@@ -288,7 +271,7 @@ Popup {
                     id: emailSendButton
                     text: "Send"
                     focusPolicy: Qt.NoFocus
-                    icon.source: "qrc:/icon/send"
+                    icon.source: "qrc:/icons/send"
                     icon.width: iconSize
                     icon.height: iconSize
                     display: AbstractButton.TextBesideIcon
@@ -439,7 +422,7 @@ Popup {
             }
 
             RoundButton {
-                text: qsTr("Print + Paint")
+                text: qsTr("Print Emojis")
                 radius: canvasPopup.buttonRadius
                 font.pixelSize: iconSize*0.8
                 font.capitalization: Font.MixedCase
@@ -508,7 +491,7 @@ Popup {
 
                 Button {
                     text: qsTr("Send SMS")
-                    icon.source: "qrc:/icon/sms"
+                    icon.source: "qrc:/icons/sms"
                     focusPolicy: Qt.NoFocus
                     icon.width: iconSize
                     icon.height: iconSize
@@ -553,7 +536,7 @@ Popup {
 
             RoundButton {
                 text: "Save"
-                icon.source: "qrc:/icon/save"
+                icon.source: "qrc:/icons/save"
                 icon.width: iconSize
                 icon.height: iconSize
                 font.capitalization: Font.MixedCase
@@ -571,7 +554,7 @@ Popup {
 
             RoundButton {
                 text: "Clear"
-                icon.source: "qrc:/icon/clear_all"
+                icon.source: "qrc:/icons/clear-all"
                 icon.width: iconSize
                 icon.height: iconSize
                 font.capitalization: Font.MixedCase
@@ -590,7 +573,7 @@ Popup {
             RoundButton {
                 id: printButton
                 text: qsTr("Print")
-                icon.source: "qrc:/icon/print"
+                icon.source: "qrc:/icons/print"
                 icon.width: iconSize
                 icon.height: iconSize
                 font.capitalization: Font.MixedCase
@@ -608,9 +591,10 @@ Popup {
                 }
             }
 
+
             RoundButton {
                 text: qsTr("Email")
-                icon.source: "qrc:/icon/email"
+                icon.source: "qrc:/icons/email"
                 icon.width: iconSize
                 icon.height: iconSize
                 font.capitalization: Font.MixedCase
@@ -629,7 +613,7 @@ Popup {
 
             RoundButton {
                 text: qsTr("SMS")
-                icon.source: "qrc:/icon/sms"
+                icon.source: "qrc:/icons/sms"
                 icon.width: iconSize
                 icon.height: iconSize
                 font.capitalization: Font.MixedCase
@@ -647,7 +631,7 @@ Popup {
             RoundButton {
                 id: closeButton
                 text: "Close" + "(" + closingTime + ")"
-                icon.source: "qrc:/icon/close"
+                icon.source: "qrc:/icons/clear"
                 icon.width: iconSize
                 icon.height: iconSize
                 font.capitalization: Font.MixedCase
@@ -667,7 +651,7 @@ Popup {
                     onTriggered: {
                         parent.closingTime -= 1
 
-                        if (parent.closingTime==0) {
+                        if (parent.closingTime < 1) {
                             canvasPopup.close()
                         }
                     }
@@ -695,7 +679,7 @@ Popup {
         RowLayout {
             anchors.fill: parent
             Image {
-                source: "qrc:/icon/back"
+                source: "qrc:/icons/back"
                 height: canrect.paletteSize
                 width: height
                 Layout.alignment: Qt.AlignLeft
@@ -724,7 +708,7 @@ Popup {
             }
 
             Image {
-                source: "qrc:/icon/forward"
+                source: "qrc:/icons/forward"
                 height: canrect.paletteSize
                 width: height
                 Layout.alignment: Qt.AlignRight
@@ -748,7 +732,7 @@ Popup {
         RowLayout {
             anchors.fill: parent
             Image {
-                source: "qrc:/icon/back"
+                source: "qrc:/icons/back"
                 height: canrect.paletteSize
                 width: height
                 Layout.alignment: Qt.AlignLeft
@@ -775,7 +759,7 @@ Popup {
             }
 
             Image {
-                source: "qrc:/icon/forward"
+                source: "qrc:/icons/forward"
                 height: canrect.paletteSize
                 width: height
                 Layout.alignment: Qt.AlignRight

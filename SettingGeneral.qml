@@ -19,7 +19,7 @@ Item {
     property alias saveFolder: saveFolderField.text
     property alias displayScale: displayScalingButton.value
     property alias lockPin: lockPinTextField.text
-    property alias albumUrl: albumUrlField.text
+//    property alias albumUrl: albumUrlField.text
 
     property alias bgColor: bgColorRectangle.color
     property alias countDownColor: countDownColorRectangle.color
@@ -94,7 +94,7 @@ Item {
         property alias templateFormat: root.templateFormat
         property alias numberPhotos: root.numberPhotos
         property alias emojiFolder: emojiFolderField.text
-        property alias albumUrl: albumUrlField.text
+//        property alias albumUrl: albumUrlField.text
     }
 
 
@@ -146,42 +146,42 @@ Item {
         id: settingModel
         ListElement {
             name: "General"
-            icon: "qrc:/icon/settings"
+            icon: "qrc:/icons/tune"
             view: "generalView"
         }
         ListElement {
             name: "Profile"
-            icon: "qrc:/icon/profile"
+            icon: "qrc:/icons/folder-shared"
             view: "profileView"
         }
         ListElement {
             name: "Camera"
-            icon: "qrc:/icon/camera"
+            icon: "qrc:/icons/camera"
             view: "cameraView"
         }
         ListElement {
             name: "Color"
-            icon: "qrc:/icon/color"
+            icon: "qrc:/icons/color-lens"
             view: "colorView"
         }
         ListElement {
             name: "Printer"
-            icon: "qrc:/icon/print"
+            icon: "qrc:/icons/print"
             view: "printerView"
         }
         ListElement {
             name: "Video"
-            icon: "qrc:/icon/video_library"
+            icon: "qrc:/icons/video"
             view: "videoView"
         }
         ListElement {
             name: "Lighting"
-            icon: "qrc:/icon/lightbulb"
+            icon: "qrc:/icons/light"
             view: "lightingView"
         }
         ListElement {
             name: "Canvas"
-            icon: "qrc:/icon/brush"
+            icon: "qrc:/icons/brush"
             view: "canvasView"
         }
     }
@@ -583,72 +583,72 @@ Item {
                     }
 
 
-                    CustomLabel {
-                        height: root.rowHeight
-                        Layout.fillWidth: true
-                        text: qsTr("Album Link")
-                        subtitle: "Album URL for QR code generation"
-                    }
+//                    CustomLabel {
+//                        height: root.rowHeight
+//                        Layout.fillWidth: true
+//                        text: qsTr("Album Link")
+//                        subtitle: "Album URL for QR code generation"
+//                    }
 
-                    RowLayout {
-                        Layout.fillWidth: true
-                        TextField {
-                            id: albumUrlField
-                            font.pixelSize: root.textSize
-                            Layout.fillWidth: true
+//                    RowLayout {
+//                        Layout.fillWidth: true
+//                        TextField {
+//                            id: albumUrlField
+//                            font.pixelSize: root.textSize
+//                            Layout.fillWidth: true
 
-                            placeholderText: "Enter album URL"
-                            selectByMouse: true
+//                            placeholderText: "Enter album URL"
+//                            selectByMouse: true
 
-                            onReleased: {
-                                contextMenu.open()
-                            }
+//                            onReleased: {
+//                                contextMenu.open()
+//                            }
 
-                            Menu {
-                                id: contextMenu
+//                            Menu {
+//                                id: contextMenu
 
-                                MenuItem {
-                                    text: "Cut"
+//                                MenuItem {
+//                                    text: "Cut"
 
-                                    iconSource: "qrc:/icon/clear_black"
-                                    onTriggered: {
-                                        albumUrlField.cut()
-                                    }
-                                }
+//                                    iconSource: "qrc:/icons/clear-black"
+//                                    onTriggered: {
+//                                        albumUrlField.cut()
+//                                    }
+//                                }
 
-                                MenuItem {
-                                    text: "Clear"
+//                                MenuItem {
+//                                    text: "Clear"
 
-                                    iconSource: "qrc:/icon/clear_black"
-                                    onTriggered: {
-                                        albumUrlField.clear()
-                                    }
-                                }
-                                MenuItem {
-                                    text: "Copy"
-                                    iconSource: "qrc:/icon/copy_black"
-                                    onTriggered: {
-                                        albumUrlField.selectAll()
-                                        albumUrlField.copy()
-                                    }
-                                }
-                                MenuItem {
-                                    text: "Clear 'n' Paste"
-                                    iconSource: "qrc:/icon/paste_black"
-                                    onTriggered: {
-                                        albumUrlField.clear()
-                                        albumUrlField.paste()
-                                    }
-                                }
-                            }
-                        }
-                        Button {
-                            icon.source: "qrc:/icon/check"
-                            onClicked: {
-                                getQrImage()
-                            }
-                        }
-                    }
+//                                    iconSource: "qrc:/icons/clear-black"
+//                                    onTriggered: {
+//                                        albumUrlField.clear()
+//                                    }
+//                                }
+//                                MenuItem {
+//                                    text: "Copy"
+//                                    iconSource: "qrc:/icons/copy-black"
+//                                    onTriggered: {
+//                                        albumUrlField.selectAll()
+//                                        albumUrlField.copy()
+//                                    }
+//                                }
+//                                MenuItem {
+//                                    text: "Clear 'n' Paste"
+//                                    iconSource: "qrc:/icons/paste_black"
+//                                    onTriggered: {
+//                                        albumUrlField.clear()
+//                                        albumUrlField.paste()
+//                                    }
+//                                }
+//                            }
+//                        }
+//                        Button {
+//                            icon.source: "qrc:/icons/check"
+//                            onClicked: {
+//                                getQrImage()
+//                            }
+//                        }
+//                    }
 
 
 
