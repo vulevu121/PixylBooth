@@ -44,9 +44,9 @@ Item {
     property alias startVideoPlaylist: startVideoPlaylist
     property alias beforeCaptureVideoPlaylist: beforeCapturePlaylist
     property alias afterCaptureVideoPlaylist: afterCaptureVideoPlaylist
-    property alias processingVideosPlaylist: processingVideoPlaylist
-    property alias printingVideosPlaylist: printingVideoPlaylist
-    property alias signingVideosPlaylist: signingVideosPlaylist
+    property alias processingVideoPlaylist: processingVideoPlaylist
+    property alias printingVideoPlaylist: printingVideoPlaylist
+    property alias signingVideoPlaylist: signingVideoPlaylist
 
     property real rowHeight: pixel(6)
     property real textSize: pixel(4)
@@ -139,92 +139,42 @@ Item {
         property string signingVideos
     }
 
-
-
-
     ListModel {
         id: settingModel
         ListElement {
             name: "General"
-            icon: "qrc:/icons/tune"
-            view: "generalView"
+            iconSource: "qrc:/icons/tune"
         }
         ListElement {
             name: "Profile"
-            icon: "qrc:/icons/folder-shared"
-            view: "profileView"
+            iconSource: "qrc:/icons/folder-shared"
         }
         ListElement {
             name: "Camera"
-            icon: "qrc:/icons/camera"
-            view: "cameraView"
+            iconSource: "qrc:/icons/camera"
         }
         ListElement {
             name: "Color"
-            icon: "qrc:/icons/color-lens"
-            view: "colorView"
+            iconSource: "qrc:/icons/color-lens"
         }
         ListElement {
             name: "Printer"
-            icon: "qrc:/icons/print"
-            view: "printerView"
+            iconSource: "qrc:/icons/print"
         }
         ListElement {
             name: "Video"
-            icon: "qrc:/icons/video"
-            view: "videoView"
+            iconSource: "qrc:/icons/video"
         }
         ListElement {
             name: "Lighting"
-            icon: "qrc:/icons/light"
-            view: "lightingView"
+            iconSource: "qrc:/icons/light"
         }
         ListElement {
             name: "Canvas"
-            icon: "qrc:/icons/brush"
-            view: "canvasView"
+            iconSource: "qrc:/icons/brush"
         }
     }
 
-    Component {
-        id: settingDelegate
-        Item {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            height: pixel(12)
-//            clip: true
-
-            Row {
-                anchors.margins: pixel(5)
-//                anchors.leftMargin: pixel(5)
-                anchors.fill: parent
-                spacing: pixel(1)
-                Image {
-                    id: iconImage
-                    width: pixel(8)
-                    height: pixel(8)
-                    source: icon
-                    anchors.verticalCenter: parent.verticalCenter
-                }
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: name
-                    color: Material.foreground
-                }
-
-            }
-            MouseArea {
-                anchors.fill: parent
-                z: 5
-                onClicked: {
-                    var viewList = [generalView, profileView, cameraView, colorView, printerView, videoView, lightingView, canvasView]
-                    stackView.replace(viewList[index])
-                    listView.currentIndex = index
-                }
-            }
-
-        }
-    }
 
     Popup {
         id: filePopup
@@ -249,16 +199,16 @@ Item {
 //            deviation: 3
 //        }
 
-        VideoBrowser {
-            id: fileBrowser
-            folder: videoSettings.lastFolder
-            anchors.fill: parent
+//        VideoBrowser {
+//            id: fileBrowser
+//            folder: videoSettings.lastFolder
+//            anchors.fill: parent
 
-            Component.onCompleted: {
-                browserClosed.connect(filePopup.close)
-                fileSelected.connect(filePopup.close)
-            }
-        }
+//            Component.onCompleted: {
+//                browserClosed.connect(filePopup.close)
+//                fileSelected.connect(filePopup.close)
+//            }
+//        }
 
     }
 
@@ -330,8 +280,19 @@ Item {
                     boundsBehavior: Flickable.StopAtBounds
                     model: settingModel
                     anchors.fill: parent
-                    delegate: settingDelegate
-                    highlightMoveDuration: 100               
+                    delegate: ItemDelegate {
+                        text: name
+                        width: parent.width
+                        icon.source: iconSource
+                        display: AbstractButton.TextBesideIcon
+
+                        onClicked: {
+                            listView.currentIndex = index
+                            var viewList = [generalView, profileView, cameraView, colorView, printerView, videoView, lightingView, canvasView]
+                            stackView.replace(viewList[index])
+                        }
+                    }
+                    highlightMoveDuration: 100
                     highlight: Rectangle {
                         color: Material.color(Material.Cyan, Material.Shade800)
                     }
@@ -579,6 +540,7 @@ Item {
                             var component = Qt.createComponent("TemplateEditor.qml")
                             var window    = component.createObject(root)
                             window.show()
+
                         }
                     }
 
@@ -1078,7 +1040,7 @@ Item {
                 }
 
                 Playlist {
-                    id: signingVideosPlaylist
+                    id: signingVideoPlaylist
                     playbackMode: Playlist.Random
                 }
 
@@ -1089,9 +1051,19 @@ Item {
                     anchors.margins: root.columnMargins
 
                     VideoList {
+                        id: startVideoVideoList
                         Layout.fillWidth: true
                         title: "Start Videos"
                         playlist: startVideoPlaylist
+                        onHideChanged: {
+                            if (!hide) {
+                                beforeCaptureVideoList.collapse()
+                                afterCaptureVideoList.collapse()
+                                processingVideoList.collapse()
+                                printingVideoList.collapse()
+                                signingVideoList.collapse()
+                            }
+                        }
 
                         onSaveRequest: {
                             videoSettings.startVideos = getPlaylistString(startVideoPlaylist)
@@ -1104,9 +1076,20 @@ Item {
                     }
 
                     VideoList {
+                        id: beforeCaptureVideoList
                         Layout.fillWidth: true
                         title: "Before Capture Videos"
                         playlist: beforeCapturePlaylist
+
+                        onHideChanged: {
+                            if (!hide) {
+                                startVideoVideoList.collapse()
+                                afterCaptureVideoList.collapse()
+                                processingVideoList.collapse()
+                                printingVideoList.collapse()
+                                signingVideoList.collapse()
+                            }
+                        }
 
                         onSaveRequest: {
                             videoSettings.beforeCaptureVideos = getPlaylistString(beforeCapturePlaylist)
@@ -1119,10 +1102,20 @@ Item {
                     }
 
                     VideoList {
-                        id: afterCaptureVideoCaptureList
+                        id: afterCaptureVideoList
                         Layout.fillWidth: true
                         title: "After Capture Videos"
                         playlist: afterCaptureVideoPlaylist
+
+                        onHideChanged: {
+                            if (!hide) {
+                                startVideoVideoList.collapse()
+                                beforeCaptureVideoList.collapse()
+                                processingVideoList.collapse()
+                                printingVideoList.collapse()
+                                signingVideoList.collapse()
+                            }
+                        }
 
                         onSaveRequest: {
                             videoSettings.afterCaptureVideos = getPlaylistString(afterCaptureVideoPlaylist)
@@ -1135,9 +1128,20 @@ Item {
                     }
 
                     VideoList {
+                        id: processingVideoList
                         Layout.fillWidth: true
                         title: "Processing Videos"
                         playlist: processingVideoPlaylist
+
+                        onHideChanged: {
+                            if (!hide) {
+                                startVideoVideoList.collapse()
+                                beforeCaptureVideoList.collapse()
+                                afterCaptureVideoList.collapse()
+                                printingVideoList.collapse()
+                                signingVideoList.collapse()
+                            }
+                        }
 
                         onSaveRequest: {
                             videoSettings.processingVideos = getPlaylistString(processingVideoPlaylist)
@@ -1150,9 +1154,20 @@ Item {
                     }
 
                     VideoList {
+                        id: printingVideoList
                         Layout.fillWidth: true
                         title: "Printing Videos"
                         playlist: printingVideoPlaylist
+
+                        onHideChanged: {
+                            if (!hide) {
+                                startVideoVideoList.collapse()
+                                beforeCaptureVideoList.collapse()
+                                afterCaptureVideoList.collapse()
+                                processingVideoList.collapse()
+                                signingVideoList.collapse()
+                            }
+                        }
 
                         onSaveRequest: {
                             videoSettings.printingVideos = getPlaylistString(printingVideoPlaylist)
@@ -1165,16 +1180,27 @@ Item {
                     }
 
                     VideoList {
+                        id: signingVideoList
                         Layout.fillWidth: true
                         title: "Signing Videos"
-                        playlist: signingVideosPlaylist
+                        playlist: signingVideoPlaylist
+
+                        onHideChanged: {
+                            if (!hide) {
+                                startVideoVideoList.collapse()
+                                beforeCaptureVideoList.collapse()
+                                afterCaptureVideoList.collapse()
+                                processingVideoList.collapse()
+                                printingVideoList.collapse()
+                            }
+                        }
 
                         onSaveRequest: {
-                            videoSettings.signingVideos = getPlaylistString(signingVideosPlaylist)
+                            videoSettings.signingVideos = getPlaylistString(signingVideoPlaylist)
                         }
 
                         Component.onCompleted: {
-                            loadPlaylist(signingVideosPlaylist, videoSettings.signingVideos)
+                            loadPlaylist(signingVideoPlaylist, videoSettings.signingVideos)
                         }
 
                     }

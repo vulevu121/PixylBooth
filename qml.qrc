@@ -59,9 +59,13 @@
         <file alias="file-copy">icons/file_copy-24px.svg</file>
         <file alias="email">icons/email-24px.svg</file>
         <file alias="delete-forever">icons/delete_forever-24px.svg</file>
-        <file alias="colors-len">icons/color_lens-24px.svg</file>
+        <file alias="color-lens">icons/color_lens-24px.svg</file>
         <file alias="clear">icons/clear-24px.svg</file>
         <file alias="clear-all">icons/clear_all-24px.svg</file>
         <file alias="clear-black">icons/clear-black-24px.svg</file>
+        <file alias="arrow-expand-all">icons/arrow-expand-all.svg</file>
+        <file alias="arrow-collapse-all">icons/arrow-collapse-all.svg</file>
+        <file alias="exit-run">icons/exit-run.svg</file>
+        <file alias="info">icons/info-24px.svg</file>
     </qresource>
 </RCC>

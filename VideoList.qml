@@ -14,11 +14,22 @@ Rectangle {
     property alias deleteButton: deleteButton
     property alias clearButton: clearButton
     property alias title: label.text
+    property real viewHeight: pixel(80)
     property bool hide: true
     property real rowHeight: pixel(4)
     signal saveRequest
 
+    implicitHeight: hide ? topBar.height : viewHeight
+
     Layout.minimumHeight: topBar.height
+
+    function collapse() {
+        hide = true
+    }
+
+    function expand() {
+        hide = false
+    }
 
     Behavior on implicitHeight {
         NumberAnimation {
@@ -52,7 +63,6 @@ Rectangle {
             anchors.fill: parent
             onClicked: {
                 hide = !hide
-                root.implicitHeight = hide ? topBar.height : pixel(80)
             }
         }
 
@@ -76,8 +86,6 @@ Rectangle {
                 position: 1
                 color: "#151515"
             }
-            
-            
         }
 
         RowLayout {
@@ -205,8 +213,21 @@ Rectangle {
             id: listView
             anchors.fill: parent
             boundsBehavior: Flickable.StopAtBounds
-            spacing: pixel(2)
-            delegate: fileDelegate
+//            delegate: fileDelegate
+            delegate: ItemDelegate {
+                function getFileName() {
+                    var path = source.toString()
+                    var pathSplit = ""
+                    pathSplit = path.split("/")
+                    var fileName = pathSplit[pathSplit.length - 1]
+                    return fileName
+                }
+                width: parent.width
+                text: getFileName()
+                icon.source: "qrc:/icons/video"
+                display: AbstractButton.TextBesideIcon
+                onClicked: listView.currentIndex = index
+            }
 
             ScrollBar.vertical: ScrollBar {}
 
@@ -215,9 +236,6 @@ Rectangle {
             }
 
             highlightMoveDuration: 100
-//            pressDelay: 100
-//            focus: true
-
         }
     }
 

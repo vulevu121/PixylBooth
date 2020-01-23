@@ -13,29 +13,30 @@ ApplicationWindow {
     visible: true
     color: "black"
 
-//    width: templateImage.width
-//    height: templateImage.height
-
-//    height: Screen.height * 0.8
-//    width: Screen.width * 0.8
-
-//    minimumWidth: Screen.width * 0.4
-//    minimumHeight: Screen.height * 0.4
-
-//    maximumWidth: Screen.width * 0.8
-//    maximumHeight: Screen.height * 0.8
-
+    property string templateImagePath
+    property string templateFormat
+    property int numberPhotos
     property real iconSize: pixel(6)
-    property real aspectRatio: 1.5
+    property int selectedPhotoIndex: 0
+    property alias aspectRatio: templateImage.aspectRatio
+    minimumWidth: 1050
+    minimumHeight: 700
 
     Settings {
         category: "Profile"
+        id: profile
         property alias templateEditorWidth: templateEditor.width
         property alias templateEditorHeight: templateEditor.height
         property alias templateEditorX: templateEditor.x
         property alias templateEditorY: templateEditor.y
+        property alias templateImagePath: templateEditor.templateImagePath
+        property alias templateFormat: templateEditor.templateFormat
+        property alias numberPhotos: templateEditor.numberPhotos
     }
 
+    function pixel(pixel) {
+        return pixel * 4
+    }
 
     function addFilePrefix(path) {
         if (path.search("file://") >= 0)
@@ -50,39 +51,89 @@ ApplicationWindow {
     }
 
     function get_pheight(pwidth) {
-        return Math.round(pwidth / photoAspectRatio)
+        return (pwidth / aspectRatio)
     }
 
     function get_ax(px) {
-        return Math.round(px / templateImage.width * templateImage.sourceSize.width)
+        return (px / templateImage.width * templateImage.sourceSize.width)
     }
 
     function get_ay(py) {
-        return Math.round(py / templateImage.height * templateImage.sourceSize.height)
+        return (py / templateImage.height * templateImage.sourceSize.height)
     }
 
+    function get_acx(ax, awidth) {
+        return (ax + awidth / 2)
+    }
+
+    function get_acy(ay, aheight) {
+        return (ay + aheight / 2)
+    }
+
+
     function get_awidth(pwidth) {
-        return Math.round(pwidth / templateImage.width * templateImage.sourceSize.width)
+        return (pwidth / templateImage.width * templateImage.sourceSize.width)
     }
 
     function get_aheight(pheight) {
-        return Math.round(pheight / templateImage.height * templateImage.sourceSize.height)
+        return (pheight / templateImage.height * templateImage.sourceSize.height)
     }
 
-    header: ToolBar {
-        z:5
-        RowLayout {
-            anchors.fill: parent
+    FileDialog {
+        id: fileDialog
+        nameFilters: ["PNG files (*.png)"]
+
+        onAccepted: {
+            console.log(fileUrl)
+        }
+    }
+
+    ToolBar {
+        anchors {
+            left: parent.left
+            top: parent.top
+            bottom: parent.bottom
+        }
+
+        background: Rectangle {
+            color: Material.background
+
+        }
+
+        ColumnLayout {
+
+            ToolButton {
+                text: "Open Template Image"
+                icon.source: "qrc:/icons/photo"
+                Layout.fillWidth: true
+                display: Button.IconOnly
+
+                ToolTip {
+                    text: parent.text
+                    visible: parent.hovered
+                }
+
+                onClicked: {
+                    fileDialog.open()
+                }
+            }
 
             ToolButton {
                 text: "Add Photo"
                 icon.source: "qrc:/icons/add"
-                Layout.alignment: Qt.AlignLeft
+                Layout.fillWidth: true
+                display: Button.IconOnly
+
+                ToolTip {
+                    text: parent.text
+                    visible: parent.hovered
+                }
+
                 onClicked: {
-                    var pwidth = templateImage.width
-                    var pheight = pwidth / aspectRatio
-                    var px = (templateImage.width - pwidth)/2
-                    var py = (templateImage.height - pheight)/2
+                    var pwidth = Math.round(templateImage.width*0.5)
+                    var pheight = Math.round(pwidth / aspectRatio)
+                    var px = Math.round((templateImage.width - pwidth)/2)
+                    var py = Math.round((templateImage.height - pheight)/2)
                     photoFrameModel.append({"px": px, "py": py, "pwidth": pwidth, "pheight": pheight, "ax": 0, "ay": 0, "awidth": 0, "aheight": 0})
                 }
 
@@ -91,16 +142,118 @@ ApplicationWindow {
             ToolButton {
                 text: "Clear"
                 icon.source: "qrc:/icons/clear-all"
-                Layout.alignment: Qt.AlignLeft
+                Layout.fillWidth: true
+                display: Button.IconOnly
+
+                ToolTip {
+                    text: parent.text
+                    visible: parent.hovered
+                }
+
                 onClicked: {
                     photoFrameModel.clear()
                 }
             }
 
+
             ToolButton {
-                text: "Close"
-                icon.source: "qrc:/icons/clear"
-                Layout.alignment: Qt.AlignRight
+                text: "Rotate Left"
+                icon.source: "qrc:/icons/rotate-left"
+                Layout.fillWidth: true
+                display: Button.IconOnly
+                autoRepeat: true
+
+                ToolTip {
+                    text: parent.text
+                    visible: parent.hovered
+                    timeout: 1000
+                }
+                onClicked: {
+                    photoFrameModel.get(selectedPhotoIndex).protation -= 5
+                }
+
+            }
+            ToolButton {
+                text: "Rotate Right"
+                icon.source: "qrc:/icons/rotate-right"
+                Layout.fillWidth: true
+                display: Button.IconOnly
+                autoRepeat: true
+
+                ToolTip {
+                    text: parent.text
+                    visible: parent.hovered
+                }
+
+                onClicked: {
+                    photoFrameModel.get(selectedPhotoIndex).protation += 5
+                }
+
+            }
+            ToolButton {
+                text: "Delete"
+                icon.source: "qrc:/icons/delete-forever"
+                Layout.fillWidth: true
+                display: Button.IconOnly
+
+                ToolTip {
+                    text: parent.text
+                    visible: parent.hovered
+                }
+
+                onClicked: {
+                    photoFrameModel.remove(selectedPhotoIndex)
+                }
+
+            }
+            ToolButton {
+                text: "Increase Size"
+                icon.source: "qrc:/icons/arrow-expand-all"
+                Layout.fillWidth: true
+                display: Button.IconOnly
+                autoRepeat: true
+
+                ToolTip {
+                    text: parent.text
+                    visible: parent.hovered
+                }
+
+                onClicked: {
+                    photoFrameModel.get(selectedPhotoIndex).pwidth += 10
+                    photoFrameModel.get(selectedPhotoIndex).pheight = get_pheight(photoFrameModel.get(selectedPhotoIndex).pwidth)
+                }
+
+            }
+            ToolButton {
+                text: "Decrease Size"
+                icon.source: "qrc:/icons/arrow-collapse-all"
+                Layout.fillWidth: true
+                display: Button.IconOnly
+                autoRepeat: true
+
+                ToolTip {
+                    text: parent.text
+                    visible: parent.hovered
+                }
+
+                onClicked: {
+                    photoFrameModel.get(selectedPhotoIndex).pwidth -= 10
+                    photoFrameModel.get(selectedPhotoIndex).pheight = get_pheight(photoFrameModel.get(selectedPhotoIndex).pwidth)
+                }
+
+            }
+
+            ToolButton {
+                text: "Exit"
+                icon.source: "qrc:/icons/exit-run"
+                Layout.fillWidth: true
+                display: Button.IconOnly
+
+                ToolTip {
+                    text: parent.text
+                    visible: parent.hovered
+                }
+
                 onClicked: {
                     templateEditor.close()
                 }
@@ -113,22 +266,21 @@ ApplicationWindow {
         id: templateImage
         z: 3
         opacity: 0.8
-        anchors {
-            horizontalCenter: parent.horizontalCenter
-            verticalCenter: parent.verticalCenter
-        }
+        x : 100
+        y : 50
+
         property real aspectRatio: sourceSize.width / sourceSize.height
-
-        source: addFilePrefix(root.templateImagePath)
-        width: templateImage.sourceSize.height >= templateImage.sourceSize.width ? height * aspectRatio : templateEditor.width*0.8
-        height: templateImage.sourceSize.height >= templateImage.sourceSize.width ? templateEditor.height*0.8 : width / aspectRatio
-
+        source: addFilePrefix(templateImagePath)
+        width: templateImage.sourceSize.height >= templateImage.sourceSize.width ? height * aspectRatio : 900
+        height: templateImage.sourceSize.height >= templateImage.sourceSize.width ? 600 : width / aspectRatio
     }
 
     Rectangle {
         anchors.fill: templateImage
+        width: templateImage.width
+        height: templateImage.height
         z:2
-//        opacity: 0.8
+
         Repeater {
             id: repeater
             model: photoFrameModel
@@ -143,19 +295,46 @@ ApplicationWindow {
                 height: pheight
                 z: 2
                 opacity: 1
-                border.width: 3
+                border.width: selectedPhotoIndex == index ? 12 : 4
+                border.color: selectedPhotoIndex == index ? "#FF0000" : "#000000"
 
                 MouseArea {
                     anchors.fill: parent
                     hoverEnabled: true
                     drag.target: photoFrame
 
-                    onReleased: {
-                        photoFrameModel.get(index).px = photoFrame.x
-                        photoFrameModel.get(index).py = photoFrame.y
+                    onMouseXChanged: {
+                        var ax = get_ax(photoFrame.x)
+                        var ay = get_ay(photoFrame.y)
+                        var awidth = get_awidth(photoFrame.width)
+                        var aheight = get_aheight(photoFrame.height)
+                        xLabel.value = Math.round(ax)
+                        yLabel.value = Math.round(ay)
+                        widthLabel.value = Math.round(awidth)
+                        heightLabel.value = Math.round(aheight)
+                        cxLabel.value = Math.round(get_acx(ax, awidth))
+                        cyLabel.value = Math.round(get_acy(ay, aheight))
+                        selectedPhotoIndex = index
+                    }
 
-                        photoFrameModel.get(index).ax = get_ax(photoFrame.x)
-                        photoFrameModel.get(index).ay = get_ay(photoFrame.y)
+                    onHeightChanged: {
+                        widthLabel.value = Math.round(get_awidth(photoFrame.width))
+                    }
+
+                    onWidthChanged: {
+                        heightLabel.value = Math.round(get_aheight(photoFrame.height))
+                    }
+
+                    onPressed: {
+                        selectedPhotoIndex = index
+                    }
+
+                    onReleased: {
+                        photoFrameModel.get(index).px = Math.round(photoFrame.x)
+                        photoFrameModel.get(index).py = Math.round(photoFrame.y)
+
+                        photoFrameModel.get(index).ax = Math.round(get_ax(photoFrame.x))
+                        photoFrameModel.get(index).ay = Math.round(get_ay(photoFrame.y))
                     }
                 }
 
@@ -169,147 +348,58 @@ ApplicationWindow {
                     color: "white"
                 }
 
-                ColumnLayout {
-                    RowLayout {
-                        z: 1
+                //            PinchArea {
+                //                anchors.fill: parent
+                //                pinch.target: photoFrame
+                //                pinch.minimumRotation: 0
+                //                pinch.maximumRotation: 0
+                //                pinch.minimumScale: 0.1
+                //                pinch.maximumScale: 10
+                //                pinch.dragAxis: Pinch.XAndYAxis
 
-                        Button {
-                            text: "Delete"
-                            display: Button.IconOnly
-                            icon.source: "qrc:/icons/delete-forever"
-                            icon.width: iconSize
-                            icon.height: iconSize
-                            flat: true
+                //                onPinchFinished: {
+                //                    console.log(pinch.startPoint1, pinch.startPoint2)
+                //                    photoFrameModel.get(index).pwidth = photoFrame.width
+                //                    photoFrameModel.get(index).pheight = get_pheight(photoFrame.width)
 
-                            onClicked: {
-                                photoFrameModel.remove(index)
-                            }
-                        }
+                //                    photoFrameModel.get(index).awidth = get_awidth(photoFrameModel.get(index).pwidth)
+                //                    photoFrameModel.get(index).aheight = get_aheight(photoFrameModel.get(index).pheight)
 
-                    }
-
-                    RowLayout {
-                        Button {
-                            text: "Rotate Left"
-                            display: Button.IconOnly
-                            icon.source: "qrc:/icons/rotate-left"
-                            icon.width: iconSize
-                            icon.height: iconSize
-                            flat: true
-                            autoRepeat: true
-
-                            onClicked: {
-                                photoFrameModel.get(index).protation -= 15
-                            }
-
-                        }
-
-                        Button {
-                            text: "Rotate Right"
-                            display: Button.IconOnly
-                            icon.source: "qrc:/icons/rotate-right"
-                            icon.width: iconSize
-                            icon.height: iconSize
-                            flat: true
-                            autoRepeat: true
-
-                            onClicked: {
-                                photoFrameModel.get(index).protation += 15
-                            }
-                        }
-                    }
-
-                    RowLayout {
-                        Button {
-                            text: "Scale up"
-                            display: Button.IconOnly
-                            icon.source: "qrc:/icons/zoom-in"
-                            icon.width: iconSize
-                            icon.height: iconSize
-                            flat: true
-                            autoRepeat: true
-
-
-                            onClicked: {
-                                photoFrameModel.get(index).pwidth += 10
-                                photoFrameModel.get(index).pheight = get_pheight(photoFrameModel.get(index).pwidth)
-                            }
-
-                        }
-
-                        Button {
-                            text: "Scale down"
-                            display: Button.IconOnly
-                            icon.source: "qrc:/icons/zoom-out"
-                            icon.width: iconSize
-                            icon.height: iconSize
-                            flat: true
-                            autoRepeat: true
-
-
-                            onClicked: {
-                                photoFrameModel.get(index).pwidth -= 10
-                                photoFrameModel.get(index).pheight = get_pheight(photoFrameModel.get(index).pwidth)
-                            }
-                        }
-                    }
-                }
-
-
-
-
-    //            PinchArea {
-    //                anchors.fill: parent
-    //                pinch.target: photoFrame
-    //                pinch.minimumRotation: 0
-    //                pinch.maximumRotation: 0
-    //                pinch.minimumScale: 0.1
-    //                pinch.maximumScale: 10
-    //                pinch.dragAxis: Pinch.XAndYAxis
-
-    //                onPinchFinished: {
-    //                    console.log(pinch.startPoint1, pinch.startPoint2)
-    //                    photoFrameModel.get(index).pwidth = photoFrame.width
-    //                    photoFrameModel.get(index).pheight = get_pheight(photoFrame.width)
-
-    //                    photoFrameModel.get(index).awidth = get_awidth(photoFrameModel.get(index).pwidth)
-    //                    photoFrameModel.get(index).aheight = get_aheight(photoFrameModel.get(index).pheight)
-
-    //                }
-    //            }
+                //                }
+                //            }
 
 
 
 
 
-    //            Rectangle {
-    //                anchors.fill: parent
-    //                anchors.margins: 20
-    //                MouseArea {
-    //                    id: dragArea
-    //                    hoverEnabled: true
-    //                    anchors.fill: parent
-    //                    drag.target: photoFrame
+                //            Rectangle {
+                //                anchors.fill: parent
+                //                anchors.margins: 20
+                //                MouseArea {
+                //                    id: dragArea
+                //                    hoverEnabled: true
+                //                    anchors.fill: parent
+                //                    drag.target: photoFrame
 
 
-    //                    onWheel: {
-    //                        photoFrameModel.get(index).pwidth += Math.round(photoFrameModel.get(index).pwidth * wheel.angleDelta.y / 120 / 40);
-    //                        photoFrameModel.get(index).pheight = get_pheight(photoFrameModel.get(index).pwidth)
+                //                    onWheel: {
+                //                        photoFrameModel.get(index).pwidth += Math.round(photoFrameModel.get(index).pwidth * wheel.angleDelta.y / 120 / 40);
+                //                        photoFrameModel.get(index).pheight = get_pheight(photoFrameModel.get(index).pwidth)
 
-    //                        photoFrameModel.get(index).awidth = get_awidth(photoFrame.width)
-    //                        photoFrameModel.get(index).aheight = get_aheight(photoFrame.height)
-    //                    }
+                //                        photoFrameModel.get(index).awidth = get_awidth(photoFrame.width)
+                //                        photoFrameModel.get(index).aheight = get_aheight(photoFrame.height)
+                //                    }
 
-    //                    onReleased: {
-    //                        photoFrameModel.get(index).px = photoFrame.x
-    //                        photoFrameModel.get(index).py = photoFrame.y
+                //                    onReleased: {
+                //                        photoFrameModel.get(index).px = photoFrame.x
+                //                        photoFrameModel.get(index).py = photoFrame.y
 
-    //                        photoFrameModel.get(index).ax = get_ax(photoFrame.x)
-    //                        photoFrameModel.get(index).ay = get_ay(photoFrame.y)
+                //                        photoFrameModel.get(index).ax = get_ax(photoFrame.x)
+                //                        photoFrameModel.get(index).ay = get_ay(photoFrame.y)
 
-    //                    }
-    //                }
-    //            }
+                //                    }
+                //                }
+                //            }
 
             }
         }
@@ -318,34 +408,35 @@ ApplicationWindow {
 
 
     Component.onCompleted: {
-        if (root.templateFormat) {
-          photoFrameModel.clear()
-          var jsonModel = JSON.parse(root.templateFormat)
-          for (var i = 0; i < jsonModel.length; ++i) {
-              photoFrameModel.append(jsonModel[i])
-          }
+        if (templateFormat) {
+            photoFrameModel.clear()
+            var jsonModel = JSON.parse(templateFormat)
+            for (var i = 0; i < jsonModel.length; ++i) {
+                photoFrameModel.append(jsonModel[i])
+            }
         }
 
-        console.log("Template loaded.")
+//        console.log("Template loaded.")
     }
 
     onClosing: {
         var i = 0
         for (i = 0 ; i < photoFrameModel.count ; i++) {
-            photoFrameModel.get(i).ax = get_ax(photoFrameModel.get(i).px)
-            photoFrameModel.get(i).ay = get_ay(photoFrameModel.get(i).py)
-            photoFrameModel.get(i).awidth = get_awidth(photoFrameModel.get(i).pwidth)
-            photoFrameModel.get(i).aheight = get_aheight(photoFrameModel.get(i).pheight)
+            photoFrameModel.get(i).ax = Math.round(get_ax(photoFrameModel.get(i).px))
+            photoFrameModel.get(i).ay = Math.round(get_ay(photoFrameModel.get(i).py))
+            photoFrameModel.get(i).awidth = Math.round(get_awidth(photoFrameModel.get(i).pwidth))
+            photoFrameModel.get(i).aheight = Math.round(get_aheight(photoFrameModel.get(i).pheight))
         }
 
         var jsonModel = []
         for (i = 0; i < photoFrameModel.count; i++) {
             jsonModel.push(photoFrameModel.get(i))
         }
-        root.templateFormat = JSON.stringify(jsonModel)
-        root.numberPhotos = photoFrameModel.count
 
-        console.log("Template saved.")
+        templateFormat = JSON.stringify(jsonModel)
+        numberPhotos = photoFrameModel.count
+
+//        console.log("Template saved.")
     }
 
     ListModel {
@@ -353,11 +444,15 @@ ApplicationWindow {
         ListElement {
             px: 0
             py: 0
+            pcx: 0
+            pcy: 0
             pwidth: 300
             pheight: 200
             protation: 0
             ax: 0
             ay: 0
+            acx: 0
+            acy: 0
             awidth: 300
             aheight: 200
 
@@ -365,22 +460,30 @@ ApplicationWindow {
         ListElement {
             px: 0
             py: 0
+            pcx: 0
+            pcy: 0
             pwidth: 300
             pheight: 200
             protation: 0
             ax: 0
             ay: 0
+            acx: 0
+            acy: 0
             awidth: 300
             aheight: 200
         }
         ListElement {
             px: 0
             py: 0
+            pcx: 0
+            pcy: 0
             pwidth: 300
             pheight: 200
             protation: 0
             ax: 0
             ay: 0
+            acx: 0
+            acy: 0
             awidth: 300
             aheight: 200
         }
@@ -388,50 +491,121 @@ ApplicationWindow {
 
     }
 
+    ToolBar {
+        id: infoToolbar
+        x: 176
+        y: 238
+        z: 10
+        width: 200
+        height: 200
 
+        background: Rectangle {
+            radius: pixel(2)
+            color: Material.background
 
+            gradient: Gradient {
+                GradientStop {
+                    position: 0
+                    color: Material.color(Material.Grey, Material.Shade700)
+                }
 
-//    ColumnLayout {
-//        id: buttons
-//        anchors.fill: parent
-//        z: 4
+                GradientStop {
+                    position: 0.2
+                    color: Material.color(Material.Grey, Material.Shade900)
+                }
 
-//        Button {
-//            text: "Add Photo"
-//            icon.source: "qrc:/icons/add"
-//            icon.width: iconSize
-//            icon.height: iconSize
-//            width: height
+                GradientStop {
+                    position: 0.201
+                    color: Material.background
+                }
 
-////            display: Button.IconOnly
-//            onClicked: {
-//                var pwidth = templateImage.width / 2
-//                var pheight = templateImage.height / 2
-//                var px = templateImage.width/2 - pwidth/2
-//                var py = templateImage.height/2 - pheight/2
-//                photoFrameModel.append({"px": px, "py": py, "pwidth": pwidth, "pheight": pheight, "ax": 0, "ay": 0, "awidth": 0, "aheight": 0})
-//            }
-//        }
+                GradientStop {
+                    position: 1.0
+                    color: Material.background
+                }
+            }
+        }
 
-//        Button {
-//            text: "Close"
-//            icon.source: "qrc:/icons/clear"
-//            icon.width: iconSize
-//            icon.height: iconSize
-//            width: height
+        Button {
+            id: titleBar
+            height: pixel(10)
+            text: "Info                              "
+            display: Button.TextBesideIcon
+            icon.source: "qrc:/icons/info"
+            flat: true
 
-//            onClicked: {
-//                templateEditor.close()
-//            }
-//        }
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+            }
 
-//        RowLayout {}
-//    }
+            MouseArea {
+                id: dragArea
+                anchors.fill: titleBar
+                drag.target: infoToolbar
+            }
+        }
 
+        ColumnLayout {
+            anchors {
+                top: titleBar.bottom
+                left: parent.left
+                right: parent.right
+                bottom: parent.bottom
+                margins: pixel(2)
+            }
 
+            GridLayout {
+                Layout.alignment: Qt.AlignTop
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                columns: 2
+                Label {
+                    id: xLabel
+                    property real value
+                    text: "X: " + value
+                }
+                Label {
+                    id: yLabel
+                    property real value
+                    text: "Y: " + value
+                }
+                Label {
+                    id: cxLabel
+                    property real value
+                    text: "CX: " + value
+                }
+                Label {
+                    id: cyLabel
+                    property real value
+                    text: "CY: " + value
+                }
 
+                Label {
+                    id: widthLabel
+                    property real value
+                    text: "W: " + value
+                }
+                Label {
+                    id: heightLabel
+                    property real value
+                    text: "H: " + value
+                }
 
+            }
+
+            RowLayout {}
+        }
+
+    }
 
 
 
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;height:480;width:640}
+}
+##^##*/

@@ -143,8 +143,8 @@ Item {
 
     function playProcessingVideos() {
         mediaPlayer.stop()
-        mediaPlayer.playlist = settings.processingVideosPlaylist
-        settings.processingVideosPlaylist.next()
+        mediaPlayer.playlist = settings.processingVideoPlaylist
+        settings.processingVideoPlaylist.next()
         mediaPlayer.play()
         console.log("[CaptureView] Playing processing videos")
     }
@@ -327,7 +327,7 @@ Item {
 
         onTriggered: {
             canvasPopup.close()
-            startState()
+//            startState()
         }
     }
 

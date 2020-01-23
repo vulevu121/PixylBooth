@@ -15,7 +15,7 @@ Button {
         id: bg
         border.width: 2
         border.color: "#8BC34A"
-        color: "#20FFFFFF"
+        color: "#80000000"
         radius: pixel(2)
 
         clip: true
@@ -33,7 +33,7 @@ Button {
             PropertyAnimation {
                 running: pressed
                 target: highlightRect
-                properties: "scale"
+                properties: "opacity, scale"
                 to: 1.3
 //                duration: 300
                 easing.type: Easing.OutExpo
@@ -42,7 +42,7 @@ Button {
             PropertyAnimation {
                 running: !pressed
                 target: highlightRect
-                properties: "scale"
+                properties: "opacity, scale"
                 to: 0
 //                duration: 300
                 easing.type: Easing.OutExpo
@@ -52,10 +52,8 @@ Button {
     display: AbstractButton.TextBesideIcon
     font.capitalization: Font.MixedCase
 
-//    icon.width: font.pixelSize
-//    icon.height: font.pixelSize
-
-
+    icon.width: font.pixelSize
+    icon.height: font.pixelSize
 
 //    highlighted: true
 //    Material.accent: Material.color(Material.Green, Material.Shade700)

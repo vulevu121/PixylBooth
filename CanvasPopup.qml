@@ -42,7 +42,12 @@ Popup {
     }
 
     onClosed: {
+        printPopup.close()
+        smsPopup.close()
+        emailPopup.close()
         saveCanvas()
+        swipeview.currentIndex = 1
+        startState()
     }
 
     property alias source: image.source

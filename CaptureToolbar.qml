@@ -75,8 +75,8 @@ Rectangle {
             margins: pixel(25)
         }
 
-        scale: captureView.state in {"review": 0} ? 1 : 0
-        visible: scale > 0.1 ? true : false
+//        scale: captureView.state in {"review": 0} ? 1 : 0
+//        visible: scale > 0.1 ? true : false
 
 
         Behavior on scale {
@@ -106,7 +106,7 @@ Rectangle {
 
         CustomToolbarButton {
             id: undoLastButton
-            text: qsTr("Redo Last Photo")
+            text: qsTr("Retake")
             Layout.fillHeight: true
             Layout.fillWidth: true
 
@@ -119,7 +119,7 @@ Rectangle {
             font.pointSize: captureRect.pointSize
 
             icon.source: "qrc:/icons/restore"
-            display: captureView.state in {"review": 0, "aftercapture": 1} ? AbstractButton.TextBesideIcon : AbstractButton.IconOnly
+//            display: captureView.state in {"review": 0, "aftercapture": 1} ? AbstractButton.TextBesideIcon : AbstractButton.IconOnly
 
             onClicked: {
                 if (captureView.state != "start") {
@@ -260,7 +260,7 @@ Rectangle {
             visible: !locked
             width: captureRect.iconSize
             height: captureRect.iconSize
-            icon.source: "qrc:/icons/clear"
+            icon.source: "qrc:/icons/exit-run"
             icon.width: height
             icon.height: height
             display: AbstractButton.IconOnly
