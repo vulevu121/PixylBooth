@@ -13,12 +13,14 @@ ApplicationWindow {
     visible: true
     color: "black"
 
+    property int titleBarHeight: pixel(10)
     property string templateImagePath
     property string templateFormat
     property int numberPhotos
     property real iconSize: pixel(6)
     property int selectedPhotoIndex: 0
     property alias aspectRatio: templateImage.aspectRatio
+    property bool infoToolbarVisible: true
     minimumWidth: 1050
     minimumHeight: 700
 
@@ -32,6 +34,8 @@ ApplicationWindow {
         property alias templateImagePath: templateEditor.templateImagePath
         property alias templateFormat: templateEditor.templateFormat
         property alias numberPhotos: templateEditor.numberPhotos
+        property alias infoToolbarX: infoToolbar.x
+        property alias infoToolbarY: infoToolbar.y
     }
 
     function pixel(pixel) {
@@ -314,15 +318,21 @@ ApplicationWindow {
                         heightLabel.value = Math.round(aheight)
                         cxLabel.value = Math.round(get_acx(ax, awidth))
                         cyLabel.value = Math.round(get_acy(ay, aheight))
-                        selectedPhotoIndex = index
+//                        selectedPhotoIndex = index
                     }
 
                     onHeightChanged: {
-                        widthLabel.value = Math.round(get_awidth(photoFrame.width))
+                        var ax = get_ax(photoFrame.x)
+                        var awidth = get_awidth(photoFrame.width)
+                        widthLabel.value = Math.round(awidth)
+                        cxLabel.value = Math.round(get_acx(ax, awidth))
                     }
 
                     onWidthChanged: {
-                        heightLabel.value = Math.round(get_aheight(photoFrame.height))
+                        var ay = get_ay(photoFrame.y)
+                        var aheight = get_aheight(photoFrame.height)
+                        heightLabel.value = Math.round(aheight)
+                        cyLabel.value = Math.round(get_acy(ay, aheight))
                     }
 
                     onPressed: {
@@ -497,7 +507,28 @@ ApplicationWindow {
         y: 238
         z: 10
         width: 200
-        height: 200
+        height: infoToolbarVisible ? 200 : titleBar.height
+
+        onHoveredChanged: {
+            if (hovered) {
+                opacity = 1
+            }
+            else {
+                opacity = 0.5
+            }
+        }
+
+        Behavior on height {
+            NumberAnimation {
+                duration: 100
+            }
+        }
+
+        Behavior on opacity {
+            NumberAnimation {
+                duration: 100
+            }
+        }
 
         background: Rectangle {
             radius: pixel(2)
@@ -510,12 +541,12 @@ ApplicationWindow {
                 }
 
                 GradientStop {
-                    position: 0.2
+                    position: titleBar.percent
                     color: Material.color(Material.Grey, Material.Shade900)
                 }
 
                 GradientStop {
-                    position: 0.201
+                    position: titleBar.percent + 0.01
                     color: Material.background
                 }
 
@@ -528,11 +559,14 @@ ApplicationWindow {
 
         Button {
             id: titleBar
-            height: pixel(10)
+            height: titleBarHeight
             text: "Info                              "
             display: Button.TextBesideIcon
             icon.source: "qrc:/icons/info"
             flat: true
+            highlighted: true
+
+            property real percent: height / infoToolbar.height
 
             anchors {
                 top: parent.top
@@ -544,10 +578,15 @@ ApplicationWindow {
                 id: dragArea
                 anchors.fill: titleBar
                 drag.target: infoToolbar
+
+                onPressAndHold: {
+                    infoToolbarVisible = !infoToolbarVisible
+                }
             }
         }
 
         ColumnLayout {
+            visible: infoToolbarVisible
             anchors {
                 top: titleBar.bottom
                 left: parent.left
