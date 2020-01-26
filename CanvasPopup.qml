@@ -550,6 +550,7 @@ Popup {
                 Layout.fillWidth: true
                 highlighted: true
                 radius: canvasPopup.buttonRadius
+//                bg.border.width: pixel(4)
                 Material.accent: Material.color(Material.Green, Material.Shade700)
 
                 onClicked: {
