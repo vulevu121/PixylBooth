@@ -75,8 +75,8 @@ Rectangle {
             margins: pixel(25)
         }
 
-//        scale: captureView.state in {"review": 0} ? 1 : 0
-//        visible: scale > 0.1 ? true : false
+        scale: captureView.state in {"review": 0} ? 1 : 0
+        visible: scale > 0.1 ? true : false
 
 
         Behavior on scale {

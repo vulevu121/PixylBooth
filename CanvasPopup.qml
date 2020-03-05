@@ -47,7 +47,7 @@ Popup {
         emailPopup.close()
         saveCanvas()
         swipeview.currentIndex = 1
-        startState()
+        captureView.startState()
     }
 
     property alias source: image.source
@@ -511,6 +511,33 @@ Popup {
                         }
 
                         var printImage = String(stripFilePrefix(image.source))
+//                        var to = "+1" + phoneNumber.text.replace("-", "")
+
+//                        var http = new XMLHttpRequest()
+//                        var url = "https://api.twilio.com/2010-04-01/Accounts/ACed07b0d0b031bd5b5a696066e747b3c3/Messages.json"
+//                        var mediaUrl = "https://nudebabes.realnakedgirls.net/wp-content/uploads/2017/11/big-boob-naked-college-girl.jpg"
+//                        var from = "+19495368665"
+//                        var body = "You got pictures! Cheers, Pixyl."
+
+//                        var params = `Body=${body}&From=${from}&MediaUrl=${mediaUrl}&To=${to}"`
+//                        http.open("POST", url, true, "ACed07b0d0b031bd5b5a696066e747b3c3", "829f9104cd47a7ce6fc6048879da66ab");
+
+
+//                        http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+//                        http.setRequestHeader("Content-length", params.length);
+//                        http.setRequestHeader("Connection", "close");
+
+//                        http.onreadystatechange = function() { // Call a function when the state changes.
+//                                            if (http.readyState === 4) {
+//                                                if (http.status === 200 || http.status === 201) {
+//                                                    console.log("ok")
+//                                                } else {
+//                                                    console.log("error: " + http.status)
+//                                                }
+//                                            }
+//                                        }
+//                        http.send(params);
+
                         smsEmail.sendSms(phoneNumber.text, carrierCombo.currentText, splitPath(printImage))
                         smsPopup.close()
                     }

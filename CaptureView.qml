@@ -672,10 +672,10 @@ Item {
             fillMode: Image.PreserveAspectFit
             mirror: settings.mirrorLiveVideoSwitch
 
-            Text {
-                id: name
-                text: qsTr("Do you want to redo?")
-            }
+//            Text {
+//                id: name
+//                text: qsTr("Do you want to redo?")
+//            }
         }
 
 

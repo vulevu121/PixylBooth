@@ -22,9 +22,7 @@ Button {
         border.width: 2
         border.color: "#8BC34A"
         color: "#000000"
-        opacity: 0.5
         radius: pixel(2)
-
         clip: true
 
         Rectangle {
@@ -32,44 +30,32 @@ Button {
             anchors.centerIn: parent
             width: parent.width
             height: width
-//            opacity: 0
             scale: 0
             color: bg.border.color
             radius: width/2
 
             ParallelAnimation {
+                id: highlightAnimation
                 running: pressed
-                PropertyAnimation {
+                alwaysRunToEnd: true
 
+                NumberAnimation {
                     target: highlightRect
                     properties: "scale"
                     from: 0
-                    to: 1.3
+                    to: 1.5
                     duration: 1000
                     easing.type: Easing.OutExpo
                 }
-                PropertyAnimation {
-//                    running: pressed
+                NumberAnimation {
                     target: highlightRect
                     properties: "opacity"
-                    from: 1
+                    from: 1.0
                     to: 0
                     duration: 1000
                     easing.type: Easing.OutExpo
                 }
-
-
             }
-
-
-//            PropertyAnimation {
-//                running: !pressed
-//                target: highlightRect
-//                properties: "opacity, scale"
-//                to: 0
-////                duration: 300
-//                easing.type: Easing.OutExpo
-//            }
         }
     }
 
