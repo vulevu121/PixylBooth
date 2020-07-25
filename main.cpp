@@ -25,6 +25,9 @@ int main(int argc, char *argv[])
     qmlRegisterType<SMSEmail>("SMSEmail", 1, 0, "SMSEmail");
     qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
 
+    qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
+    qputenv("QT_ENABLE_HIGHDPI_SCALING", "1");
+
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QApplication app(argc, argv);
@@ -41,7 +44,7 @@ int main(int argc, char *argv[])
     settings->setValue("version", app.applicationVersion());
 
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
+    engine.load(QUrl("qrc:/main.qml"));
 //    engine.load(QUrl(QStringLiteral("qrc:/TemplateEditor.qml")));
 
     if (engine.rootObjects().isEmpty())

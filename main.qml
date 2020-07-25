@@ -64,7 +64,9 @@ Window {
     }
 
     function pixel(pixel) {
-        return pixel * 4
+//        density is 3.611320754716981 on a LG 24" 1080p
+//        console.log(Screen.pixelDensity)
+        return pixel
     }
 
     function getFileName(path) {
@@ -414,7 +416,7 @@ Window {
         }
 
         Item {
-            SettingGeneral {
+            SettingsPage {
                 id: settings
                 anchors.fill: parent
             }
@@ -561,32 +563,77 @@ Window {
 
     }
 
+//    ToolBar {
+//        id: topToolBar
+//        anchors.horizontalCenter: parent.horizontalCenter
+
+//        background: Rectangle {
+//            implicitHeight: 40
+//            color: "#50000000"
+
+////            Rectangle {
+////                width: parent.width
+////                height: 1
+////                anchors.bottom: parent.bottom
+////                color: "transparent"
+////                border.color: "#21be2b"
+////            }
+//        }
+
+//        RowLayout {
+//            anchors.fill: parent
+//            ToolButton {
+//                text: qsTr("Play")
+//                icon.source: "qrc:/svg/play-solid"
+//                display: AbstractButton.TextUnderIcon
+//            }
+//            ToolButton {
+//                text: qsTr("Restart")
+//                icon.source: "qrc:/svg/undo-solid"
+//                display: AbstractButton.TextUnderIcon
+//            }
+//            ToolButton {
+//                id: expandToolButton
+//                text: qsTr("Expand")
+//                icon.source: "qrc:/svg/expand-solid"
+//                display: AbstractButton.TextUnderIcon
+//                checkable: true
+//            }
+//            ToolButton {
+//                visible: expandToolButton.checked
+//                text: qsTr("Lock")
+//                icon.source: "qrc:/svg/lock-solid"
+//                display: AbstractButton.TextUnderIcon
+//            }
+//        }
+//    }
 
 
     // ==== TAB BAR STUFF ====
     TabBar {
         id: tabBar
-        position: TabBar.Footer
+        position: TabBar.Header
         currentIndex: swipeview.currentIndex
-        anchors.top: parent.top
+//        anchors.top: parent.top
+        anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
-        Material.elevation: 1
+        Material.elevation: 6
         opacity: 1
         z: 5
         background: Rectangle {
-            color: Material.background
-            radius: pixel(3)
-         }
+            color: "#50000000"
+//            radius: pixel(3)
+        }
 
-        property real iconSize: pixel(16)
+        property real iconSize: pixel(32)
 
         TabButton {
             text: "Gallery"
             width: implicitWidth
-            icon.source: "qrc:/icons/photo"
+            icon.source: "qrc:/svg/image"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
-            display: AbstractButton.IconOnly
+            display: AbstractButton.TextUnderIcon
 
             onClicked: {
                 swipeview.currentIndex = 0
@@ -596,10 +643,10 @@ Window {
         TabButton {
             text: "Capture"
             width: implicitWidth
-            icon.source: "qrc:/icons/capture"
+            icon.source: "qrc:/svg/camera-retro-solid"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
-            display: AbstractButton.IconOnly
+            display: AbstractButton.TextUnderIcon
 
             onClicked: {
                 swipeview.currentIndex = 1
@@ -610,10 +657,10 @@ Window {
             text: "Settings"
             width: implicitWidth
             enabled: captureView.captureToolbar.locked? false : true
-            icon.source: "qrc:/icons/tune"
+            icon.source: "qrc:/svg/sliders-h-solid"
             icon.width: tabBar.iconSize
             icon.height: tabBar.iconSize
-            display: AbstractButton.IconOnly
+            display: AbstractButton.TextUnderIcon
 
             onClicked: {
                 swipeview.currentIndex = 2
@@ -622,73 +669,3 @@ Window {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

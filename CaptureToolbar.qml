@@ -12,13 +12,14 @@ Rectangle {
     id: captureRect
     color: "transparent"
 
-    property real iconSize: pixel(24)
-    property real fontSize: pixel(16)
+    property real iconSize: pixel(32)
+    property real fontSize: pixel(60)
     property real pointSize: 30
     property alias lockButton: lockButton
-    property real iconSpacing: pixel(2)
+    property real iconSpacing: pixel(10)
     property bool playing: false
     property bool locked: false
+
 
     function playPause() {
         playing = !playing
@@ -94,7 +95,8 @@ Rectangle {
             font.pointSize: captureRect.pointSize
             icon.source: playing ? "qrc:/icons/pause" : "qrc:/icons/play"
 
-            bg.border.color: "#8BC34A"
+            icon.color: "#8BC34A"
+//            bg.border.color: "#8BC34A"
 //            bg.border.width: 2
 //            bg.radius: 4
 //            bg.color: "#20FFFFFF"
@@ -110,7 +112,8 @@ Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            bg.border.color: "#FF9800"
+            icon.color: "#FF9800"
+//            bg.border.color: "#FF9800"
 //            bg.border.width: 2
 //            bg.radius: 4
 //            bg.color: "#20FFFFFF"
@@ -136,7 +139,8 @@ Rectangle {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            bg.border.color: "#00BCD4"
+            icon.color: "#00BCD4"
+//            bg.border.color: "#00BCD4"
 //            bg.border.width: 2
 //            bg.radius: 4
 //            bg.color: "#20FFFFFF"
@@ -153,13 +157,14 @@ Rectangle {
 
 
     // Capture toolbar
-    Column {
-        y: parent.height/2 - height/2
+    Row {
+        spacing: captureRect.iconSpacing
+//        y: parent.height/2 - height/2
         anchors {
-//            fill: parent
-//            verticalCenter: parent.verticalCenter
-            left: parent.left
-            right: parent.right
+            top: parent.top
+//            left: parent.left
+//            right: parent.right
+            horizontalCenter: parent.horizontalCenter
         }
 
         move: Transition {
@@ -180,45 +185,34 @@ Rectangle {
         CustomToolbarButton {
             id: playPauseButton2
             text: playing ? "Pause" : "Resume"
-            width: captureRect.iconSize
-            height: captureRect.iconSize
-            icon.source: playing ? "qrc:/icons/pause" : "qrc:/icons/play"
-            icon.width: height
-            icon.height: height
-            display: AbstractButton.IconOnly
+//            width: captureRect.iconSize
+//            height: captureRect.iconSize
+            icon.source: playing ? "qrc:/svg/pause-solid" : "qrc:/svg/play-solid"
+            icon.width: captureRect.iconSize
+            icon.height: captureRect.iconSize
+//            display: AbstractButton.IconOnly
             checkable: true
 
-            bg.border.color: "#8BC34A"
-//            bg.border.width: 2
-//            bg.radius: 4
-//            bg.color: "#20FFFFFF"
+            icon.color: "#8BC34A"
+//            bg.border.color: "#8BC34A"
 
             onClicked: {
                 playPause()
             }
         }
 
-//        Button {
-//            highlighted: true
-//            Material.accent: Material.color(Material.Green, Material.Shade700)
-//        }
-
-
         CustomToolbarButton {
             id: restartButton2
-            text: "Restart from beginning?"
-            width: captureRect.iconSize
-            height: captureRect.iconSize
-            icon.source: "qrc:/icons/replay"
-            icon.width: height
-            icon.height: height
-            display: AbstractButton.IconOnly
-//            Material.accent: Material.color(Material.Cyan, Material.Shade700)
+            text: "Restart"
+//            width: captureRect.iconSize
+//            height: captureRect.iconSize
+            icon.source: "qrc:/svg/undo-solid"
+            icon.width: captureRect.iconSize
+            icon.height: captureRect.iconSize
+//            display: AbstractButton.IconOnly
 
-            bg.border.color: "#00BCD4"
-//            bg.border.width: 2
-//            bg.radius: 4
-//            bg.color: "#20FFFFFF"
+            icon.color: "#00BCD4"
+//            bg.border.color: "#00BCD4"
 
             onClicked: {
                 restart()
@@ -227,21 +221,18 @@ Rectangle {
 
         CustomToolbarButton {
             id: fullScreenButton
-            text: "Full Screen"
-            width: captureRect.iconSize
+            text: mainWindow.visibility === Window.FullScreen ? "Window" : "Full"
             visible: !locked
-            height: captureRect.iconSize
-            icon.source: mainWindow.visibility === Window.FullScreen ? "qrc:/icons/fullscreen-exit" : "qrc:/icons/fullscreen"
-            icon.width: height
-            icon.height: height
-            display: AbstractButton.IconOnly
-//            highlighted: true
-//            Material.accent: Material.color(Material.Yellow, Material.Shade700)
+//            width: captureRect.iconSize
+//            height: captureRect.iconSize
+            icon.source: mainWindow.visibility === Window.FullScreen ? "qrc:/svg/compress-solid" : "qrc:/svg/expand-solid"
+            icon.width: captureRect.iconSize
+            icon.height: captureRect.iconSize
+//            display: AbstractButton.IconOnly
 
-            bg.border.color: "#FFC107"
-//            bg.border.width: 2
-//            bg.radius: 4
-//            bg.color: "#20FFFFFF"
+            icon.color: "#FFC107"
+//            bg.border.color: "#FFC107"
+
 
             onClicked: {
                 if (mainWindow.visibility === Window.FullScreen) {
@@ -256,21 +247,16 @@ Rectangle {
         CustomToolbarButton {
             id: exitButton
             text: "Exit"
-//            flat: false
             visible: !locked
-            width: captureRect.iconSize
-            height: captureRect.iconSize
-            icon.source: "qrc:/icons/exit-run"
-            icon.width: height
-            icon.height: height
-            display: AbstractButton.IconOnly
-//            highlighted: true
-//            Material.accent: Material.color(Material.Grey, Material.Shade700)
+//            width: captureRect.iconSize
+//            height: captureRect.iconSize
+            icon.source: "qrc:/svg/times-solid"
+            icon.width: captureRect.iconSize
+            icon.height: captureRect.iconSize
+//            display: AbstractButton.IconOnly
 
-            bg.border.color: "#9E9E9E"
-//            bg.border.width: 2
-//            bg.radius: 4
-//            bg.color: "#20FFFFFF"
+            icon.color: "#9E9E9E"
+//            bg.border.color: "#9E9E9E"
 
             MessageDialog {
                 id: confirmExitDialog
@@ -290,20 +276,15 @@ Rectangle {
         CustomToolbarButton {
             id: lockButton
             text: locked ? "Unlock" : "Lock"
-//            flat: false
-            width: captureRect.iconSize
-            height: captureRect.iconSize
-            icon.source: locked ? "qrc:/icons/unlock":  "qrc:/icons/lock"
-            icon.width: height
-            icon.height: height
-            display: AbstractButton.IconOnly
-//            highlighted: true
-//            Material.accent: Material.color(Material.Grey, Material.Shade700)
+//            width: captureRect.iconSize
+//            height: captureRect.iconSize
+            icon.source: locked ? "qrc:/svg/lock-solid":  "qrc:/svg/unlock-solid"
+            icon.width: captureRect.iconSize
+            icon.height: captureRect.iconSize
+//            display: AbstractButton.IconOnly
 
-            bg.border.color: "#607D8B"
-//            bg.border.width: 2
-//            bg.radius: 4
-//            bg.color: "#20FFFFFF"
+            icon.color: "#607D8B"
+//            bg.border.color: "#607D8B"
 
             onClicked: {
                 if (locked) {
@@ -312,7 +293,6 @@ Rectangle {
                         return
                     }
                     locked = false
-//                    lockPinPopup.open()
                 }
                 else {
                     locked = true

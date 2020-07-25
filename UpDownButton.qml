@@ -13,7 +13,7 @@ import QtGraphicalEffects 1.12
 
 Rectangle {
     id: root
-    height: pixel(10)
+    height: pixel(80)
     width: height * 3
     color: Material.background
     radius: height / 2
@@ -22,7 +22,7 @@ Rectangle {
     property real value: min
     property real max: 99
     property string text: value
-
+    property alias font: valueText.font
     
     RoundButton {
         height: parent.height
@@ -45,7 +45,8 @@ Rectangle {
         height: parent.height
         width: height
         color: Material.foreground
-        font.pixelSize: height - pixel(6)
+        font.pointSize: 16
+//        font.pixelSize: height - pixel(6)
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         anchors.horizontalCenter: parent.horizontalCenter

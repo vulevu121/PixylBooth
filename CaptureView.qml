@@ -518,7 +518,7 @@ Item {
     
     CaptureToolbar {
         id: captureToolbar
-        opacity: 0.8
+//        opacity: 0.8
         z: 10
 //        y: captureView.height/2 - pixel(30)
 

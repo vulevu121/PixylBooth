@@ -24,7 +24,7 @@ Rectangle {
         Text {
             id: mainLabel
             width: root.width
-            text: ""
+            text: "Title"
             color: Material.foreground
             fontSizeMode: Text.VerticalFit
             font.pixelSize: root.height
@@ -33,7 +33,7 @@ Rectangle {
         Text {
             id: sub
             width: root.width
-            text: ""
+            text: "Subtitle"
             color: Material.accent
             fontSizeMode: Text.VerticalFit
             font.pixelSize: root.height
@@ -44,12 +44,3 @@ Rectangle {
 
 }
 
-
-
-
-
-
-/*##^## Designer {
-    D{i:0;autoSize:true;height:480;width:640}
-}
- ##^##*/

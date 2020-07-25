@@ -19,7 +19,6 @@ Item {
     property alias saveFolder: saveFolderField.text
     property alias displayScale: displayScalingButton.value
     property alias lockPin: lockPinTextField.text
-//    property alias albumUrl: albumUrlField.text
 
     property alias bgColor: bgColorRectangle.color
     property alias countDownColor: countDownColorRectangle.color
@@ -48,14 +47,14 @@ Item {
     property alias printingVideoPlaylist: printingVideoPlaylist
     property alias signingVideoPlaylist: signingVideoPlaylist
 
-    property real rowHeight: pixel(6)
-    property real textSize: pixel(4)
-    property real spacing: pixel(3)
-    property real columnMargins: pixel(3)
+    property real rowHeight: pixel(24)
+    property real textSize: pixel(16)
+    property real spacing: pixel(10)
+    property real columnMargins: pixel(10)
 
     property real numberPhotos
     property string templateFormat
-    property real buttonHeight: pixel(12)
+    property real buttonHeight: pixel(120)
 
     property alias emojiFolder: emojiFolderField.text
 
@@ -215,10 +214,10 @@ Item {
     ColumnLayout {
         anchors.fill: parent
         anchors {
-            leftMargin: pixel(5)
-            rightMargin: pixel(5)
-            topMargin: pixel(20)
-            bottomMargin: pixel(5)
+            leftMargin: pixel(20)
+            rightMargin: pixel(20)
+            topMargin: pixel(80)
+            bottomMargin: pixel(20)
         }
 
 
@@ -228,51 +227,51 @@ Item {
             width: parent.width
             height: parent.height
             color: "#222"
-            radius: pixel(3)
+            radius: pixel(12)
 
-            Image {
-                id: topLeftCorner
-                width: pixel(3)
-                height: pixel(3)
-                anchors.left: parent.left
-                anchors.top: parent.top
-                source: "qrc:/corner"
-                visible: false
-            }
+//            Image {
+//                id: topLeftCorner
+//                width: pixel(12)
+//                height: pixel(12)
+//                anchors.left: parent.left
+//                anchors.top: parent.top
+//                source: "qrc:/corner"
+//                visible: false
+//            }
 
-            Image {
-                id: bottomLeftCorner
-                width: pixel(3)
-                height: pixel(3)
-                anchors.left: parent.left
-                anchors.bottom: parent.bottom
-                source: "qrc:/corner"
-                rotation: 270
-                visible: false
-            }
+//            Image {
+//                id: bottomLeftCorner
+//                width: pixel(12)
+//                height: pixel(12)
+//                anchors.left: parent.left
+//                anchors.bottom: parent.bottom
+//                source: "qrc:/corner"
+//                rotation: 270
+//                visible: false
+//            }
 
 
-            ColorOverlay {
-                anchors.fill: topLeftCorner
-                source: topLeftCorner
-                color: bgColorRectangle.color
-                z: 5
-            }
+//            ColorOverlay {
+//                anchors.fill: topLeftCorner
+//                source: topLeftCorner
+//                color: bgColorRectangle.color
+//                z: 5
+//            }
 
-            ColorOverlay {
-                anchors.fill: bottomLeftCorner
-                source: bottomLeftCorner
-                color: bgColorRectangle.color
-                rotation: 270
-                z: 5
-            }
+//            ColorOverlay {
+//                anchors.fill: bottomLeftCorner
+//                source: bottomLeftCorner
+//                color: bgColorRectangle.color
+//                rotation: 270
+//                z: 5
+//            }
 
             Rectangle {
                 id: leftSide
                 anchors.left: parent.left
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
-                width: pixel(35)
+                width: pixel(120)
                 color: "#333"
 
                 ListView {
@@ -305,7 +304,7 @@ Item {
                     anchors {
                         left: parent.left
                         bottom: parent.bottom
-                        margins: pixel(2)
+                        margins: pixel(10)
                     }
                 }
             }

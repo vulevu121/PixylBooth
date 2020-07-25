@@ -2,36 +2,43 @@ import QtQuick 2.12
 import QtQuick.Window 2.2
 import QtQuick.VirtualKeyboard 2.2
 import QtQuick.Controls 2.12
-import QtQuick.Controls.Material 2.3
+import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.3
 import Qt.labs.platform 1.1
 import QtQuick.Dialogs 1.3
 import Qt.labs.settings 1.1
 
-Button {
-    property alias bg: bg
 
-    display: AbstractButton.TextBesideIcon
-    font.capitalization: Font.MixedCase
+ToolButton {
+//    property alias bg: bg
+
+    display: AbstractButton.TextUnderIcon
+//    font.capitalization: Font.MixedCase
 
     icon.width: font.pixelSize
     icon.height: font.pixelSize
+//    flat: true
+
+    text: qsTr("Button")
+
 
     background: Rectangle {
+        anchors.fill: parent
         id: bg
-        border.width: 2
-        border.color: "#8BC34A"
-        color: "#000000"
-        radius: pixel(2)
+//        border.width: 2
+//        border.color: "#8BC34A"
+        color: "#50000000"
+        radius: pixel(8)
         clip: true
 
         Rectangle {
             id: highlightRect
             anchors.centerIn: parent
-            width: parent.width
-            height: width
+            anchors.fill: parent
+//            width: parent.width
+//            height: parent.height
             scale: 0
-            color: bg.border.color
+            color: icon.color
             radius: width/2
 
             ParallelAnimation {
@@ -45,7 +52,7 @@ Button {
                     from: 0
                     to: 1.5
                     duration: 1000
-                    easing.type: Easing.OutExpo
+                    easing.type: Easing.OutCubic
                 }
                 NumberAnimation {
                     target: highlightRect
@@ -53,7 +60,7 @@ Button {
                     from: 1.0
                     to: 0
                     duration: 1000
-                    easing.type: Easing.OutExpo
+                    easing.type: Easing.OutCubic
                 }
             }
         }

@@ -25,6 +25,7 @@ Rectangle {
 //    property alias cellWidth: pixel(100)
     property bool showFileName: false
     property alias view: view
+//    property int thumbnailWidth: root.width
 
 
     function updateView() {
@@ -47,37 +48,74 @@ Rectangle {
 //        y: pixel(2)
 //        x: (mainWindow.width - width)/2
 
-        width: parent.width
-        height: parent.height
-        anchors.centerIn: Overlay.overlay
+//        width: parent.width
+//        height: parent.height
+//        anchors.centerIn: Overlay.overlay
+//        parent: parent
+        parentWidth: parent.width
+        parentHeight: parent.height
+        anchors.centerIn: parent
 
         saveFolder: settings.saveFolder
 
 
     }
 
+
+
     Component {
         id: photoDelegate
         Item {
-            width: root.width
-            height: settings.print6x4Split ? root.height : root.width / photoAspectRatio
+//            width: root.width
+//            height: settings.print6x4Split ? root.height : root.width / photoAspectRatio
+            width: view.cellWidth
+            height: width / photoAspectRatio
+
+            Behavior on width {
+                id: behavior
+//                property Item moveTarget: targetProperty.object
+
+                NumberAnimation {
+                    duration: 200
+                }
+
+
+//                ParallelAnimation {
+//                    NumberAnimation {
+//                        target: behavior.moveTarget
+//                        properties: "x,y"
+//                        duration: 200
+//                    }
+//                    NumberAnimation {
+//                        target: behavior.moveTarget
+//                        properties: "opacity"
+//                        from: 0
+//                        to: 1
+//                        duration: 200
+//                    }
+
+//                }
+
+
+            }
 
             Image {
                 id: mainImage
                 source: addFilePrefix(filePath)
 
-                width: parent.width
-                height: parent.height
+                anchors.fill: parent
+                anchors.margins: pixel(4)
 
                 cache: false
                 asynchronous: true
                 fillMode: Image.PreserveAspectFit
-                sourceSize.width: 600
+                sourceSize.width: 1280
 
-                BusyIndicator {
-                    anchors.centerIn: parent
-                    running: mainImage.status == Image.Loading
-                }
+
+//                BusyIndicator {
+//                    anchors.centerIn: parent
+//                    running: mainImage.status == Image.Loading
+//                }
 
                 MouseArea {
                     anchors.fill: parent
@@ -92,14 +130,87 @@ Rectangle {
 
         }
     }
-    
 
-    ListView {
+    GridView {
         id: view
         anchors.fill: parent
         model: folderListModel
         delegate: photoDelegate
 
+        cellWidth: parent.width
+        cellHeight: cellWidth / photoAspectRatio
+
         ScrollBar.vertical: ScrollBar {}
+
+        displaced: Transition {
+            NumberAnimation {
+                properties: "x,y"
+                duration: 1000
+            }
+        }
+
+//        populate: Transition {
+//            NumberAnimation {
+//                properties: "x,y"
+//                duration: 1000
+//            }
+//        }
+
+//        remove: Transition {
+//            NumberAnimation {
+//                properties: "x,y"
+//                duration: 1000
+//            }
+//        }
+
+//        move: Transition {
+//            NumberAnimation {
+//                properties: "x,y"
+//                duration: 1000
+//            }
+//        }
+    }
+
+
+    TabBar {
+        id: galleryTabBar
+        position: TabBar.Footer
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+
+        z: 5
+        background: Rectangle {
+            color: "#50000000"
+        }
+
+        property real iconSize: pixel(32)
+
+        TabButton {
+            text: "Large"
+            width: implicitWidth
+            icon.source: "qrc:/svg/stop-solid"
+            icon.width: galleryTabBar.iconSize
+            icon.height: galleryTabBar.iconSize
+            display: AbstractButton.TextUnderIcon
+
+            onClicked: {
+                view.cellWidth = root.width
+//                thumbnailWidth = root.width
+            }
+        }
+
+        TabButton {
+            text: "Small"
+            width: implicitWidth
+            icon.source: "qrc:/svg/th-large-solid"
+            icon.width: galleryTabBar.iconSize
+            icon.height: galleryTabBar.iconSize
+            display: AbstractButton.TextUnderIcon
+
+            onClicked: {
+                view.cellWidth = root.width / 2
+//                thumbnailWidth = root.width / 2
+            }
+        }
     }
 }

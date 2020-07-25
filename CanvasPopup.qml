@@ -14,14 +14,21 @@ Popup {
     id: canvasPopup
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
     modal: true
-    padding: pixel(2)
+    padding: 0
 
+
+    property int parentWidth: 0
+    property int parentHeight: 0
     property string saveFolder
-    property real iconSize: pixel(20)
+    property real iconSize: pixel(48)
     property string smsFileURL: addFilePrefix(settings.saveFolder + "/SMS.txt")
     property string emailFileURL: addFilePrefix(settings.saveFolder + "/Email.txt")
-    property real autoCompleteRowHeight: pixel(6)
-    property real buttonRadius: pixel(2)
+    property real autoCompleteRowHeight: pixel(24)
+    property real buttonRadius: pixel(8)
+    property alias source: image.source
+
+
+
 
     Overlay.modal: Rectangle {
         color: "#64000000"
@@ -36,7 +43,8 @@ Popup {
         var canvasURL = getCanvasURL()
         canvas.lastCanvasLoaded = false
         canvas.loadImage(canvasURL)
-        printPopup.open()
+
+//        printPopup.open()
 
         closeButton.closingTime = settings.endSessionTimer
     }
@@ -45,12 +53,14 @@ Popup {
         printPopup.close()
         smsPopup.close()
         emailPopup.close()
+//        canvas.unloadImage(canvasURL)
         saveCanvas()
-        swipeview.currentIndex = 1
+
+//        swipeview.currentIndex = 1
         captureView.startState()
     }
 
-    property alias source: image.source
+
 
     function getCanvasURL() {
         var fileURL = String(image.source)
@@ -141,8 +151,8 @@ Popup {
         id: colorDelegate
 
         Item {
-            width: canrect.paletteSize
-            height: canrect.paletteSize
+            width: colorPalette.cellWidth
+            height: colorPalette.cellHeight
             Rectangle {
                 anchors.fill: parent
                 anchors.margins: 2
@@ -158,6 +168,8 @@ Popup {
                         colorPalette.currentIndex = index
                         canvas.strokeColor = foreground
                         canvas.shadowColor = background
+                        canvas.brushType = 0
+                        brushPopup.close()
                     }
                 }
             }
@@ -204,8 +216,10 @@ Popup {
                         else if (index >= 2) {
                             canvas.patternImage = fileURL
                         }
-
+                        canvas.brushType = 2
                         canvas.loadImage(emojisModel.get(index, "fileURL"))
+
+                        emojiPopup.close()
 
                     }
                 }
@@ -240,7 +254,7 @@ Popup {
             anchors.fill: parent
 
             RowLayout {
-                spacing: pixel(5)
+                spacing: pixel(8)
                 width: parent.width
 
                 TextField {
@@ -250,7 +264,7 @@ Popup {
                     inputMethodHints: Qt.ImhLowercaseOnly
                     focus: true
                     Layout.fillWidth: true
-                    font.pixelSize: pixel(10)
+                    font.pointSize: 18
 
                     Keys.onReturnPressed: {
                         emailSendButton.clicked()
@@ -276,7 +290,7 @@ Popup {
                     id: emailSendButton
                     text: "Send"
                     focusPolicy: Qt.NoFocus
-                    icon.source: "qrc:/icons/send"
+                    icon.source: "qrc:/svg/paper-plane-solid"
                     icon.width: iconSize
                     icon.height: iconSize
                     display: AbstractButton.TextBesideIcon
@@ -342,7 +356,7 @@ Popup {
 
                 ListView {
                     anchors.fill: parent
-                    anchors.margins: pixel(3)
+                    anchors.margins: pixel(12)
                     id: autoCompleteListView
                     model: autoCompleteListModel
 
@@ -395,27 +409,35 @@ Popup {
         ColumnLayout {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.fill: parent
-            spacing: pixel(6)
+            spacing: pixel(24)
 
             ColumnLayout {}
 
             UpDownButton {
+                Layout.fillWidth: true
                 id: printCopyCountButton
                 min: 1
                 value: 1
                 text: settings.print6x4Split ? value*2 : value
                 max: settings.printCopiesPerSession
-                height: pixel(20)
+                height: pixel(60)
                 width: height * 3
-                Layout.alignment: Qt.AlignCenter
+                font.pointSize: 24
+//                Layout.alignment: Qt.AlignCenter
             }
 
-            RoundButton {
+            Button {
+                Layout.fillWidth: true
                 text: qsTr("Print")
-                font.pixelSize: iconSize
-                font.capitalization: Font.MixedCase
-                Layout.alignment: Qt.AlignCenter
-                radius: canvasPopup.buttonRadius
+                icon.width: iconSize
+                icon.height: iconSize
+//                font.pixelSize: iconSize
+                icon.source: "qrc:/svg/print-solid"
+//                icon.color: Material.color(Material.Cyan, Material.Shade700)
+//                font.capitalization: Font.MixedCase
+//                Layout.alignment: Qt.AlignCenter
+
+//                radius: canvasPopup.buttonRadius
                 Material.accent: Material.color(Material.Cyan, Material.Shade700)
                 highlighted: true
                 onClicked: {
@@ -426,13 +448,19 @@ Popup {
                 }
             }
 
-            RoundButton {
+            Button {
+                Layout.fillWidth: true
                 text: qsTr("Print Emojis")
-                radius: canvasPopup.buttonRadius
-                font.pixelSize: iconSize*0.8
-                font.capitalization: Font.MixedCase
-                Layout.alignment: Qt.AlignCenter
-                Material.accent: Material.color(Material.Cyan, Material.Shade900)
+//                radius: canvasPopup.buttonRadius
+                icon.source: "qrc:/svg/smile-solid"
+                icon.width: iconSize
+                icon.height: iconSize
+//                icon.color: Material.color(Material.Cyan, Material.Shade900)
+
+//                font.pixelSize: iconSize*0.8
+//                font.capitalization: Font.MixedCase
+//                Layout.alignment: Qt.AlignCenter
+                Material.accent: Material.color(Material.Orange, Material.Shade900)
                 highlighted: true
                 onClicked: {
                     toast.show("Printing photo with paint")
@@ -488,7 +516,7 @@ Popup {
                     placeholderText: "Phone number"
                     inputMask: "999-999-9999"
                     inputMethodHints: Qt.ImhDigitsOnly
-                    font.pixelSize: pixel(10)
+                    font.pointSize: 18
                     Layout.fillWidth: true
                     horizontalAlignment: TextInput.AlignHCenter
 
@@ -496,7 +524,7 @@ Popup {
 
                 Button {
                     text: qsTr("Send SMS")
-                    icon.source: "qrc:/icons/sms"
+                    icon.source: "qrc:/svg/sms-solid"
                     focusPolicy: Qt.NoFocus
                     icon.width: iconSize
                     icon.height: iconSize
@@ -550,437 +578,611 @@ Popup {
         }
     }
 
-    Rectangle {
-        id: toolBar
-        width: parent.width
-        height: pixel(40)
-        color: "transparent"
+    Popup {
+        id: brushPopup
+        modal: true
+        anchors.centerIn: parent
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
-        anchors {
-            top: parent.top
+        Overlay.modal: Rectangle {
+            color: "#64000000"
         }
 
-        RowLayout {
+        background: Rectangle {
+            color: "#000000"
+            opacity: 0.8
+        }
 
-            anchors {
-                fill: parent
-            }
+        Rectangle {
+            implicitWidth: pixel(400)
+            implicitHeight: pixel(400)
+            color: "transparent"
+            clip: true
+//            anchors.fill: parent
 
-            RoundButton {
-                text: "Save"
-                icon.source: "qrc:/icons/save"
-                icon.width: iconSize
-                icon.height: iconSize
-                font.capitalization: Font.MixedCase
-                display: AbstractButton.TextUnderIcon
-                Layout.alignment: Qt.AlignHCenter
-                Layout.fillWidth: true
-                highlighted: true
-                radius: canvasPopup.buttonRadius
-//                bg.border.width: pixel(4)
-                Material.accent: Material.color(Material.Green, Material.Shade700)
+            GridView {
+                id: colorPalette
+                anchors.fill: parent
 
-                onClicked: {
-                    saveCanvas()
+                model: colorModel
+                cellWidth: pixel(100)
+                cellHeight: pixel(100)
+                delegate: colorDelegate
+    //                Layout.fillWidth: true
+    //            Layout.alignment: Qt.AlignHCenter
+    //            implicitHeight: canrect.paletteSize
+
+//                spacing: pixel(4)
+                highlightFollowsCurrentItem: true
+    //            orientation: ListView.Horizontal
+
+                highlight: Rectangle {
+                    color: "red"
                 }
+
+                highlightMoveDuration: 100
             }
+        }
+    }
 
-            RoundButton {
-                text: "Clear"
-                icon.source: "qrc:/icons/clear-all"
-                icon.width: iconSize
-                icon.height: iconSize
-                font.capitalization: Font.MixedCase
-                display: AbstractButton.TextUnderIcon
-                Layout.alignment: Qt.AlignHCenter
-                Layout.fillWidth: true
-                highlighted: true
-                Material.accent: Material.color(Material.Red, Material.Shade700)
-                radius: canvasPopup.buttonRadius
-                onClicked: {
-                    canvas.clearRect = true
+    Popup {
+        id: emojiPopup
+        modal: true
+        anchors.centerIn: parent
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
+        Overlay.modal: Rectangle {
+            color: "#64000000"
+        }
+
+        background: Rectangle {
+            color: "#000000"
+            opacity: 0.8
+        }
+
+        Rectangle {
+            implicitWidth: pixel(400)
+            implicitHeight: pixel(400)
+            color: "transparent"
+            clip: true
+//            anchors.fill: parent
+
+            GridView {
+                id: brushPalette
+                anchors.fill: parent
+
+                model: emojisModel
+                cellWidth: pixel(100)
+                cellHeight: pixel(100)
+                delegate: brushDelegate
+    //                Layout.fillWidth: true
+    //            Layout.alignment: Qt.AlignHCenter
+    //            implicitHeight: canrect.paletteSize
+
+//                spacing: pixel(4)
+                highlightFollowsCurrentItem: true
+    //            orientation: ListView.Horizontal
+
+                highlight: Rectangle {
+                    color: "red"
                 }
+
+                highlightMoveDuration: 100
             }
-
-            RoundButton {
-                id: printButton
-                text: qsTr("Print")
-                icon.source: "qrc:/icons/print"
-                icon.width: iconSize
-                icon.height: iconSize
-                font.capitalization: Font.MixedCase
-                display: AbstractButton.TextUnderIcon
-                Layout.alignment: Qt.AlignHCenter
-                Layout.fillWidth: true
-                Material.accent: Material.color(Material.Cyan, Material.Shade700)
-                radius: canvasPopup.buttonRadius
-                highlighted: true
-                onClicked: {
-                    saveCanvas()
-
-                    printCopyCountButton.value = 1
-                    printPopup.open()
-                }
-            }
+        }
+    }
 
 
-            RoundButton {
-                text: qsTr("Email")
-                icon.source: "qrc:/icons/email"
-                icon.width: iconSize
-                icon.height: iconSize
-                font.capitalization: Font.MixedCase
-                display: AbstractButton.TextUnderIcon
-                Layout.alignment: Qt.AlignHCenter
-                Layout.fillWidth: true
-                Material.accent: Material.color(Material.Orange, Material.Shade700)
-                radius: canvasPopup.buttonRadius
-                highlighted: true
-                onClicked: {
-                    console.log("[CanvasPopup]", "Email button pressed")
-                    emailPopup.open()
-                    emailTextField.forceActiveFocus()
-                }
-            }
+    Column {
+//        implicitWidth: parentWidth
+//        implicitHeight: implicitWidth / photoAspectRatio
 
-            RoundButton {
-                text: qsTr("SMS")
-                icon.source: "qrc:/icons/sms"
-                icon.width: iconSize
-                icon.height: iconSize
-                font.capitalization: Font.MixedCase
-                display: AbstractButton.TextUnderIcon
-                Layout.alignment: Qt.AlignHCenter
-                Layout.fillWidth: true
-                Material.accent: Material.color(Material.Yellow, Material.Shade700)
-                radius: canvasPopup.buttonRadius
-                highlighted: true
-                onClicked: {
-                    smsPopup.open()
-                }
-            }
+//        clip: true
+//        color: "transparent"
 
-            RoundButton {
-                id: closeButton
-                text: "Close" + "(" + closingTime + ")"
-                icon.source: "qrc:/icons/clear"
-                icon.width: iconSize
-                icon.height: iconSize
-                font.capitalization: Font.MixedCase
-                display: AbstractButton.TextUnderIcon
-                Layout.alignment: Qt.AlignHCenter
-                Layout.fillWidth: true
-                Material.accent: Material.color(Material.Grey, Material.Shade700)
-                radius: canvasPopup.buttonRadius
-                highlighted: true
+        Rectangle {
+//                Layout.fillWidth: true
+//                Layout.fillHeight: true
+            id: toolBar
 
-                property int closingTime: 40
-                Timer {
-                    id: closingTimer
-                    interval: 1000
-                    running: parent.closingTime > 0
-                    repeat: true
-                    onTriggered: {
-                        parent.closingTime -= 1
+//            anchors.top: parent.top
+//            anchors.bottom: image.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+//            width: parent.width
+            height: pixel(200)
+            color: "transparent"
+            clip: true
 
-                        if (parent.closingTime < 1) {
+            ColumnLayout {
+                anchors.fill: parent
+
+                RowLayout {
+                    Layout.fillWidth: true
+
+                    RoundButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        id: printButton
+                        text: qsTr("Print")
+                        icon.source: "qrc:/svg/print-solid"
+                        icon.width: iconSize
+                        icon.height: iconSize
+                        font.capitalization: Font.MixedCase
+                        display: AbstractButton.TextUnderIcon
+
+                        Material.accent: Material.color(Material.Cyan, Material.Shade800)
+                        radius: canvasPopup.buttonRadius
+                        highlighted: true
+                        onClicked: {
+                            saveCanvas()
+
+                            printCopyCountButton.value = 1
+                            printPopup.open()
+                        }
+                    }
+
+                    RoundButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        text: qsTr("Email")
+                        icon.source: "qrc:/svg/envelope-solid"
+                        icon.width: iconSize
+                        icon.height: iconSize
+                        font.capitalization: Font.MixedCase
+                        display: AbstractButton.TextUnderIcon
+
+                        Material.accent: Material.color(Material.Orange, Material.Shade800)
+                        radius: canvasPopup.buttonRadius
+                        highlighted: true
+                        onClicked: {
+                            console.log("[CanvasPopup]", "Email button pressed")
+                            emailPopup.open()
+                            emailTextField.forceActiveFocus()
+                        }
+                    }
+
+                    RoundButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        text: qsTr("SMS")
+                        icon.source: "qrc:/svg/sms-solid"
+                        icon.width: iconSize
+                        icon.height: iconSize
+        //                font.capitalization: Font.MixedCase
+                        display: AbstractButton.TextUnderIcon
+
+                        Material.accent: Material.color(Material.Yellow, Material.Shade800)
+                        radius: canvasPopup.buttonRadius
+                        highlighted: true
+                        onClicked: {
+                            smsPopup.open()
+                        }
+                    }
+
+
+
+                    RoundButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        id: closeButton
+                        text: "Close (" + closingTime + ")"
+                        icon.source: "qrc:/svg/times-solid"
+                        icon.width: iconSize
+                        icon.height: iconSize
+        //                font.capitalization: Font.MixedCase
+                        display: AbstractButton.TextUnderIcon
+
+                        Material.accent: Material.color(Material.Grey, Material.Shade800)
+                        radius: canvasPopup.buttonRadius
+                        highlighted: true
+
+                        property int closingTime: 40
+                        Timer {
+                            id: closingTimer
+                            interval: 1000
+                            running: parent.closingTime > 0
+                            repeat: true
+                            onTriggered: {
+                                parent.closingTime -= 1
+
+                                if (parent.closingTime < 1) {
+                                    canvasPopup.close()
+                                }
+                            }
+                        }
+
+                        onClicked: {
                             canvasPopup.close()
                         }
                     }
+
+
+
                 }
 
-                onClicked: {
-                    canvasPopup.close()
-                }
-            }
-        }
-    }
+                RowLayout {
+                    Layout.fillWidth: true
 
-    Rectangle {
-        id: paletteRect
-        width: parent.width
-        height: canrect.paletteSize
+                    RoundButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        icon.source: "qrc:/svg/paint-brush-solid"
+                        icon.width: iconSize
+                        icon.height: iconSize
+                        text: qsTr("Brush")
+                        radius: buttonRadius
+                        display: AbstractButton.TextUnderIcon
+                        highlighted: true
+                        Material.accent: Material.color(Material.Pink, Material.Shade800)
 
-        anchors {
-            top: toolBar.bottom
-        }
-
-        clip: true
-        color: "black"
-
-        RowLayout {
-            anchors.fill: parent
-            Image {
-                source: "qrc:/icons/back"
-                height: canrect.paletteSize
-                width: height
-                Layout.alignment: Qt.AlignLeft
-                z: 1
-            }
-
-            ListView {
-                id: colorPalette
-                model: colorModel
-                delegate: colorDelegate
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignHCenter
-                implicitHeight: canrect.paletteSize
-
-                spacing: 0
-                highlightFollowsCurrentItem: true
-                orientation: ListView.Horizontal
-
-                highlight: Rectangle {
-                    color: "red"
-                }
-
-                highlightMoveDuration: 100
-
-
-            }
-
-            Image {
-                source: "qrc:/icons/forward"
-                height: canrect.paletteSize
-                width: height
-                Layout.alignment: Qt.AlignRight
-                z: 1
-            }
-        }
-    }
-
-    Rectangle {
-        id: brushRect
-        height: canrect.paletteSize
-        width: parent.width
-
-        anchors {
-            top: paletteRect.bottom
-        }
-
-        color: "black"
-        clip: true
-
-        RowLayout {
-            anchors.fill: parent
-            Image {
-                source: "qrc:/icons/back"
-                height: canrect.paletteSize
-                width: height
-                Layout.alignment: Qt.AlignLeft
-                z: 1
-            }
-
-
-            ListView {
-                id: brushPalette
-                Layout.fillWidth: true
-                Layout.alignment: Qt.AlignHCenter
-                implicitHeight: canrect.paletteSize
-                model: emojisModel
-                delegate: brushDelegate
-                spacing: 0
-                highlightFollowsCurrentItem: true
-                orientation: ListView.Horizontal
-
-                highlight: Rectangle {
-                    color: "red"
-                }
-
-                highlightMoveDuration: 100
-            }
-
-            Image {
-                source: "qrc:/icons/forward"
-                height: canrect.paletteSize
-                width: height
-                Layout.alignment: Qt.AlignRight
-                z: 1
-            }
-        }
-    }
-
-    Image {
-        id: image
-        fillMode: Image.PreserveAspectFit
-        source: ""
-
-        anchors {
-            left: parent.left
-            right: parent.right
-            top: brushRect.bottom
-            bottom: parent.bottom
-        }
-
-        Text {
-            text: closeButton.closingTime
-
-            font.pixelSize: pixel(20)
-            color: "white"
-
-            anchors {
-                bottom: parent.bottom
-                right: parent.right
-            }
-        }
-
-
-        Rectangle {
-            id: canrect
-            //                anchors.fill: parent
-            property int mouseX
-            property int mouseY
-            property int lastX
-            property int lastY
-            property bool pressed
-            property bool released
-            property bool changed
-            property int paletteSize: pixel(20)
-            property int emojiSize: pixel(20)
-            color: "transparent"
-            //                opacity: 0.5
-
-            width: parent.paintedWidth
-            height: parent.paintedHeight
-
-            anchors {
-                centerIn: parent
-            }
-
-            Canvas {
-                id: canvas
-                anchors.fill: parent
-
-                onImageLoaded: {
-                    console.log("[CanvasPopup]", "Canvas loaded")
-                    if (canvas.lastCanvasLoaded == false) {
-                        console.log("[CanvasPopup]", "Paint requested")
-                        canvas.requestPaint()
-                    }
-                }
-
-                onClearRectChanged: {
-                    canvas.requestPaint()
-                }
-
-                property color strokeColor: "#00ffff"
-                property color shadowColor: "#4d4cff"
-                property real hue: 0.0
-                property bool rainbowColor: false
-                property int brushType: brushPalette.currentIndex
-                property string patternImage: ""
-                property bool clearRect: false
-                property bool lastCanvasLoaded: false
-
-
-                function drawLine(ct) {
-                    if (canrect.pressed) {
-                        ct.lineWidth = 8
-                        ct.lineJoin = 'round'
-                        ct.lineCap = 'round'
-                        ct.shadowBlur = 10
-                        canrect.pressed = false
-                    }
-
-                    var lastX = canrect.lastX
-                    var lastY = canrect.lastY
-                    var mouseX = canrect.mouseX
-                    var mouseY = canrect.mouseY
-
-                    if (rainbowColor) {
-                        ct.strokeStyle = Qt.hsla(hue, 1, 0.5, 1)
-                        ct.shadowColor = Qt.hsla(hue, 1, 0.5, 0.5)
-                        hue = hue < 1 ? hue + 0.01 : 0
-                    }
-                    else {
-                        ct.strokeStyle = canvas.strokeColor
-                        ct.shadowColor = canvas.shadowColor
-                    }
-
-                    ct.beginPath()
-                    ct.moveTo(lastX, lastY)
-                    ct.lineTo(mouseX, mouseY)
-                    ct.stroke()
-
-                    canrect.lastX = canrect.mouseX
-                    canrect.lastY = canrect.mouseY
-                }
-
-                function drawImage(ct, img) {
-                    var mouseX = canrect.mouseX
-                    var mouseY = canrect.mouseY
-                    //                        var lastX = canrect.lastX
-                    //                        var lastY = canrect.lastY
-
-                    var size = canrect.emojiSize
-                    ct.save();
-                    ct.shadowColor = 'transparent'
-                    ct.drawImage(img, mouseX-size/2, mouseY-size/2, size, size);
-                    ct.restore();
-                }
-
-                onPaint: {
-                    var ctx = getContext("2d");
-
-                    var canvasURL = getCanvasURL()
-
-                    if (canvas.lastCanvasLoaded == false) {
-                        if (canvas.isImageLoaded(canvasURL)) {
-                            ctx.drawImage(canvasURL, 0, 0, ctx.canvas.width, ctx.canvas.height)
-                            console.log("[CanvasPopup]", canvasURL, "drawn")
-                            canvas.lastCanvasLoaded = true
-                            canvas.requestPaint()
-
-                            canvas.unloadImage(canvasURL)
-                            console.log("[CanvasPopup]", canvasURL, "unloaded")
+                        onClicked: {
+                            brushPopup.open()
                         }
-                        else {
-                            canvas.loadImage(canvasURL)
+                    }
+
+                    RoundButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        icon.source: "qrc:/svg/smile-solid"
+                        icon.width: iconSize
+                        icon.height: iconSize
+                        text: qsTr("Emoji")
+                        radius: buttonRadius
+                        display: AbstractButton.TextUnderIcon
+                        highlighted: true
+                        Material.accent: Material.color(Material.Indigo, Material.Shade800)
+
+                        onClicked: {
+                            emojiPopup.open()
+                        }
+                    }
+
+                    RoundButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        text: "Save"
+                        icon.source: "qrc:/svg/save-solid"
+                        icon.width: iconSize
+                        icon.height: iconSize
+                        display: AbstractButton.TextUnderIcon
+
+
+                        radius: canvasPopup.buttonRadius
+                        highlighted: true
+                        Material.accent: Material.color(Material.Green, Material.Shade800)
+
+                        onClicked: {
+                            saveCanvas()
+                        }
+                    }
+
+                    RoundButton {
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.fillWidth: true
+                        text: "Clear"
+                        icon.source: "qrc:/svg/eraser-solid"
+                        icon.width: iconSize
+                        icon.height: iconSize
+        //                icon.color: Material.color(Material.Red, Material.Shade700)
+        //                font.capitalization: Font.MixedCase
+                        display: AbstractButton.TextUnderIcon
+
+                        highlighted: true
+                        Material.accent: Material.color(Material.Red, Material.Shade800)
+                        radius: canvasPopup.buttonRadius
+                        onClicked: {
+                            canvas.clearRect = true
+
                         }
                     }
 
 
-                    if (clearRect) {
-                        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-                        clearRect = false;
-                    }
-                    else {
-                        if (brushType in [0, 1]) {
-                            drawLine(ctx)
-                        }
-                        else if (brushType >= 2) {
-                            if (canrect.pressed) {
-                                drawImage(ctx, patternImage)
-                                canrect.pressed = false
-                            }
-
-                        }
-                    }
-
                 }
-                MouseArea {
+
+
+            }
+
+        }
+
+
+        Image {
+//                Layout.fillWidth: true
+//                Layout.fillHeight: true
+            id: image
+            fillMode: Image.PreserveAspectFit
+            width: parentWidth
+            height: width / photoAspectRatio
+
+//            anchors.fill: parent
+
+//            anchors {
+//                left: parent.left
+//                right: parent.right
+//                top: toolBar.bottom
+//                bottom: parent.bottom
+//            }
+
+//            Text {
+//                text: closeButton.closingTime
+
+//                font.pointSize: 24
+//                color: "white"
+
+//                anchors {
+//                    bottom: parent.bottom
+//                    right: parent.right
+//                }
+//            }
+
+
+            Rectangle {
+                id: canrect
+                //                anchors.fill: parent
+                property int mouseX
+                property int mouseY
+                property int lastX
+                property int lastY
+                property bool pressed
+                property bool released
+                property bool changed
+                property int paletteSize: pixel(80)
+                property int emojiSize: pixel(80)
+                color: "transparent"
+                //                opacity: 0.5
+
+                width: parent.paintedWidth
+                height: parent.paintedHeight
+
+                anchors.centerIn: parent
+
+                Canvas {
+                    id: canvas
                     anchors.fill: parent
 
-                    onPressed: {
-                        captureView.stopAllTimers()
-                        canrect.pressed = true;
-                        canrect.lastX = mouseX;
-                        canrect.lastY = mouseY;
-                        canrect.mouseX = mouseX;
-                        canrect.mouseY = mouseY;
-                        canvas.requestPaint();
+                    onImageLoaded: {
+                        console.log("[CanvasPopup]", "Canvas loaded")
+                        if (canvas.lastCanvasLoaded == false) {
+                            console.log("[CanvasPopup]", "Paint requested")
+                            canvas.requestPaint()
+                        }
                     }
 
-
-                    onPositionChanged: {
-                        canrect.mouseX = mouseX;
-                        canrect.mouseY = mouseY;
-                        canvas.requestPaint();
+                    onClearRectChanged: {
+                        canvas.requestPaint()
                     }
 
+                    property color strokeColor: "#00ffff"
+                    property color shadowColor: "#4d4cff"
+                    property real hue: 0.0
+                    property bool rainbowColor: false
+                    property int brushType: 0
+                    property string patternImage: ""
+                    property bool clearRect: false
+                    property bool lastCanvasLoaded: false
+
+
+                    function drawLine(ct) {
+                        if (canrect.pressed) {
+                            ct.lineWidth = 8
+                            ct.lineJoin = 'round'
+                            ct.lineCap = 'round'
+                            ct.shadowBlur = 10
+                            canrect.pressed = false
+                        }
+
+                        var lastX = canrect.lastX
+                        var lastY = canrect.lastY
+                        var mouseX = canrect.mouseX
+                        var mouseY = canrect.mouseY
+
+                        if (rainbowColor) {
+                            ct.strokeStyle = Qt.hsla(hue, 1, 0.5, 1)
+                            ct.shadowColor = Qt.hsla(hue, 1, 0.5, 0.5)
+                            hue = hue < 1 ? hue + 0.01 : 0
+                        }
+                        else {
+                            ct.strokeStyle = canvas.strokeColor
+                            ct.shadowColor = canvas.shadowColor
+                        }
+
+                        ct.beginPath()
+                        ct.moveTo(lastX, lastY)
+                        ct.lineTo(mouseX, mouseY)
+                        ct.stroke()
+
+                        canrect.lastX = canrect.mouseX
+                        canrect.lastY = canrect.mouseY
+                    }
+
+                    function drawImage(ct, img) {
+                        var mouseX = canrect.mouseX
+                        var mouseY = canrect.mouseY
+                        //                        var lastX = canrect.lastX
+                        //                        var lastY = canrect.lastY
+
+                        var size = canrect.emojiSize
+                        ct.save();
+                        ct.shadowColor = 'transparent'
+                        ct.drawImage(img, mouseX-size/2, mouseY-size/2, size, size);
+                        ct.restore();
+                    }
+
+                    onPaint: {
+                        var ctx = getContext("2d");
+
+                        var canvasURL = getCanvasURL()
+
+                        if (true) {
+
+                            if (canvas.isImageLoaded(canvasURL)) {
+                                ctx.drawImage(canvasURL, 0, 0, ctx.canvas.width, ctx.canvas.height)
+                                canvas.unloadImage(canvasURL)
+                                console.log("[CanvasPopup]", canvasURL, "drawn")
+                                canvas.lastCanvasLoaded = true
+                                canvas.requestPaint()
+
+
+                                console.log("[CanvasPopup]", canvasURL, "unloaded")
+                            }
+                            else {
+                                canvas.loadImage(canvasURL)
+                            }
+                        }
+
+
+                        if (clearRect) {
+                            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+                            clearRect = false;
+                        }
+                        else {
+                            if (brushType in [0, 1]) {
+                                drawLine(ctx)
+                            }
+                            else if (brushType >= 2) {
+                                if (canrect.pressed) {
+                                    drawImage(ctx, patternImage)
+                                    canrect.pressed = false
+                                }
+
+                            }
+                        }
+
+                    }
+                    MouseArea {
+                        anchors.fill: parent
+
+                        onPressed: {
+                            captureView.stopAllTimers()
+                            canrect.pressed = true;
+                            canrect.lastX = mouseX;
+                            canrect.lastY = mouseY;
+                            canrect.mouseX = mouseX;
+                            canrect.mouseY = mouseY;
+                            canvas.requestPaint();
+                        }
+
+
+                        onPositionChanged: {
+                            canrect.mouseX = mouseX;
+                            canrect.mouseY = mouseY;
+
+
+                            canvas.requestPaint();
+                        }
+
+                    }
                 }
             }
         }
+
+
+
+
     }
+
+
+//    Rectangle {
+//        id: paletteRect
+//        width: parent.width
+//        height: canrect.paletteSize
+
+//        anchors {
+//            top: toolBar.bottom
+//        }
+
+//        clip: true
+//        color: "black"
+
+//        RowLayout {
+//            anchors.fill: parent
+//            Image {
+//                source: "qrc:/icons/back"
+//                height: canrect.paletteSize
+//                width: height
+//                Layout.alignment: Qt.AlignLeft
+//                z: 1
+//            }
+
+//            ListView {
+//                id: colorPalette
+//                model: colorModel
+//                delegate: colorDelegate
+//                Layout.fillWidth: true
+//                Layout.alignment: Qt.AlignHCenter
+//                implicitHeight: canrect.paletteSize
+
+//                spacing: 0
+//                highlightFollowsCurrentItem: true
+//                orientation: ListView.Horizontal
+
+//                highlight: Rectangle {
+//                    color: "red"
+//                }
+
+//                highlightMoveDuration: 100
+//            }
+
+//            Image {
+//                source: "qrc:/icons/forward"
+//                height: canrect.paletteSize
+//                width: height
+//                Layout.alignment: Qt.AlignRight
+//                z: 1
+//            }
+//        }
+//    }
+
+//    Rectangle {
+//        id: brushRect
+//        height: canrect.paletteSize
+//        width: parent.width
+
+//        anchors {
+//            top: paletteRect.bottom
+//        }
+
+//        color: "black"
+//        clip: true
+
+//        RowLayout {
+//            anchors.fill: parent
+//            Image {
+//                source: "qrc:/icons/back"
+//                height: canrect.paletteSize
+//                width: height
+//                Layout.alignment: Qt.AlignLeft
+//                z: 1
+//            }
+
+
+//            ListView {
+//                id: brushPalette
+//                Layout.fillWidth: true
+//                Layout.alignment: Qt.AlignHCenter
+//                implicitHeight: canrect.paletteSize
+//                model: emojisModel
+//                delegate: brushDelegate
+//                spacing: 0
+//                highlightFollowsCurrentItem: true
+//                orientation: ListView.Horizontal
+
+//                highlight: Rectangle {
+//                    color: "red"
+//                }
+
+//                highlightMoveDuration: 100
+//            }
+
+//            Image {
+//                source: "qrc:/icons/forward"
+//                height: canrect.paletteSize
+//                width: height
+//                Layout.alignment: Qt.AlignRight
+//                z: 1
+//            }
+//        }
+//    }
+
+
 }

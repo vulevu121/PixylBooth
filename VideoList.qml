@@ -8,15 +8,15 @@ import QtQuick.Dialogs 1.3
 Rectangle {
     id: root
     color: "#151515"
-    radius: pixel(1)
+    radius: pixel(4)
     property alias playlist: listView.model
     property alias addButton: addButton
     property alias deleteButton: deleteButton
     property alias clearButton: clearButton
     property alias title: label.text
-    property real viewHeight: pixel(80)
+    property real viewHeight: pixel(320)
     property bool hide: true
-    property real rowHeight: pixel(4)
+    property real rowHeight: pixel(16)
     signal saveRequest
 
     implicitHeight: hide ? topBar.height : viewHeight
@@ -53,8 +53,8 @@ Rectangle {
 
     Rectangle {
         id: topBar
-        height: pixel(10)
-        radius: pixel(1)
+        height: pixel(40)
+        radius: pixel(4)
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.left: parent.left
@@ -91,6 +91,8 @@ Rectangle {
         RowLayout {
             anchors.fill: parent
 
+            property real buttonSize: pixel(40)
+
             RowLayout {}
 
             Button {
@@ -99,8 +101,8 @@ Rectangle {
                 icon.source: "qrc:/icons/add"
                 display: AbstractButton.IconOnly
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                implicitWidth: pixel(10)
-                implicitHeight: pixel(10)
+                implicitWidth: parent.buttonSize
+                implicitHeight: parent.buttonSize
 
                 onClicked: {
                     fileDialog.open()
@@ -114,8 +116,8 @@ Rectangle {
                 icon.source: "qrc:/icons/clear-all"
                 display: AbstractButton.IconOnly
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                implicitWidth: pixel(10)
-                implicitHeight: pixel(10)
+                implicitWidth: parent.buttonSize
+                implicitHeight: parent.buttonSize
 
                 onClicked: {
                     playlist.clear()
@@ -130,8 +132,8 @@ Rectangle {
                 icon.source: "qrc:/icons/remove"
                 display: AbstractButton.IconOnly
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                implicitWidth: pixel(10)
-                implicitHeight: pixel(10)
+                implicitWidth: parent.buttonSize
+                implicitHeight: parent.buttonSize
                 onClicked: {
                     playlist.removeItem(listView.currentIndex)
                     root.saveRequest()
@@ -147,7 +149,7 @@ Rectangle {
             text: "Videos"
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
-            anchors.leftMargin: pixel(2)
+            anchors.leftMargin: pixel(8)
         }
     }
 
@@ -156,11 +158,11 @@ Rectangle {
         Item {
             anchors.left: parent.left
             anchors.right: parent.right
-            height: root.rowHeight + pixel(4)
+            height: root.rowHeight + pixel(16)
             Row {
-                anchors.margins: pixel(2)
+                anchors.margins: pixel(8)
                 anchors.fill: parent
-                spacing: pixel(1)
+                spacing: pixel(4)
 
                 Image {
                     id: folderPicture
@@ -207,7 +209,7 @@ Rectangle {
         anchors.left: parent.left
         clip: true
         color: "#151515"
-        radius: pixel(1)
+        radius: pixel(16)
 
         ListView {
             id: listView
