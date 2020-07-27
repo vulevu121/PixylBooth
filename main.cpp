@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
 
-    QFont font("Consolas");
-    app.setFont(font);
+//    QFont font("Consolas");
+//    app.setFont(font);
     
     app.setOrganizationName("Pixyl");
     app.setOrganizationDomain("gopixyl.com");

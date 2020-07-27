@@ -20,9 +20,9 @@ import PrintPhotos 1.0
 //import CSVFile 1.0
 //import Firebase 1.0
 //import MoveMouse 1.0
-import QtQuick.VirtualKeyboard 2.13
-import QtQuick.VirtualKeyboard.Styles 2.13
-import QtQuick.VirtualKeyboard.Settings 2.13
+//import QtQuick.VirtualKeyboard 2.13
+//import QtQuick.VirtualKeyboard.Styles 2.13
+//import QtQuick.VirtualKeyboard.Settings 2.13
 //import QRGenerator 1.0
 
 Window {
@@ -667,5 +667,6 @@ Window {
             }
         }
     }
+
 
 }

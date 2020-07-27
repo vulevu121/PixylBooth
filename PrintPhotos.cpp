@@ -140,7 +140,7 @@ void PrintThread::run() {
 
         if (printCanvas) {
             QImage canvasImage(canvasPath);
-            QImage canvasImageScaled = canvasImage.scaled(1840, 1230);
+            QImage canvasImageScaled = canvasImage.scaled(1230, 1840);
             printerPainter.drawImage(0, 0, canvasImageScaled);
         }
     }

@@ -54,6 +54,7 @@ Rectangle {
 //        parent: parent
         parentWidth: parent.width
         parentHeight: parent.height
+
         anchors.centerIn: parent
 
         saveFolder: settings.saveFolder
@@ -69,7 +70,7 @@ Rectangle {
 //            width: root.width
 //            height: settings.print6x4Split ? root.height : root.width / photoAspectRatio
             width: view.cellWidth
-            height: width / photoAspectRatio
+            height: view.cellHeight
 
             Behavior on width {
                 id: behavior
@@ -138,7 +139,7 @@ Rectangle {
         delegate: photoDelegate
 
         cellWidth: parent.width
-        cellHeight: cellWidth / photoAspectRatio
+        cellHeight: settings.portraitModeSwitch ? cellWidth / photoAspectRatio : cellWidth * photoAspectRatio
 
         ScrollBar.vertical: ScrollBar {}
 
@@ -180,7 +181,8 @@ Rectangle {
 
         z: 5
         background: Rectangle {
-            color: "#50000000"
+            color: "#000000"
+            opacity: 0.8
         }
 
         property real iconSize: pixel(32)

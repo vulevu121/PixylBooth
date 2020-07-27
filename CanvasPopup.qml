@@ -16,7 +16,6 @@ Popup {
     modal: true
     padding: 0
 
-
     property int parentWidth: 0
     property int parentHeight: 0
     property string saveFolder
@@ -27,17 +26,20 @@ Popup {
     property real buttonRadius: pixel(8)
     property alias source: image.source
 
+    Component {
+        id: backgroundOverlay
 
-
-
-    Overlay.modal: Rectangle {
-        color: "#64000000"
+        Rectangle {
+            color: "#7F000000"
+        }
     }
 
-    background: Rectangle {
-        color: "#000000"
-        opacity: 0.8
-    }
+    Overlay.modal: backgroundOverlay
+
+//    background: Rectangle {
+//        color: "#000000"
+//        opacity: 0.8
+//    }
 
     onOpened: {
         var canvasURL = getCanvasURL()
@@ -151,8 +153,8 @@ Popup {
         id: colorDelegate
 
         Item {
-            width: colorPalette.cellWidth
-            height: colorPalette.cellHeight
+            width: colorView.cellWidth
+            height: colorView.cellHeight
             Rectangle {
                 anchors.fill: parent
                 anchors.margins: 2
@@ -165,11 +167,11 @@ Popup {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        colorPalette.currentIndex = index
+                        colorView.currentIndex = index
                         canvas.strokeColor = foreground
                         canvas.shadowColor = background
                         canvas.brushType = 0
-                        brushPopup.close()
+                        colorPopup.close()
                     }
                 }
             }
@@ -183,28 +185,28 @@ Popup {
     }
 
     Component {
-        id: brushDelegate
+        id: emojiDelegate
 
         Item {
-            width: canrect.paletteSize
-            height: canrect.paletteSize
+            width: emojiView.cellWidth
+            height: emojiView.cellHeight
             Rectangle {
                 anchors.fill: parent
-                anchors.margins: 2
+                anchors.margins: pixel(4)
                 color: "black"
 
                 Image {
                     anchors.fill: parent
                     source: fileURL
-                    sourceSize.width: canrect.paletteSize
-                    sourceSize.height: canrect.paletteSize
+                    sourceSize.width: parent.width
+                    sourceSize.height: parent.height
 
                 }
 
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        brushPalette.currentIndex = index
+                        emojiView.currentIndex = index
 
 
                         if (index == 0) {
@@ -230,20 +232,20 @@ Popup {
     Popup {
         id: emailPopup
         modal: true
-        anchors.centerIn: parent
+//        anchors.centerIn: parent
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        padding: 0
 
-        Overlay.modal: Rectangle {
-            color: "#64000000"
-        }
+        Overlay.modal: backgroundOverlay
 
-        background: Rectangle {
-            color: "#000000"
-            opacity: 0.8
-        }
+//        background: Rectangle {
+//            color: "#000000"
+//            opacity: 0.8
+//        }
 
         onOpened: {
             emailTextField.forceActiveFocus()
+            Qt.inputMethod.visible = true
         }
 
         onClosed: {
@@ -251,20 +253,25 @@ Popup {
         }
 
         Column {
-            anchors.fill: parent
+            width: Math.min(parentWidth, parentHeight)
+            height: width
+            padding: 0
 
             RowLayout {
-                spacing: pixel(8)
-                width: parent.width
+                anchors.left: parent.left
+                anchors.right: parent.right
+                spacing: 0
+//                width: parent.width
 
                 TextField {
+                    Layout.fillWidth: true
                     id: emailTextField
-                    width: captureView.width * 0.8
+//                    width: captureView.width * 0.8
                     placeholderText: "Enter your email"
                     inputMethodHints: Qt.ImhLowercaseOnly
                     focus: true
-                    Layout.fillWidth: true
                     font.pointSize: 18
+
 
                     Keys.onReturnPressed: {
                         emailSendButton.clicked()
@@ -293,8 +300,8 @@ Popup {
                     icon.source: "qrc:/svg/paper-plane-solid"
                     icon.width: iconSize
                     icon.height: iconSize
-                    display: AbstractButton.TextBesideIcon
-                    Layout.alignment: Qt.AlignRight
+                    display: AbstractButton.TextUnderIcon
+//                    Layout.alignment: Qt.AlignRight
                     Material.accent: Material.color(Material.Orange, Material.Shade700)
                     highlighted: true
                     onClicked: {
@@ -310,13 +317,15 @@ Popup {
                 }
             }
 
+
+
             RowLayout {
                 width: parent.width
                 Repeater {
                     model: ["@gmail.com", "@yahoo.com", "@outlook.com"]
 
 
-                    Button {
+                    RoundButton {
                         Layout.fillWidth: true
                         text: modelData
                         onClicked: {
@@ -332,7 +341,7 @@ Popup {
                 Repeater {
                     model: ["@aol.com", "@icloud.com", "@hotmail.com"]
 
-                    Button {
+                    RoundButton {
                         Layout.fillWidth: true
                         text: modelData
                         onClicked: {
@@ -381,7 +390,7 @@ Popup {
             }
 
             InputPanel {
-                width: mainWindow.width * 0.9
+                width: parentWidth
             }
 
         }
@@ -393,14 +402,12 @@ Popup {
         anchors.centerIn: parent
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
-        Overlay.modal: Rectangle {
-            color: "#64000000"
-        }
+        Overlay.modal: backgroundOverlay
 
-        background: Rectangle {
-            color: "#000000"
-            opacity: 0.8
-        }
+//        background: Rectangle {
+//            color: "#000000"
+//            opacity: 0.8
+//        }
 
         onOpened: {
             printCopyCountButton.value = 1
@@ -479,17 +486,16 @@ Popup {
     Popup {
         id: smsPopup
         modal: true
-        anchors.centerIn: parent
+//        anchors.centerIn: parent
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        padding: 0
 
-        Overlay.modal: Rectangle {
-            color: "#64000000"
-        }
+        Overlay.modal: backgroundOverlay
 
-        background: Rectangle {
-            color: "#000000"
-            opacity: 0.8
-        }
+//        background: Rectangle {
+//            color: "#000000"
+//            opacity: 0.8
+//        }
 
         onOpened: {
             phoneNumber.forceActiveFocus()
@@ -497,29 +503,34 @@ Popup {
 
         onClosed: {
             phoneNumber.clear()
-            carrierCombo.currentIndex = 0
+//            carrierCombo.currentIndex = 0
         }
 
 
-        ColumnLayout {
-            ComboBox {
-                id: carrierCombo
-                Layout.fillWidth: true
-                model: ["Phone Carrier", "ATT", "T-Mobile", "Verizon", "Sprint", "Metro PCS", "Boost Mobile", "Cricket"]
-                displayText: currentText
-                focusPolicy: Qt.NoFocus
-            }
+        Column {
+            width: Math.min(parentWidth, parentHeight)
+            height: width
+            padding: 0
+//            ComboBox {
+//                id: carrierCombo
+//                Layout.fillWidth: true
+//                model: ["Phone Carrier", "ATT", "T-Mobile", "Verizon", "Sprint", "Metro PCS", "Boost Mobile", "Cricket"]
+//                displayText: currentText
+//                focusPolicy: Qt.NoFocus
+//            }
             RowLayout {
+                anchors.left: parent.left
+                anchors.right: parent.right
+
                 TextField {
+                    Layout.fillWidth: true
                     id: phoneNumber
                     focus: true
                     placeholderText: "Phone number"
                     inputMask: "999-999-9999"
                     inputMethodHints: Qt.ImhDigitsOnly
-                    font.pointSize: 18
-                    Layout.fillWidth: true
+                    font.pointSize: 18                    
                     horizontalAlignment: TextInput.AlignHCenter
-
                 }
 
                 Button {
@@ -529,7 +540,6 @@ Popup {
                     icon.width: iconSize
                     icon.height: iconSize
                     display: AbstractButton.TextUnderIcon
-                    Layout.alignment: Qt.AlignHCenter
                     Material.accent: Material.color(Material.Yellow, Material.Shade700)
                     highlighted: true
                     onClicked: {
@@ -573,35 +583,34 @@ Popup {
             }
 
             InputPanel {
-                implicitWidth: mainWindow.width * 0.9
+                width: parentWidth
             }
         }
     }
 
     Popup {
-        id: brushPopup
+        id: colorPopup
         modal: true
         anchors.centerIn: parent
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+        padding: 0
 
-        Overlay.modal: Rectangle {
-            color: "#64000000"
-        }
+        Overlay.modal: backgroundOverlay
 
-        background: Rectangle {
-            color: "#000000"
-            opacity: 0.8
-        }
+//        background: Rectangle {
+//            color: "#000000"
+//            opacity: 0.8
+//        }
 
         Rectangle {
-            implicitWidth: pixel(400)
-            implicitHeight: pixel(400)
+            implicitWidth: Math.min(parentWidth, parentHeight)
+            implicitHeight: implicitWidth
             color: "transparent"
             clip: true
 //            anchors.fill: parent
 
             GridView {
-                id: colorPalette
+                id: colorView
                 anchors.fill: parent
 
                 model: colorModel
@@ -629,32 +638,33 @@ Popup {
         id: emojiPopup
         modal: true
         anchors.centerIn: parent
+        padding: 0
+
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
-        Overlay.modal: Rectangle {
-            color: "#64000000"
-        }
+        Overlay.modal: backgroundOverlay
 
-        background: Rectangle {
-            color: "#000000"
-            opacity: 0.8
-        }
+//        background: Rectangle {
+//            color: "#000000"
+//            opacity: 0.8
+//        }
 
         Rectangle {
-            implicitWidth: pixel(400)
-            implicitHeight: pixel(400)
+            id: emojiRect
+            implicitWidth: Math.min(parentWidth, parentHeight)
+            implicitHeight: implicitWidth
             color: "transparent"
             clip: true
 //            anchors.fill: parent
 
             GridView {
-                id: brushPalette
+                id: emojiView
                 anchors.fill: parent
 
                 model: emojisModel
-                cellWidth: pixel(100)
-                cellHeight: pixel(100)
-                delegate: brushDelegate
+                cellWidth: emojiRect.width / 6
+                cellHeight: cellWidth
+                delegate: emojiDelegate
     //                Layout.fillWidth: true
     //            Layout.alignment: Qt.AlignHCenter
     //            implicitHeight: canrect.paletteSize
@@ -680,210 +690,203 @@ Popup {
 //        clip: true
 //        color: "transparent"
 
-        Rectangle {
-//                Layout.fillWidth: true
-//                Layout.fillHeight: true
+        Column {
             id: toolBar
+            width: parentWidth
+//                anchors.top: parent.top
+//            anchors.left: parent.left
+//            anchors.right: parent.right
 
-//            anchors.top: parent.top
-//            anchors.bottom: image.top
-            anchors.left: parent.left
-            anchors.right: parent.right
-//            width: parent.width
-            height: pixel(200)
-            color: "transparent"
-            clip: true
+            Row {
+                anchors.horizontalCenter: parent.horizontalCenter
+//                    anchors.left: parent.left
+//                    anchors.right: parent.right
+//                    Layout.fillWidth: true
 
-            ColumnLayout {
-                anchors.fill: parent
-
-                RowLayout {
+                RoundButton {
+                    Layout.alignment: Qt.AlignHCenter
                     Layout.fillWidth: true
+                    id: printButton
+                    text: qsTr("Print")
+                    icon.source: "qrc:/svg/print-solid"
+                    icon.width: iconSize
+                    icon.height: iconSize
+//                    font.capitalization: Font.MixedCase
+//                        display: AbstractButton.TextUnderIcon
 
-                    RoundButton {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.fillWidth: true
-                        id: printButton
-                        text: qsTr("Print")
-                        icon.source: "qrc:/svg/print-solid"
-                        icon.width: iconSize
-                        icon.height: iconSize
-                        font.capitalization: Font.MixedCase
-                        display: AbstractButton.TextUnderIcon
+                    Material.accent: Material.color(Material.Cyan, Material.Shade800)
+                    radius: canvasPopup.buttonRadius
+                    highlighted: true
+                    onClicked: {
+                        saveCanvas()
 
-                        Material.accent: Material.color(Material.Cyan, Material.Shade800)
-                        radius: canvasPopup.buttonRadius
-                        highlighted: true
-                        onClicked: {
-                            saveCanvas()
-
-                            printCopyCountButton.value = 1
-                            printPopup.open()
-                        }
+                        printCopyCountButton.value = 1
+                        printPopup.open()
                     }
-
-                    RoundButton {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.fillWidth: true
-                        text: qsTr("Email")
-                        icon.source: "qrc:/svg/envelope-solid"
-                        icon.width: iconSize
-                        icon.height: iconSize
-                        font.capitalization: Font.MixedCase
-                        display: AbstractButton.TextUnderIcon
-
-                        Material.accent: Material.color(Material.Orange, Material.Shade800)
-                        radius: canvasPopup.buttonRadius
-                        highlighted: true
-                        onClicked: {
-                            console.log("[CanvasPopup]", "Email button pressed")
-                            emailPopup.open()
-                            emailTextField.forceActiveFocus()
-                        }
-                    }
-
-                    RoundButton {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.fillWidth: true
-                        text: qsTr("SMS")
-                        icon.source: "qrc:/svg/sms-solid"
-                        icon.width: iconSize
-                        icon.height: iconSize
-        //                font.capitalization: Font.MixedCase
-                        display: AbstractButton.TextUnderIcon
-
-                        Material.accent: Material.color(Material.Yellow, Material.Shade800)
-                        radius: canvasPopup.buttonRadius
-                        highlighted: true
-                        onClicked: {
-                            smsPopup.open()
-                        }
-                    }
-
-
-
-                    RoundButton {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.fillWidth: true
-                        id: closeButton
-                        text: "Close (" + closingTime + ")"
-                        icon.source: "qrc:/svg/times-solid"
-                        icon.width: iconSize
-                        icon.height: iconSize
-        //                font.capitalization: Font.MixedCase
-                        display: AbstractButton.TextUnderIcon
-
-                        Material.accent: Material.color(Material.Grey, Material.Shade800)
-                        radius: canvasPopup.buttonRadius
-                        highlighted: true
-
-                        property int closingTime: 40
-                        Timer {
-                            id: closingTimer
-                            interval: 1000
-                            running: parent.closingTime > 0
-                            repeat: true
-                            onTriggered: {
-                                parent.closingTime -= 1
-
-                                if (parent.closingTime < 1) {
-                                    canvasPopup.close()
-                                }
-                            }
-                        }
-
-                        onClicked: {
-                            canvasPopup.close()
-                        }
-                    }
-
-
-
                 }
 
-                RowLayout {
+                RoundButton {
+                    Layout.alignment: Qt.AlignHCenter
                     Layout.fillWidth: true
+                    text: qsTr("Email")
+                    icon.source: "qrc:/svg/envelope-solid"
+                    icon.width: iconSize
+                    icon.height: iconSize
+//                    font.capitalization: Font.MixedCase
+//                        display: AbstractButton.TextUnderIcon
 
-                    RoundButton {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.fillWidth: true
-                        icon.source: "qrc:/svg/paint-brush-solid"
-                        icon.width: iconSize
-                        icon.height: iconSize
-                        text: qsTr("Brush")
-                        radius: buttonRadius
-                        display: AbstractButton.TextUnderIcon
-                        highlighted: true
-                        Material.accent: Material.color(Material.Pink, Material.Shade800)
+                    Material.accent: Material.color(Material.Orange, Material.Shade800)
+                    radius: canvasPopup.buttonRadius
+                    highlighted: true
+                    onClicked: {
+                        console.log("[CanvasPopup]", "Email button pressed")
+                        emailPopup.open()
+                        emailTextField.forceActiveFocus()
+                    }
+                }
 
-                        onClicked: {
-                            brushPopup.open()
+                RoundButton {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    text: qsTr("SMS")
+                    icon.source: "qrc:/svg/sms-solid"
+                    icon.width: iconSize
+                    icon.height: iconSize
+    //                font.capitalization: Font.MixedCase
+//                        display: AbstractButton.TextUnderIcon
+
+                    Material.accent: Material.color(Material.Yellow, Material.Shade800)
+                    radius: canvasPopup.buttonRadius
+                    highlighted: true
+                    onClicked: {
+                        smsPopup.open()
+                    }
+                }
+
+
+
+                RoundButton {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    id: closeButton
+                    text: "Close (" + closingTime + ")"
+                    icon.source: "qrc:/svg/times-solid"
+                    icon.width: iconSize
+                    icon.height: iconSize
+    //                font.capitalization: Font.MixedCase
+//                        display: AbstractButton.TextUnderIcon
+
+                    Material.accent: Material.color(Material.Grey, Material.Shade800)
+                    radius: canvasPopup.buttonRadius
+                    highlighted: true
+
+                    property int closingTime: 40
+                    Timer {
+                        id: closingTimer
+                        interval: 1000
+                        running: parent.closingTime > 0
+                        repeat: true
+                        onTriggered: {
+                            parent.closingTime -= 1
+
+                            if (parent.closingTime < 1) {
+                                canvasPopup.close()
+                            }
                         }
                     }
 
-                    RoundButton {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.fillWidth: true
-                        icon.source: "qrc:/svg/smile-solid"
-                        icon.width: iconSize
-                        icon.height: iconSize
-                        text: qsTr("Emoji")
-                        radius: buttonRadius
-                        display: AbstractButton.TextUnderIcon
-                        highlighted: true
-                        Material.accent: Material.color(Material.Indigo, Material.Shade800)
-
-                        onClicked: {
-                            emojiPopup.open()
-                        }
+                    onClicked: {
+                        canvasPopup.close()
                     }
-
-                    RoundButton {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.fillWidth: true
-                        text: "Save"
-                        icon.source: "qrc:/svg/save-solid"
-                        icon.width: iconSize
-                        icon.height: iconSize
-                        display: AbstractButton.TextUnderIcon
+                }
 
 
-                        radius: canvasPopup.buttonRadius
-                        highlighted: true
-                        Material.accent: Material.color(Material.Green, Material.Shade800)
 
-                        onClicked: {
-                            saveCanvas()
-                        }
+            }
+
+            Row {
+                anchors.horizontalCenter: parent.horizontalCenter
+                Layout.fillWidth: true
+
+                RoundButton {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    icon.source: "qrc:/svg/paint-brush-solid"
+                    icon.width: iconSize
+                    icon.height: iconSize
+                    text: qsTr("Brush")
+                    radius: buttonRadius
+//                        display: AbstractButton.TextUnderIcon
+                    highlighted: true
+                    Material.accent: Material.color(Material.Pink, Material.Shade800)
+
+                    onClicked: {
+                        colorPopup.open()
                     }
+                }
 
-                    RoundButton {
-                        Layout.alignment: Qt.AlignHCenter
-                        Layout.fillWidth: true
-                        text: "Clear"
-                        icon.source: "qrc:/svg/eraser-solid"
-                        icon.width: iconSize
-                        icon.height: iconSize
-        //                icon.color: Material.color(Material.Red, Material.Shade700)
-        //                font.capitalization: Font.MixedCase
-                        display: AbstractButton.TextUnderIcon
+                RoundButton {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    icon.source: "qrc:/svg/smile-solid"
+                    icon.width: iconSize
+                    icon.height: iconSize
+                    text: qsTr("Emoji")
+                    radius: buttonRadius
+//                        display: AbstractButton.TextUnderIcon
+                    highlighted: true
+                    Material.accent: Material.color(Material.Indigo, Material.Shade800)
 
-                        highlighted: true
-                        Material.accent: Material.color(Material.Red, Material.Shade800)
-                        radius: canvasPopup.buttonRadius
-                        onClicked: {
-                            canvas.clearRect = true
-
-                        }
+                    onClicked: {
+                        emojiPopup.open()
                     }
+                }
+
+                RoundButton {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    text: "Save"
+                    icon.source: "qrc:/svg/save-solid"
+                    icon.width: iconSize
+                    icon.height: iconSize
+//                        display: AbstractButton.TextUnderIcon
 
 
+                    radius: canvasPopup.buttonRadius
+                    highlighted: true
+                    Material.accent: Material.color(Material.Green, Material.Shade800)
+
+                    onClicked: {
+                        saveCanvas()
+                    }
+                }
+
+                RoundButton {
+                    Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    text: "Clear"
+                    icon.source: "qrc:/svg/eraser-solid"
+                    icon.width: iconSize
+                    icon.height: iconSize
+    //                icon.color: Material.color(Material.Red, Material.Shade700)
+    //                font.capitalization: Font.MixedCase
+//                        display: AbstractButton.TextUnderIcon
+
+                    highlighted: true
+                    Material.accent: Material.color(Material.Red, Material.Shade800)
+                    radius: canvasPopup.buttonRadius
+                    onClicked: {
+                        canvas.clearRect = true
+
+                    }
                 }
 
 
             }
 
+
         }
+
 
 
         Image {
@@ -892,7 +895,7 @@ Popup {
             id: image
             fillMode: Image.PreserveAspectFit
             width: parentWidth
-            height: width / photoAspectRatio
+            height: settings.portraitModeSwitch ? width / photoAspectRatio : width * photoAspectRatio
 
 //            anchors.fill: parent
 

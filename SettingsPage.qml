@@ -445,7 +445,6 @@ Item {
                     id: keypad
                     visible: false
                     Layout.fillWidth: true
-
                 }
 
 
